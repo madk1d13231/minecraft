@@ -117,13 +117,13 @@ body {
   font-size: 14px;
 }
 
-/* Строка с фильтрами и кнопкой */
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+/* Фильтры и кнопка на одной линии */
+.filter-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
 }
 
 .filter-group {
@@ -150,23 +150,23 @@ body {
   font-weight: bold;
 }
 
-/* Кнопка «Обновить онлайн» */
+/* Компактная встроенная кнопка */
 .refresh-btn {
-  padding: 8px 16px;
-  background: #21262d;
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: var(--primary);
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
+  padding: 8px 14px !important;
+  background: #0d1117 !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--primary) !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  white-space: nowrap !important;
 }
 
 .refresh-btn:hover {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: var(--primary);
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: var(--primary) !important;
 }
 
 .sort-box {
@@ -186,7 +186,7 @@ body {
   cursor: pointer;
 }
 
-/* Карточки серверов */
+/* Список серверов */
 .server-list {
   display: flex;
   flex-direction: column;
@@ -280,9 +280,9 @@ body {
   .copy-btn {
     width: 100%;
   }
-  .toolbar {
+  .filter-row {
     flex-direction: column;
-    align-items: stretch;
+    align-items: stretch !important;
   }
   .refresh-btn {
     width: 100%;
