@@ -3,31 +3,81 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мониторинг серверов</title>
-  <link rel="stylesheet" href="style.css?v=1000">
+  <title>Мониторинг серверов Minecraft</title>
+  <link rel="stylesheet" href="style.css?v=2000">
 </head>
 <body>
 
-  <!-- Основной контейнер сайта -->
   <div class="container">
-    <header>
-      <h1>Мониторинг серверов</h1>
-    </header>
+    <div class="header">
+      <div class="logo-badge">MINECRAFT SERVERS</div>
+      <h1>Мониторинг серверов Minecraft</h1>
+      <p class="subtitle">Найди лучший сервер для игры прямо сейчас</p>
+    </div>
 
-    <!-- Сюда JavaScript автоматически загружает список серверов -->
+    <div id="admin-panel" class="admin-panel" style="display: none;">
+      <h3 id="form-title">⚙️ Добавить новый сервер</h3>
+      <div class="admin-form-grid">
+        <input type="text" id="admin-name" placeholder="Название сервера (напр. Hypixel)">
+        <input type="text" id="admin-ip" placeholder="IP адрес (напр. play.hypixel.net:25565)">
+        <select id="admin-region">
+          <option value="СНГ">СНГ 🇷🇺</option>
+          <option value="США">США 🇺🇸</option>
+          <option value="Европа">Европа 🇪🇺</option>
+        </select>
+        <input type="number" id="admin-rating" placeholder="Рейтинг (от 1.0 до 5.0)" step="0.1" min="1" max="5" value="5.0">
+        <input type="text" id="admin-mode" placeholder="Режимы (напр. BedWars / SkyWars)">
+        <textarea id="admin-desc" placeholder="Описание сервера..." rows="2"></textarea>
+        
+        <div style="display: flex; gap: 10px; grid-column: 1 / -1;">
+          <button id="admin-submit-btn" class="admin-add-btn" style="flex: 2;" onclick="saveServerData()">➕ Добавить сервер</button>
+          <button id="admin-cancel-btn" class="refresh-btn" style="flex: 1; display: none; background: #da3633;" onclick="cancelEditMode()">Отмена</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Поиск по названию или режиму..." 
+          oninput="handleSearch()"
+        >
+      </div>
+
+      <div class="filter-row">
+        <div class="filter-group">
+          <button class="filter-btn active" onclick="filterRegion('ALL', this)">Все регионы</button>
+          <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ <span style="font-size:10px; opacity:0.7">RU</span></button>
+          <button class="filter-btn" onclick="filterRegion('США', this)">США <span style="font-size:10px; opacity:0.7">US</span></button>
+          <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа <span style="font-size:10px; opacity:0.7">EU</span></button>
+        </div>
+        <button class="refresh-btn" onclick="updateOnlineStatus()">Обновить онлайн</button>
+      </div>
+
+      <div class="sort-box">
+        <label for="sort-select">Сортировка:</label>
+        <select id="sort-select" onchange="handleSortChange(this.value)">
+          <option value="rating-desc">★ Сначала высокий рейтинг</option>
+          <option value="rating-asc">★ Сначала низкий рейтинг</option>
+          <option value="name">По алфавиту</option>
+        </select>
+      </div>
+    </div>
+
     <div id="server-list" class="server-list"></div>
 
-    <!-- Секция отзывов о сайте -->
     <div class="site-reviews-section">
       <h2>💬 Отзывы о мониторинге</h2>
       <div class="add-site-review-form">
         <input type="text" id="site-author" placeholder="Ваше имя" maxlength="20">
         <select id="site-stars">
-          <option value="5">⭐ 5 (Отличный сайт)</option>
-          <option value="4">⭐ 4 (Хороший сайт)</option>
-          <option value="3">⭐ 3 (Нормально)</option>
-          <option value="2">⭐ 2 (Плохо)</option>
-          <option value="1">⭐ 1 (Ужасно)</option>
+          <option value="5">★ 5 (Отличный сайт)</option>
+          <option value="4">★ 4 (Хороший сайт)</option>
+          <option value="3">★ 3 (Нормально)</option>
+          <option value="2">★ 2 (Плохо)</option>
+          <option value="1">★ 1 (Ужасно)</option>
         </select>
         <textarea id="site-text" placeholder="Напишите отзыв о нашем сайте..." rows="3"></textarea>
         <button class="submit-btn" onclick="submitSiteReview()">Оставить отзыв</button>
@@ -36,10 +86,8 @@
     </div>
   </div>
 
-  <!-- Подключение основного скрипта -->
-  <script src="script.js?v=1000"></script>
+  <script src="script.js?v=2000"></script>
 
-  <!-- Кнопка входа администратора в нижнем левом углу -->
   <div style="position: fixed; bottom: 15px; left: 15px; z-index: 9999;">
     <button id="admin-auth-btn" onclick="toggleAdminMode()" style="background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚙️ Админ</button>
   </div>
