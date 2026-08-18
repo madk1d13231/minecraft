@@ -1,7 +1,9 @@
 // Защищенный пароль администратора
 const ADMIN_PASSWORD = "qwe12345tyu124";
-let isAdmin = false;
-let editingServerIp = null; // IP сервера, который сейчас редактируется (заменяется)
+
+// По умолчанию права администратора ВСЕГДА отключены для всех
+let isAdmin = false; 
+let editingServerIp = null;
 
 function getStoredServers() {
   try {
@@ -67,14 +69,18 @@ function getStoredReviews() {
   }
 }
 
-// Функция проверки пароля и включения режима админа
+// Запрос пароля через кнопку в левом нижнем углу
 function toggleAdminMode() {
   if (isAdmin) {
     isAdmin = false;
     editingServerIp = null;
-    document.getElementById('admin-panel').style.display = 'none';
-    document.getElementById('admin-auth-btn').style.background = '#21262d';
-    document.getElementById('admin-auth-btn').style.color = '#8b949e';
+    const panel = document.getElementById('admin-panel');
+    const btn = document.getElementById('admin-auth-btn');
+    if (panel) panel.style.display = 'none';
+    if (btn) {
+      btn.style.background = '#21262d';
+      btn.style.color = '#8b949e';
+    }
     renderServers();
     alert('Вы вышли из режима администратора');
     return;
@@ -83,9 +89,13 @@ function toggleAdminMode() {
   const pass = prompt('Введите пароль администратора:');
   if (pass === ADMIN_PASSWORD) {
     isAdmin = true;
-    document.getElementById('admin-panel').style.display = 'block';
-    document.getElementById('admin-auth-btn').style.background = '#238636';
-    document.getElementById('admin-auth-btn').style.color = '#ffffff';
+    const panel = document.getElementById('admin-panel');
+    const btn = document.getElementById('admin-auth-btn');
+    if (panel) panel.style.display = 'block';
+    if (btn) {
+      btn.style.background = '#238636';
+      btn.style.color = '#ffffff';
+    }
     renderServers();
     alert('Успешный вход в режим администратора!');
   } else if (pass !== null) {
@@ -93,7 +103,6 @@ function toggleAdminMode() {
   }
 }
 
-// Добавление или Замена сервера
 function saveServerData() {
   if (!isAdmin) {
     alert("Доступ запрещен!");
@@ -115,7 +124,6 @@ function saveServerData() {
   const flags = { 'СНГ': '🇷🇺', 'США': '🇺🇸', 'Европа': '🇪🇺' };
 
   if (editingServerIp) {
-    // Режим замены существующего сервера
     servers = servers.map(s => {
       if (s.ip === editingServerIp) {
         return {
@@ -133,7 +141,6 @@ function saveServerData() {
     alert("Сервер успешно заменён!");
     cancelEditMode();
   } else {
-    // Режим добавления нового
     servers.unshift({
       ip: ip,
       name: name,
@@ -151,10 +158,8 @@ function saveServerData() {
   renderServers();
 }
 
-// Подготовка формы для редактирования (замены)
 function editServer(ip) {
   if (!isAdmin) return;
-
   const server = servers.find(s => s.ip === ip);
   if (!server) return;
 
@@ -189,7 +194,6 @@ function clearForm() {
   document.getElementById('admin-rating').value = '5.0';
 }
 
-// Удаление сервера
 function deleteServer(ip) {
   if (!isAdmin) {
     alert("У вас нет прав!");
@@ -203,7 +207,6 @@ function deleteServer(ip) {
   }
 }
 
-// Отрисовка списка серверов
 function renderServers() {
   const container = document.getElementById('server-list');
   if (!container) return;
@@ -235,7 +238,7 @@ function renderServers() {
     const serverReviews = reviewsData[s.ip] || [];
     const safeIpId = s.ip.replace(/[^a-zA-Z0-9]/g, '');
 
-    // Кнопки редактирования (замены) и удаления видны ТОЛЬКО администратору
+    // Кнопки Заменить и Удалить рендерятся СТРОГО ЕСЛИ isAdmin === true
     const adminActionsHtml = isAdmin ? `
       <button class="review-btn" style="background: #238636;" onclick="editServer('${s.ip}')">✏️ Заменить</button>
       <button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>
@@ -335,91 +338,3 @@ function getSiteReviews() {
     const data = localStorage.getItem('mc_website_reviews');
     return data ? JSON.parse(data) : [];
   } catch (e) {
-    return [];
-  }
-}
-
-function renderSiteReviews() {
-  const container = document.getElementById('site-reviews-list');
-  if (!container) return;
-
-  const reviews = getSiteReviews();
-
-  if (reviews.length === 0) {
-    container.innerHTML = '<p class="no-reviews">Пока нет отзывов о сайте. Будьте первым!</p>';
-    return;
-  }
-
-  container.innerHTML = reviews.map(r => `
-    <div class="review-item">
-      <div class="review-header">
-        <span class="review-author">${r.author}</span>
-        <span class="review-stars">${'★'.repeat(r.stars)}</span>
-        <span class="review-date">${r.date}</span>
-      </div>
-      <div class="review-text">${r.text}</div>
-    </div>
-  `).join('');
-}
-
-function submitSiteReview() {
-  const authorInput = document.getElementById('site-author');
-  const starsSelect = document.getElementById('site-stars');
-  const textInput = document.getElementById('site-text');
-
-  const text = textInput ? textInput.value.trim() : '';
-  if (!text) {
-    alert('Пожалуйста, напишите отзыв!');
-    return;
-  }
-
-  const reviews = getSiteReviews();
-  reviews.unshift({
-    author: (authorInput && authorInput.value.trim()) || 'Посетитель',
-    stars: starsSelect ? parseInt(starsSelect.value) : 5,
-    text: text,
-    date: new Date().toLocaleDateString('ru-RU')
-  });
-
-  localStorage.setItem('mc_website_reviews', JSON.stringify(reviews));
-
-  if (textInput) textInput.value = '';
-  if (authorInput) authorInput.value = '';
-  renderSiteReviews();
-}
-
-function filterRegion(region, btn) {
-  activeRegion = region;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderServers();
-}
-
-function handleSearch() {
-  const input = document.getElementById('search-input');
-  searchQuery = input ? input.value : '';
-  renderServers();
-}
-
-function handleSortChange(val) {
-  currentSort = val;
-  renderServers();
-}
-
-function updateOnlineStatus() {
-  alert('Онлайн серверов обновлён!');
-}
-
-function copyIp(ip, btn) {
-  navigator.clipboard.writeText(ip);
-  if (btn) {
-    const oldText = btn.innerText;
-    btn.innerText = 'Скопировано!';
-    setTimeout(() => btn.innerText = oldText, 1500);
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  renderServers();
-  renderSiteReviews();
-});
