@@ -1,6 +1,10 @@
+// Защищенный пароль администратора
 const PASSWORD = "qwe12345tyu124";
 
-// Полный список серверов по всему миру
+let isAdmin = false;
+let editingServerIp = null;
+
+// Полный список серверов со всего мира
 let allServers = [
     { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Крупнейший мировой сервер с огромным онлайном и мини-играми (BedWars, SkyWars)." },
     { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды", desc: "Крупнейший проект с индустриальными и магическими модами и мирным развитием." },
@@ -25,18 +29,28 @@ function render(serversToRender = allServers) {
         return;
     }
 
-    list.innerHTML = serversToRender.map(s => `
-        <div class="card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; color: #c9d1d9;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0; color: #58a6ff;">${s.name}</h3>
-                <span style="background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px;">${s.flag} ${s.region}</span>
+    list.innerHTML = serversToRender.map(s => {
+        let adminButtons = isAdmin ? `
+            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                <button onclick="editServer('${s.ip}')" style="background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">✏️ Изменить</button>
+                <button onclick="deleteServer('${s.ip}')" style="background: #da3633; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Удалить</button>
             </div>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>IP:</strong> <code>${s.ip}</code></p>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>Режим:</strong> ${s.mode}</p>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>Рейтинг:</strong> ★ ${s.rating} | <strong>Онлайн:</strong> 👥 ${s.online}</p>
-            <p style="margin: 8px 0 0 0; font-size: 13px; color: #8b949e;">${s.desc}</p>
-        </div>
-    `).join("");
+        ` : '';
+
+        return `
+            <div class="card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; color: #c9d1d9;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h3 style="margin: 0; color: #58a6ff;">${s.name}</h3>
+                    <span style="background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px;">${s.flag} ${s.region}</span>
+                </div>
+                <p style="margin: 4px 0; font-size: 14px;"><strong>IP:</strong> <code>${s.ip}</code></p>
+                <p style="margin: 4px 0; font-size: 14px;"><strong>Режим:</strong> ${s.mode}</p>
+                <p style="margin: 4px 0; font-size: 14px;"><strong>Рейтинг:</strong> ★ ${s.rating} | <strong>Онлайн:</strong> 👥 ${s.online}</p>
+                <p style="margin: 8px 0 0 0; font-size: 13px; color: #8b949e;">${s.desc}</p>
+                ${adminButtons}
+            </div>
+        `;
+    }).join("");
 }
 
 function filterByMode(modeName) {
@@ -50,12 +64,41 @@ function resetFilter() {
     render(allServers);
 }
 
+// Проверка пароля и включение админки
 function checkAdmin() {
+    if (isAdmin) {
+        isAdmin = false;
+        alert("Вы вышли из режима администратора.");
+        render(currentFilter ? allServers.filter(s => s.mode.toLowerCase().includes(currentFilter.toLowerCase())) : allServers);
+        return;
+    }
+
     let pass = prompt("Введите пароль администратора:");
     if (pass === PASSWORD) {
-        alert("Успешный вход в режим администратора!");
+        isAdmin = true;
+        alert("Успешный вход в режим администратора! Теперь вам доступны кнопки управления серверами.");
+        render(currentFilter ? allServers.filter(s => s.mode.toLowerCase().includes(currentFilter.toLowerCase())) : allServers);
     } else if (pass !== null) {
         alert("Неверный пароль!");
+    }
+}
+
+function deleteServer(ip) {
+    if (!isAdmin) return;
+    if (confirm(`Удалить сервер ${ip}?`)) {
+        allServers = allServers.filter(s => s.ip !== ip);
+        render(allServers);
+    }
+}
+
+function editServer(ip) {
+    if (!isAdmin) return;
+    let s = allServers.find(item => item.ip === ip);
+    if (!s) return;
+    let newName = prompt("Новое название сервера:", s.name);
+    if (newName) {
+        s.name = newName;
+        render(allServers);
     }
 }
 
