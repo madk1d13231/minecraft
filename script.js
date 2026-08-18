@@ -1,4 +1,8 @@
-// Загрузка списка серверов (из localStorage или по умолчанию)
+// Защищенный пароль администратора
+const ADMIN_PASSWORD = "qwe12345tyu124";
+let isAdmin = false;
+let editingServerIp = null; // IP сервера, который сейчас редактируется (заменяется)
+
 function getStoredServers() {
   try {
     const data = localStorage.getItem('mc_custom_servers');
@@ -63,8 +67,39 @@ function getStoredReviews() {
   }
 }
 
-// Добавление нового сервера
-function addNewServer() {
+// Функция проверки пароля и включения режима админа
+function toggleAdminMode() {
+  if (isAdmin) {
+    isAdmin = false;
+    editingServerIp = null;
+    document.getElementById('admin-panel').style.display = 'none';
+    document.getElementById('admin-auth-btn').style.background = '#21262d';
+    document.getElementById('admin-auth-btn').style.color = '#8b949e';
+    renderServers();
+    alert('Вы вышли из режима администратора');
+    return;
+  }
+
+  const pass = prompt('Введите пароль администратора:');
+  if (pass === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.getElementById('admin-panel').style.display = 'block';
+    document.getElementById('admin-auth-btn').style.background = '#238636';
+    document.getElementById('admin-auth-btn').style.color = '#ffffff';
+    renderServers();
+    alert('Успешный вход в режим администратора!');
+  } else if (pass !== null) {
+    alert('Неверный пароль!');
+  }
+}
+
+// Добавление или Замена сервера
+function saveServerData() {
+  if (!isAdmin) {
+    alert("Доступ запрещен!");
+    return;
+  }
+
   const name = document.getElementById('admin-name').value.trim();
   const ip = document.getElementById('admin-ip').value.trim();
   const region = document.getElementById('admin-region').value;
@@ -79,28 +114,88 @@ function addNewServer() {
 
   const flags = { 'СНГ': '🇷🇺', 'США': '🇺🇸', 'Европа': '🇪🇺' };
 
-  servers.unshift({
-    ip: ip,
-    name: name,
-    region: region,
-    flag: flags[region] || '🌐',
-    mode: mode,
-    rating: rating,
-    desc: desc || "Описание отсутствует."
-  });
+  if (editingServerIp) {
+    // Режим замены существующего сервера
+    servers = servers.map(s => {
+      if (s.ip === editingServerIp) {
+        return {
+          ip: ip,
+          name: name,
+          region: region,
+          flag: flags[region] || '🌐',
+          mode: mode,
+          rating: rating,
+          desc: desc || "Описание отсутствует."
+        };
+      }
+      return s;
+    });
+    alert("Сервер успешно заменён!");
+    cancelEditMode();
+  } else {
+    // Режим добавления нового
+    servers.unshift({
+      ip: ip,
+      name: name,
+      region: region,
+      flag: flags[region] || '🌐',
+      mode: mode,
+      rating: rating,
+      desc: desc || "Описание отсутствует."
+    });
+    alert("Сервер успешно добавлен!");
+    clearForm();
+  }
 
   saveServers();
   renderServers();
+}
 
+// Подготовка формы для редактирования (замены)
+function editServer(ip) {
+  if (!isAdmin) return;
+
+  const server = servers.find(s => s.ip === ip);
+  if (!server) return;
+
+  document.getElementById('admin-name').value = server.name;
+  document.getElementById('admin-ip').value = server.ip;
+  document.getElementById('admin-region').value = server.region;
+  document.getElementById('admin-rating').value = server.rating;
+  document.getElementById('admin-mode').value = server.mode;
+  document.getElementById('admin-desc').value = server.desc;
+
+  editingServerIp = ip;
+  document.getElementById('form-title').innerText = `⚙️ Заменить сервер (${ip})`;
+  document.getElementById('admin-submit-btn').innerText = '💾 Сохранить изменения';
+  document.getElementById('admin-cancel-btn').style.display = 'block';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelEditMode() {
+  editingServerIp = null;
+  document.getElementById('form-title').innerText = '⚙️ Добавить новый сервер';
+  document.getElementById('admin-submit-btn').innerText = '➕ Добавить сервер';
+  document.getElementById('admin-cancel-btn').style.display = 'none';
+  clearForm();
+}
+
+function clearForm() {
   document.getElementById('admin-name').value = '';
   document.getElementById('admin-ip').value = '';
   document.getElementById('admin-mode').value = '';
   document.getElementById('admin-desc').value = '';
-  alert("Сервер успешно добавлен!");
+  document.getElementById('admin-rating').value = '5.0';
 }
 
 // Удаление сервера
 function deleteServer(ip) {
+  if (!isAdmin) {
+    alert("У вас нет прав!");
+    return;
+  }
+
   if (confirm(`Удалить сервер ${ip}?`)) {
     servers = servers.filter(s => s.ip !== ip);
     saveServers();
@@ -108,7 +203,7 @@ function deleteServer(ip) {
   }
 }
 
-// Отрисовка серверов
+// Отрисовка списка серверов
 function renderServers() {
   const container = document.getElementById('server-list');
   if (!container) return;
@@ -140,6 +235,12 @@ function renderServers() {
     const serverReviews = reviewsData[s.ip] || [];
     const safeIpId = s.ip.replace(/[^a-zA-Z0-9]/g, '');
 
+    // Кнопки редактирования (замены) и удаления видны ТОЛЬКО администратору
+    const adminActionsHtml = isAdmin ? `
+      <button class="review-btn" style="background: #238636;" onclick="editServer('${s.ip}')">✏️ Заменить</button>
+      <button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>
+    ` : '';
+
     return `
       <div class="server-card">
         <div class="server-main">
@@ -155,7 +256,7 @@ function renderServers() {
           </div>
 
           <div class="card-actions">
-            <button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>
+            ${adminActionsHtml}
             <button class="review-btn" onclick="toggleReviews('${safeIpId}')">
               💬 Отзывы (${serverReviews.length})
             </button>
