@@ -1,52 +1,62 @@
-const PASSWORD = "qwe12345tyu124";
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мониторинг серверов Minecraft</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; font-family: Arial, sans-serif; padding: 20px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; }
+        h3 { margin: 0 0 8px 0; color: #58a6ff; }
+        p { margin: 4px 0; font-size: 14px; }
+        .desc { color: #8b949e; font-size: 13px; margin-top: 8px; }
+        #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Мониторинг серверов Minecraft</h1>
+        <p style="color: #8b949e;">Список лучших серверов со всего мира</p>
+        <div id="server-list" style="margin-top: 20px;"></div>
+    </div>
 
-// Полный список серверов по всему миру
-let servers = [
-    // --- СНГ (Россия, Украина, Беларусь) ---
-    { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды / HiTech / Magic", desc: "Крупнейший проект с индустриальными и магическими модами." },
-    { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия / Гриф", desc: "Популярный гриферский проект с кастомными предметами." },
-    { name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами." },
-    { name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Гриф / Анархия", desc: "Один из самых известных анархических серверов СНГ." },
-    { name: "LastCraft", ip: "mc.lastcraft.net", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 950, mode: "BedWars / SkyWars", desc: "Классические мини-игры и аркады на русском языке." },
-    { name: "DexLand", ip: "play.dexland.su", region: "СНГ", flag: "🇷🇺", rating: 4.4, online: 600, mode: "Выживание / Гриф", desc: "Уютный сервер с экономикой и кланами." },
-    
-    // --- США / Северная Америка ---
-    { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars / SkyBlock", desc: "Крупнейший мировой сервер с огромным онлайном и мини-играми." },
-    { name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "Prison / Economy", desc: "Легендарная тюрьма с развитой экономикой и шахтами." },
-    { name: "VeltMC", ip: "hub.velt.pvp", region: "США", flag: "🇺🇸", rating: 4.6, online: 1500, mode: "Factions / Practice", desc: "Классический PvP сервер для тренировок и клановых войн." },
-    { name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "EggWars / SkyWars", desc: "Популярный международный сервер с уникальным дизайном." },
+    <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
 
-    // --- Европа ---
-    { name: "Mineplex EU", ip: "eu.mineplex.com", region: "Европа", flag: "🇪🇺", rating: 4.3, online: 800, mode: "Minigames", desc: "Европейское зеркало знаменитой сети мини-игр." },
-    { name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars / SkyWars", desc: "Крупнейший немецкий и европейский проект." },
-    { name: "Paladium", ip: "paladium-pvp.fr", region: "Европа", flag: "🇫🇷", rating: 4.7, online: 3400, mode: "Modded / Factions", desc: "Знаменитый французский мод-сервер со своей уникальной сборкой." }
-];
+    <script>
+        const PASSWORD = "qwe12345tyu124";
+        let allServers = [
+            { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с мини-играми." },
+            { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды", desc: "Крупнейший проект с модами." },
+            { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер." },
+            { name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с ивентами." }
+        ];
 
-function render() {
-    let list = document.getElementById("server-list");
-    if (!list) return;
-    
-    list.innerHTML = servers.map(s => `
-        <div class="card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; color: #c9d1d9;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin: 0; color: #58a6ff;">${s.name}</h3>
-                <span style="background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px;">${s.flag} ${s.region}</span>
-            </div>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>IP:</strong> ${s.ip}</p>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>Режим:</strong> ${s.mode}</p>
-            <p style="margin: 4px 0; font-size: 14px;"><strong>Рейтинг:</strong> ★ ${s.rating} | <strong>Онлайн:</strong> 👥 ${s.online}</p>
-            <p style="margin: 8px 0 0 0; font-size: 13px; color: #8b949e;">${s.desc}</p>
-        </div>
-    `).join("");
-}
+        function render() {
+            let list = document.getElementById("server-list");
+            if (!list) return;
+            
+            list.innerHTML = allServers.map(s => `
+                <div class="card">
+                    <h3>${s.name} (${s.flag} ${s.region})</h3>
+                    <p><strong>IP:</strong> ${s.ip}</p>
+                    <p><strong>Режим:</strong> ${s.mode}</p>
+                    <p><strong>Рейтинг:</strong> ★ ${s.rating} | <strong>Онлайн:</strong> ${s.online}</p>
+                    <p class="desc">${s.desc}</p>
+                </div>
+            `).join("");
+        }
 
-function checkAdmin() {
-    let pass = prompt("Введите пароль администратора:");
-    if (pass === PASSWORD) {
-        alert("Успешный вход в режим администратора!");
-    } else if (pass !== null) {
-        alert("Неверный пароль!");
-    }
-}
+        function checkAdmin() {
+            let pass = prompt("Введите пароль администратора:");
+            if (pass === PASSWORD) {
+                alert("Успешный вход в режим администратора!");
+            } else if (pass !== null) {
+                alert("Неверный пароль!");
+            }
+        }
 
-render();
+        render();
+    </script>
+</body>
+</html>
