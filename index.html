@@ -1,26 +1,23 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" translate="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="google" content="notranslate">
   <title>Minecraft Server Discovery Portal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
-  <div class="background-glow"></div>
-
-  <main class="container">
+  <div class="container" translate="no">
+    <!-- Шапка -->
     <header class="header">
-      <div class="logo-badge">MINECRAFT MONITORING</div>
+      <div class="logo-badge">MINECRAFT MONITORING v2.0</div>
       <h1>Глобальный поиск серверов</h1>
       <p class="subtitle">Найди идеальный сервер: Анархия, RolePlay, Моды, BedWars и Выживание</p>
     </header>
 
-    <!-- Блок со справочником всех режимов -->
+    <!-- Справочник режимов -->
     <section class="modes-guide">
       <h2>🎮 Доступные режимы на серверах</h2>
       <div class="modes-grid">
@@ -40,12 +37,12 @@
           <p>Хаос без правил, зазипованные миры, взрывы баз, клановые войны и кастомные аирдропы.</p>
         </div>
         <div class="mode-card">
-          <div class="mode-icon">🛏️</div>
+          <div class="mode-icon">⚔️</div>
           <h3>BedWars & SkyWars</h3>
           <p>Защита кроватей, битвы на небесных островах и динамичный командный паркур.</p>
         </div>
         <div class="mode-card">
-          <div class="mode-icon">🏡</div>
+          <div class="mode-icon">🏰</div>
           <h3>Мирное выживание</h3>
           <p>Строительство городов (Towny), надежные приваты, экономика и торги без постоянных войн.</p>
         </div>
@@ -57,28 +54,41 @@
       </div>
     </section>
 
-    <!-- Панель фильтров и поиска -->
-    <section class="controls-panel">
+    <!-- Панель управления -->
+    <div class="controls">
       <div class="search-box">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="search-input" placeholder="Поиск по названию или режиму (РП, Моды, BedWars, Анархия)..." oninput="handleSearch()">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Поиск по названию или режиму (РП, Моды, BedWars, Анархия)..." 
+          oninput="handleSearch()"
+        />
       </div>
 
-      <div class="filter-container">
-        <button class="filter-btn active" onclick="filterRegion('ALL', this)">Все регионы</button>
-        <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ 🇷🇺</button>
-        <button class="filter-btn" onclick="filterRegion('США', this)">США 🇺🇸</button>
-        <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа 🇪🇺</button>
+      <div class="filter-row">
+        <div class="filter-group">
+          <button class="filter-btn active" onclick="filterRegion('ALL', this)">Все регионы</button>
+          <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ 🇷🇺</button>
+          <button class="filter-btn" onclick="filterRegion('США', this)">США 🇺🇸</button>
+          <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа 🇪🇺</button>
+        </div>
+
+        <button class="refresh-btn" onclick="updateOnlineStatus()">Обновить онлайн</button>
       </div>
 
-      <button class="btn-refresh" onclick="loadServers()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-        Обновить онлайн
-      </button>
-    </section>
+      <div class="sort-box">
+        <label for="sort-select">Сортировка:</label>
+        <select id="sort-select" onchange="handleSortChange(this.value)">
+          <option value="rating-desc">★ Сначала высокий рейтинг</option>
+          <option value="rating-asc">★ Сначала низкий рейтинг</option>
+          <option value="name">По названию (IP)</option>
+        </select>
+      </div>
+    </div>
 
-    <div id="server-list" class="server-grid"></div>
-  </main>
+    <!-- Контейнер для списка серверов -->
+    <div id="server-list" class="server-list"></div>
+  </div>
 
   <script src="script.js"></script>
 </body>
