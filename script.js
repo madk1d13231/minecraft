@@ -1,3 +1,1 @@
-const PASSWORD = "qwe12345tyu124";
-let allServers = [{name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5, online: 48500, mode: "BedWars", desc: "Главный мировой сервер."}, {name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды", desc: "Крупнейший проект с модами."}];
-function render(){let l=document.getElementById("server-list");if(l)l.innerHTML=allServers.map(s=>`<div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:15px;margin-bottom:12px;color:#c9d1d9;"><h3 style="margin:0 0 8px 0;color:#58a6ff;">${s.name} (${s.flag} ${s.region})</h3><p>IP: ${s.ip}</p><p>Режим: ${s.mode}</p><p>Рейтинг: ★ ${s.rating} | Онлайн: ${s.online}</p><p style="color:#8b949e;font-size:13px;">${s.desc}</p></div>`).join("");}function checkAdmin(){let p=prompt("Введите пароль:");if(p===PASSWORD)alert("Успешно!");else if(p!==null)alert("Неверно!");}render();
+
