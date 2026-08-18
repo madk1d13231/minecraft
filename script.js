@@ -1,145 +1,90 @@
 const serverDatabase = [
-  // --- ROLEPLAY (RP / РП) И ГОРОДА ---
+  { 
+    ip: 'play.hypixel.net', 
+    port: 25565, 
+    region: 'США 🇺🇸', 
+    category: 'BedWars / SkyWars / Royale', 
+    rating: 5.0,
+    description: 'Hypixel — Главный проект с BedWars, SkyWars, Survival Games и SkyBlock.' 
+  },
   { 
     ip: 'subshield.ru', 
     port: 25565, 
     region: 'СНГ 🇷🇺', 
     category: 'RolePlay / Города', 
-    description: 'SubShield — Известный приватный RolePlay сервер: постройка городов, суды, экономика и отыгрыш персонажей.' 
+    rating: 4.9,
+    description: 'SubShield — Известный приватный RolePlay сервер: постройка городов, суды, экономика и отыгрыш.' 
   },
   { 
-    ip: 'mc.hypixel.net', 
-    port: 25565, 
-    region: 'США 🇺🇸', 
-    category: 'Housing / RP', 
-    description: 'Hypixel Housing — Кастомные RP-миры, созданные игроками (школы, города, отели и сюжетные карты).' 
-  },
-
-  // --- МОДЫ & HITECH ---
-  { 
-    ip: 'mc.mcskill.net', 
+    ip: 'mc.funtime.su', 
     port: 25565, 
     region: 'СНГ 🇷🇺', 
-    category: 'Моды / HiTech', 
-    description: 'McSkill — Крупный лаунчерный проект с модами: IndustrialCraft, Thaumcraft, DivineRPG, автошахты и космос.' 
+    category: 'Анархия / Ивенты', 
+    rating: 4.9,
+    description: 'FunTime — Популярная Анархия: аирдропы, клановые битвы за ресурсы, кастомные талисманы и боссы.' 
   },
   { 
     ip: 'cristalix.gg', 
     port: 25565, 
     region: 'СНГ 🇷🇺', 
     category: 'Кастомные Моды / РП', 
-    description: 'Cristalix — Сервер с уникальным клиентом, включающим собственные моды, кастомные мини-игры и РП-режимы.' 
+    rating: 4.8,
+    description: 'Cristalix — Сервер с уникальным клиентом, включающим собственные моды и РП-режимы.' 
   },
   { 
-    ip: 'hub.mc-complex.com', 
+    ip: 'eu.pvp.land', 
     port: 25565, 
-    region: 'США 🇺🇸', 
-    category: 'Pixelmon / Моды', 
-    description: 'Complex Gaming — Топовый международный сервер с модом Pixelmon (покемоны в Minecraft) и Towny.' 
+    region: 'Европа 🇪🇺', 
+    category: 'PvP Тренировка', 
+    rating: 4.6,
+    description: 'PvP Land — Отработка аима, комбо и клик-таймингов на тренировочных ботах и в дуэлях.' 
   },
-
-  // --- АНАРХИЯ И ГРИФ ---
   { 
-    ip: 'mc.funtime.su', 
+    ip: 'minemen.club', 
+    port: 25565, 
+    region: 'Европа 🇪🇺', 
+    category: 'PvP Академия', 
+    rating: 4.8,
+    description: 'Minemen Club — Мировая арена для дуэлей, застройки мостов и улучшения PvP-навыков.' 
+  },
+  { 
+    ip: 'mc.mcskill.net', 
     port: 25565, 
     region: 'СНГ 🇷🇺', 
-    category: 'Анархия / Ивенты', 
-    description: 'FunTime — Популярная Анархия: аирдропы, клановые битвы за ресурсы, кастомные талисманы и боссы.' 
+    category: 'Моды / HiTech', 
+    rating: 4.7,
+    description: 'McSkill — Крупный лаунчерный проект с модами: IndustrialCraft, Thaumcraft и DivineRPG.' 
   },
   { 
     ip: 'mc.reallyworld.ru', 
     port: 25565, 
     region: 'СНГ 🇷🇺', 
     category: 'Анархия / Гриф', 
+    rating: 4.7,
     description: 'ReallyWorld — Гриферский сервер и Анархия с кланами, скупщиком предметов и уникальным оружием.' 
-  },
-  { 
-    ip: 'play.holyworld.ru', 
-    port: 25565, 
-    region: 'СНГ 🇷🇺', 
-    category: 'Анархия', 
-    description: 'HolyWorld — Суровая Анархия с прокачкой умений, кастомными крафтами и ежедневными ивентами.' 
   },
   { 
     ip: '2b2t.org', 
     port: 25565, 
     region: 'США 🇺🇸', 
     category: 'Мировая Анархия', 
+    rating: 4.5,
     description: '2B2T — Старейший анархия-сервер в мире без правил, приватных зон и банов.' 
-  },
-
-  // --- МИНИ-ИГРЫ, BEDWARS, SKYWARS И ROYALE ---
-  { 
-    ip: 'play.hypixel.net', 
-    port: 25565, 
-    region: 'США 🇺🇸', 
-    category: 'BedWars / SkyWars / Royale', 
-    description: 'Hypixel — Главный проект с BedWars, SkyWars, Survival Games (Королевская битва) и SkyBlock.' 
-  },
-  { 
-    ip: 'mc.lastcraft.ru', 
-    port: 25565, 
-    region: 'СНГ 🇷🇺', 
-    category: 'BedWars / Мини-игры', 
-    description: 'LastCraft — СНГ сервер с BedWars, SkyWars, паркуром и классическими мини-играми.' 
-  },
-
-  // --- МИРНОЕ ВЫЖИВАНИЕ ---
-  { 
-    ip: 'mc.dexland.ru', 
-    port: 25565, 
-    region: 'СНГ 🇷🇺', 
-    category: 'Мирное выживание', 
-    description: 'DexLand — Уютное выживание с надежной защитой построек, экономикой и мирной торговлей.' 
-  },
-
-  // --- PVP И ДУЭЛИ ---
-  { 
-    ip: 'eu.pvp.land', 
-    port: 25565, 
-    region: 'Европа 🇪🇺', 
-    category: 'PvP Тренировка', 
-    description: 'PvP Land — Отработка аима, комбо и клик-таймингов на тренировочных ботах и в дуэлях.' 
-  },
-  { 
-    ip: 'minemen.club', 
-    port: 25565, 
-    region: 'США / ЕС 🌐', 
-    category: 'PvP Академия', 
-    description: 'Minemen Club — Мировая арена для дуэлей, застройки мостов и улучшения PvP-навыков.' 
   }
 ];
 
-let loadedServers = [];
+let loadedServers = [...serverDatabase];
 let currentFilter = 'ALL';
 let searchQuery = '';
-
-async function loadServers() {
-  const listDiv = document.getElementById('server-list');
-  listDiv.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 40px;">Синхронизация и проверка статуса серверов...</p>';
-
-  const requests = serverDatabase.map(async (srv) => {
-    try {
-      const response = await fetch(`https://api.mcsrvstat.us/3/${srv.ip}`);
-      const data = await response.json();
-      return {
-        ...srv,
-        online: data.online ? (data.players?.online || 'Онлайн') : 'Доступен'
-      };
-    } catch {
-      return { ...srv, online: 'Доступен' };
-    }
-  });
-
-  loadedServers = await Promise.all(requests);
-  renderServers();
-}
+let currentSort = 'rating-desc';
 
 function renderServers() {
   const listDiv = document.getElementById('server-list');
-  listDiv.innerHTML = '';
+  if (!listDiv) return;
 
-  const filtered = loadedServers.filter(srv => {
+  listDiv.replaceChildren();
+
+  let filtered = loadedServers.filter(srv => {
     const matchesRegion = currentFilter === 'ALL' || srv.region.includes(currentFilter);
     const matchesQuery = srv.ip.toLowerCase().includes(searchQuery) ||
                          srv.category.toLowerCase().includes(searchQuery) ||
@@ -147,34 +92,36 @@ function renderServers() {
     return matchesRegion && matchesQuery;
   });
 
+  filtered.sort((a, b) => {
+    if (currentSort === 'rating-desc') return b.rating - a.rating;
+    if (currentSort === 'rating-asc') return a.rating - b.rating;
+    if (currentSort === 'name') return a.ip.localeCompare(b.ip);
+    return 0;
+  });
+
   if (filtered.length === 0) {
-    listDiv.innerHTML = '<p style="text-align:center; color: var(--text-muted); padding: 40px;">Серверов по данному запросу не найдено.</p>';
+    const emptyP = document.createElement('p');
+    emptyP.style.cssText = 'text-align:center; color: #8b949e; padding: 40px;';
+    emptyP.textContent = 'Серверы не найдены.';
+    listDiv.appendChild(emptyP);
     return;
   }
 
   filtered.forEach(srv => {
-    const categoryLower = srv.category.toLowerCase();
-    let badgeClass = 'badge-pvp';
-    
-    if (categoryLower.includes('анархия')) {
-      badgeClass = 'badge-category';
-    } else if (categoryLower.includes('rp') || categoryLower.includes('рп') || categoryLower.includes('моды')) {
-      badgeClass = 'badge-rp';
-    }
-
     const card = document.createElement('div');
     card.className = 'server-card';
     card.innerHTML = `
       <div class="server-info">
         <div class="server-header">
           <span class="ip-address">${srv.ip}:${srv.port}</span>
-          <span class="badge badge-region">${srv.region}</span>
-          <span class="badge ${badgeClass}">${srv.category}</span>
+          <div class="rating-box" title="Рейтинг сервера">
+            <span>★</span>
+            <span>${srv.rating.toFixed(1)}</span>
+          </div>
+          <span class="badge">${srv.region}</span>
+          <span class="badge">${srv.category}</span>
         </div>
-        <div class="online-status">
-          <span class="status-dot"></span>
-          <span>Игроков: ${srv.online}</span>
-        </div>
+        <div class="online-status">● Игроков онлайн: ${srv.online || 'Проверка...'}</div>
         <div class="desc">${srv.description}</div>
       </div>
       <button class="copy-btn" onclick="copyIp('${srv.ip}:${srv.port}', this)">Скопировать IP</button>
@@ -183,15 +130,38 @@ function renderServers() {
   });
 }
 
+async function updateOnlineStatus() {
+  const requests = loadedServers.map(async (srv) => {
+    try {
+      const response = await fetch(`https://api.mcsrvstat.us/3/${srv.ip}`);
+      const data = await response.json();
+      srv.online = data.online ? (data.players?.online || 'Онлайн') : 'Доступен';
+    } catch {
+      srv.online = 'Доступен';
+    }
+  });
+
+  await Promise.all(requests);
+  renderServers();
+}
+
 function filterRegion(region, btn) {
   currentFilter = region;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   renderServers();
 }
 
 function handleSearch() {
-  searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchQuery = searchInput.value.toLowerCase().trim();
+    renderServers();
+  }
+}
+
+function handleSortChange(sortValue) {
+  currentSort = sortValue;
   renderServers();
 }
 
@@ -202,4 +172,5 @@ function copyIp(text, btn) {
   setTimeout(() => { btn.innerText = original; }, 1500);
 }
 
-loadServers();
+renderServers();
+updateOnlineStatus();
