@@ -8,6 +8,10 @@
   --border-color: #30363d;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 30px 15px;
@@ -79,11 +83,6 @@ body {
   border: 1px solid var(--border-color);
 }
 
-.mode-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
 .mode-card h3 {
   margin: 0 0 6px 0;
   font-size: 15px;
@@ -116,10 +115,9 @@ body {
   background: #0d1117;
   color: var(--text-main);
   font-size: 14px;
-  box-sizing: border-box;
 }
 
-/* Панель с фильтрами и кнопкой Обновить в один ряд */
+/* Строка с фильтрами и кнопкой */
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -152,23 +150,23 @@ body {
   font-weight: bold;
 }
 
-/* Красивая аккуратная кнопка «Обновить онлайн» */
+/* Кнопка «Обновить онлайн» */
 .refresh-btn {
   padding: 8px 16px;
-  background: #21262d !important;
-  border: 1px solid rgba(56, 189, 248, 0.4) !important;
-  color: var(--primary) !important;
+  background: #21262d;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: var(--primary);
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .refresh-btn:hover {
-  background: rgba(56, 189, 248, 0.15) !important;
-  border-color: var(--primary) !important;
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--primary);
 }
 
 .sort-box {
