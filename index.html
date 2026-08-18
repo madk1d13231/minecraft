@@ -15,7 +15,36 @@
         .badge { background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
         .rating-star { color: #f0883e; font-weight: bold; }
         
-        /* Стили для отзывов */
+        /* Сетка категорий режимов для новичков */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .cat-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .cat-card:hover {
+            border-color: #58a6ff;
+            background: #1f242c;
+            transform: translateY(-2px);
+        }
+        .cat-icon { font-size: 30px; margin-bottom: 6px; }
+        .cat-title { font-size: 14px; font-weight: bold; color: #58a6ff; margin-bottom: 4px; }
+        .cat-desc { font-size: 11px; color: #8b949e; line-height: 1.3; }
+        
+        .filter-buttons { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+        .btn-reset { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-reset:hover { background: #30363d; }
+
+        /* Отзывы */
         .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
         .review-item { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; }
         .review-form { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
@@ -24,15 +53,44 @@
         .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
         .review-form button:hover { background: #2ea043; }
 
-        /* Кнопка админа */
         #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🌍 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Лучшие сервера СНГ, Европы, Америки и Азии с рейтингами и отзывами</p>
-        <div id="server-list" style="margin-top: 20px;"></div>
+        <p style="color: #8b949e;">Выберите режим игры и найдите лучший сервер со всего мира</p>
+
+        <!-- Категории режимов с описанием -->
+        <h3 style="margin-top: 25px; color: #58a6ff;">📌 Выберите режим игры:</h3>
+        <div class="categories-grid">
+            <div class="cat-card" onclick="filterByMode('Анархия')">
+                <div class="cat-icon">🔥</div>
+                <div class="cat-title">Анархия и гриф</div>
+                <div class="cat-desc">Выживание без правил, гриферство, кланы и жесткий PvP.</div>
+            </div>
+            <div class="cat-card" onclick="filterByMode('PvP')">
+                <div class="cat-icon">⚔️</div>
+                <div class="cat-title">PvP / Тренировки</div>
+                <div class="cat-desc">Дуэли, тренировки кликов, арены и состязания игроков.</div>
+            </div>
+            <div class="cat-card" onclick="filterByMode('Выживание')">
+                <div class="cat-icon">🏡</div>
+                <div class="cat-title">Мирное выживание</div>
+                <div class="cat-desc">Спокойная игра, постройка домов, экономика и защита регионов.</div>
+            </div>
+            <div class="cat-card" onclick="filterByMode('BedWars')">
+                <div class="cat-icon">🛏️</div>
+                <div class="cat-title">BedWars / SkyWars</div>
+                <div class="cat-desc">Динамичные мини-игры с защитой кровати и полетами на островах.</div>
+            </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="btn-reset" onclick="resetFilter()">Показать все серверы</button>
+        </div>
+
+        <div id="server-list"></div>
     </div>
 
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
@@ -41,26 +99,20 @@
         const PASSWORD = "qwe12345tyu124";
         let isAdmin = false;
 
-        // Полный список серверов со всего мира
+        // Полный список серверов (СНГ, Европа, Азия, США)
         let allServers = [
-            // СНГ
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars / SkyBlock", desc: "Главный мировой сервер с огромным онлайном." },
-            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды / HiTech", desc: "Крупнейший СНГ проект с индустриальными модами." },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия." },
-            { id: "holyworld", name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ивентами." },
-            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Гриф / Анархия", desc: "Один из самых известных анархических проектов." },
-            
-            // Европа и Америка
-            { id: "gommehd", name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars", desc: "Крупнейший немецкий и европейский проект." },
-            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "EggWars / Minigames", desc: "Популярный международный сервер с мини-играми." },
-            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "Prison", desc: "Легендарная тюрьма с развитой экономикой." },
-
-            // Азия
-            { id: "cnmine", name: "ChinaCraft", ip: "play.cnmine.net", region: "Азия", flag: "🇨🇳", rating: 4.5, online: 3200, mode: "Выживание", desc: "Крупный азиатский сервер с уникальными постройками." },
-            { id: "jpnblock", name: "NipponServer", ip: "mc.jpnblock.jp", region: "Азия", flag: "🇯🇵", rating: 4.6, online: 1100, mode: "Мирное выживание", desc: "Уютный японский сервер с кастомной генерацией мира." }
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми." },
+            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием." },
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов." },
+            { id: "holyworld", name: "play.holyworld.ru", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами." },
+            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ." },
+            { id: "gommehd", name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars", desc: "Крупнейший немецкий и европейский проект мини-игр." },
+            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "BedWars", desc: "Популярный международный сервер с уникальным дизайном." },
+            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами." },
+            { id: "cnmine", name: "ChinaCraft", ip: "play.cnmine.net", region: "Азия", flag: "🇨🇳", rating: 4.5, online: 3200, mode: "Выживание", desc: "Крупный азиатский сервер с мирным выживанием." },
+            { id: "jpnblock", name: "NipponServer", ip: "mc.jpnblock.jp", region: "Азия", flag: "🇯🇵", rating: 4.6, online: 1100, mode: "Выживание", desc: "Уютный японский сервер с кастомной генерацией мира." }
         ];
 
-        // Хранилище отзывов в памяти браузера
         function getReviews(serverId) {
             try {
                 let data = localStorage.getItem('reviews_' + serverId);
@@ -88,14 +140,19 @@
 
             textInput.value = "";
             nameInput.value = "";
-            render();
+            render(allServers);
         }
 
-        function render() {
+        function render(serversToRender) {
             let list = document.getElementById("server-list");
             if (!list) return;
             
-            list.innerHTML = allServers.map(s => {
+            if (serversToRender.length === 0) {
+                list.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 20px;">Серверы по данному режиму не найдены.</p>';
+                return;
+            }
+
+            list.innerHTML = serversToRender.map(s => {
                 let reviews = getReviews(s.id);
                 let deleteBtn = isAdmin ? `<button onclick="deleteServer('${s.id}')" style="margin-top:10px; background:#da3633; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">🗑️ Удалить сервер</button>` : '';
 
@@ -147,12 +204,21 @@
             }).join("");
         }
 
+        function filterByMode(modeName) {
+            let filtered = allServers.filter(s => s.mode.toLowerCase().includes(modeName.toLowerCase()));
+            render(filtered);
+        }
+
+        function resetFilter() {
+            render(allServers);
+        }
+
         function checkAdmin() {
             let pass = prompt("Введите пароль администратора:");
             if (pass === PASSWORD) {
                 isAdmin = true;
                 alert("Успешный вход в режим администратора!");
-                render();
+                render(allServers);
             } else if (pass !== null) {
                 alert("Неверный пароль!");
             }
@@ -160,10 +226,10 @@
 
         function deleteServer(id) {
             allServers = allServers.filter(s => s.id !== id);
-            render();
+            render(allServers);
         }
 
-        render();
+        render(allServers);
     </script>
 </body>
 </html>
