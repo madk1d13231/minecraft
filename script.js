@@ -1,81 +1,62 @@
-const initialServers = [
-  {
-    ip: "play.hypixel.net:25565",
-    name: "Hypixel",
-    region: "США",
-    flag: "🇺🇸",
-    mode: "BedWars / SkyWars / Royale",
-    rating: 5.0,
-    desc: "Главный мировой проект с BedWars, SkyWars, Survival Games и SkyBlock."
-  },
-  {
-    ip: "mc.mcraft.pro:25565",
-    name: "MCSkill",
-    region: "СНГ",
-    flag: "🇷🇺",
-    mode: "Моды / HiTech / Magic",
-    rating: 4.8,
-    desc: "Крупнейший лаунчерный проект с модами: Industrial Craft, Thaumcraft, DivineRPG и автошахты."
-  },
-  {
-    ip: "mc.reallyworld.ru:25565",
-    name: "Really World",
-    region: "СНГ",
-    flag: "🇷🇺",
-    mode: "Анархия / Гриф",
-    rating: 4.7,
-    desc: "Гриферский сервер и Анархия с кланами, скупщиком предметов и уникальным оружием."
-  },
-  {
-    ip: "play.holyworld.ru:25565",
-    name: "HolyWorld",
-    region: "СНГ",
-    flag: "🇷🇺",
-    mode: "Анархия",
-    rating: 4.7,
-    desc: "Суровая Анархия с прокачкой умений, кастомными крафтами и ежедневными ивентами."
-  },
-  {
-    ip: "hub.mc-complex.com:25565",
-    name: "Complex Gaming",
-    region: "США",
-    flag: "🇺🇸",
-    mode: "Pixelmon / Моды",
-    rating: 4.6,
-    desc: "Топовый международный сервер с модом Pixelmon и Towny."
-  },
-  {
-    ip: "mc.lastcraft.ru:25565",
-    name: "LastCraft",
-    region: "СНГ",
-    flag: "🇷🇺",
-    mode: "BedWars / Мини-игры",
-    rating: 4.6,
-    desc: "СНГ сервер с BedWars, SkyWars, паркуром и классическими мини-играми."
-  },
-  {
-    ip: "mc.dexland.ru:25565",
-    name: "DexLand",
-    region: "СНГ",
-    flag: "🇷🇺",
-    mode: "Мирное выживание",
-    rating: 4.6,
-    desc: "Уютное выживание с приватами, экономикой, авто-шахтой и защитой от гриферов."
-  },
-  {
-    ip: "2b2t.org:25565",
-    name: "2B2T",
-    region: "США",
-    flag: "🇺🇸",
-    mode: "Мировая Анархия",
-    rating: 4.5,
-    desc: "2B2T — Старейший анархия-сервер в мире без правил, приватных зон и банов."
-  }
-];
+// Пароль для входа в админку
+const ADMIN_PASSWORD = "qwe12345tyu";
 
+// Загрузка списка серверов (из localStorage или по умолчанию)
+function getStoredServers() {
+  try {
+    const data = localStorage.getItem('mc_custom_servers');
+    if (data) return JSON.parse(data);
+  } catch (e) {}
+  
+  return [
+    {
+      ip: "play.hypixel.net:25565",
+      name: "Hypixel",
+      region: "США",
+      flag: "🇺🇸",
+      mode: "BedWars / SkyWars / Royale",
+      rating: 5.0,
+      desc: "Главный мировой проект с BedWars, SkyWars, Survival Games и SkyBlock."
+    },
+    {
+      ip: "mc.mcraft.pro:25565",
+      name: "MCSkill",
+      region: "СНГ",
+      flag: "🇷🇺",
+      mode: "Моды / HiTech / Magic",
+      rating: 4.8,
+      desc: "Крупнейший лаунчерный проект с модами: Industrial Craft, Thaumcraft, DivineRPG и автошахты."
+    },
+    {
+      ip: "mc.reallyworld.ru:25565",
+      name: "Really World",
+      region: "СНГ",
+      flag: "🇷🇺",
+      mode: "Анархия / Гриф",
+      rating: 4.7,
+      desc: "Гриферский сервер и Анархия с кланами, скупщиком предметов и уникальным оружием."
+    },
+    {
+      ip: "play.holyworld.ru:25565",
+      name: "HolyWorld",
+      region: "СНГ",
+      flag: "🇷🇺",
+      mode: "Анархия",
+      rating: 4.7,
+      desc: "Суровая Анархия с прокачкой умений, кастомными крафтами и ежедневными ивентами."
+    }
+  ];
+}
+
+let servers = getStoredServers();
 let activeRegion = 'ALL';
 let currentSort = 'rating-desc';
 let searchQuery = '';
+let isAdmin = false;
+
+function saveServers() {
+  localStorage.setItem('mc_custom_servers', JSON.stringify(servers));
+}
 
 function getStoredReviews() {
   try {
@@ -86,13 +67,80 @@ function getStoredReviews() {
   }
 }
 
+// Переключение панели админа
+function toggleAdminPanel() {
+  if (!isAdmin) {
+    const pwd = prompt("Введите пароль администратора:");
+    if (pwd === ADMIN_PASSWORD) {
+      isAdmin = true;
+      document.getElementById('admin-panel').style.display = 'block';
+      document.getElementById('admin-login-btn').innerText = '🚪 Выйти из админки';
+      alert("Авторизация успешна!");
+      renderServers();
+    } else if (pwd !== null) {
+      alert("Неверный пароль!");
+    }
+  } else {
+    isAdmin = false;
+    document.getElementById('admin-panel').style.display = 'none';
+    document.getElementById('admin-login-btn').innerText = '🔐 Вход для админа';
+    renderServers();
+  }
+}
+
+// Добавление нового сервера
+function addNewServer() {
+  const name = document.getElementById('admin-name').value.trim();
+  const ip = document.getElementById('admin-ip').value.trim();
+  const region = document.getElementById('admin-region').value;
+  const rating = parseFloat(document.getElementById('admin-rating').value) || 5.0;
+  const mode = document.getElementById('admin-mode').value.trim();
+  const desc = document.getElementById('admin-desc').value.trim();
+
+  if (!name || !ip || !mode) {
+    alert("Заполните Название, IP и Режим!");
+    return;
+  }
+
+  const flags = { 'СНГ': '🇷🇺', 'США': '🇺🇸', 'Европа': '🇪🇺' };
+
+  servers.unshift({
+    ip: ip,
+    name: name,
+    region: region,
+    flag: flags[region] || '🌐',
+    mode: mode,
+    rating: rating,
+    desc: desc || "Описание отсутствует."
+  });
+
+  saveServers();
+  renderServers();
+
+  document.getElementById('admin-name').value = '';
+  document.getElementById('admin-ip').value = '';
+  document.getElementById('admin-mode').value = '';
+  document.getElementById('admin-desc').value = '';
+  alert("Сервер успешно добавлен!");
+}
+
+// Удаление сервера
+function deleteServer(ip) {
+  if (confirm(`Удалить сервер ${ip}?`)) {
+    servers = servers.filter(s => s.ip !== ip);
+    saveServers();
+    renderServers();
+  }
+}
+
+// Отрисовка серверов
 function renderServers() {
   const container = document.getElementById('server-list');
   if (!container) return;
 
   const reviewsData = getStoredReviews();
 
-  let filtered = initialServers.filter(s => {
+  let filtered = servers.filter(s => {
     const matchRegion = activeRegion === 'ALL' || s.region === activeRegion;
     const matchSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         s.mode.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -132,6 +180,7 @@ function renderServers() {
           </div>
 
           <div class="card-actions">
+            ${isAdmin ? `<button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>` : ''}
             <button class="review-btn" onclick="toggleReviews('${safeIpId}')">
               💬 Отзывы (${serverReviews.length})
             </button>
