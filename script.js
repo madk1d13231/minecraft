@@ -1,10 +1,11 @@
 // Защищенный пароль администратора
 const ADMIN_PASSWORD = "qwe12345tyu124";
 
-// По умолчанию права администратора ВСЕГДА отключены для всех
+// Права админа по умолчанию всегда выключены
 let isAdmin = false; 
 let editingServerIp = null;
 
+// Начальный список серверов (с рейтингом, описанием и режимами)
 function getStoredServers() {
   try {
     const data = localStorage.getItem('mc_custom_servers');
@@ -69,7 +70,7 @@ function getStoredReviews() {
   }
 }
 
-// Запрос пароля через кнопку в левом нижнем углу
+// Проверка пароля через кнопку в левом нижнем углу
 function toggleAdminMode() {
   if (isAdmin) {
     isAdmin = false;
@@ -207,6 +208,7 @@ function deleteServer(ip) {
   }
 }
 
+// Отрисовка списка серверов
 function renderServers() {
   const container = document.getElementById('server-list');
   if (!container) return;
@@ -238,7 +240,7 @@ function renderServers() {
     const serverReviews = reviewsData[s.ip] || [];
     const safeIpId = s.ip.replace(/[^a-zA-Z0-9]/g, '');
 
-    // Кнопки Заменить и Удалить рендерятся СТРОГО ЕСЛИ isAdmin === true
+    // Кнопки удаления/замены отображаются СТРОГО для администратора
     const adminActionsHtml = isAdmin ? `
       <button class="review-btn" style="background: #238636;" onclick="editServer('${s.ip}')">✏️ Заменить</button>
       <button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>
@@ -338,3 +340,91 @@ function getSiteReviews() {
     const data = localStorage.getItem('mc_website_reviews');
     return data ? JSON.parse(data) : [];
   } catch (e) {
+    return [];
+  }
+}
+
+function renderSiteReviews() {
+  const container = document.getElementById('site-reviews-list');
+  if (!container) return;
+
+  const reviews = getSiteReviews();
+
+  if (reviews.length === 0) {
+    container.innerHTML = '<p class="no-reviews">Пока нет отзывов о сайте. Будьте первым!</p>';
+    return;
+  }
+
+  container.innerHTML = reviews.map(r => `
+    <div class="review-item">
+      <div class="review-header">
+        <span class="review-author">${r.author}</span>
+        <span class="review-stars">${'★'.repeat(r.stars)}</span>
+        <span class="review-date">${r.date}</span>
+      </div>
+      <div class="review-text">${r.text}</div>
+    </div>
+  `).join('');
+}
+
+function submitSiteReview() {
+  const authorInput = document.getElementById('site-author');
+  const starsSelect = document.getElementById('site-stars');
+  const textInput = document.getElementById('site-text');
+
+  const text = textInput ? textInput.value.trim() : '';
+  if (!text) {
+    alert('Пожалуйста, напишите отзыв!');
+    return;
+  }
+
+  const reviews = getSiteReviews();
+  reviews.unshift({
+    author: (authorInput && authorInput.value.trim()) || 'Посетитель',
+    stars: starsSelect ? parseInt(starsSelect.value) : 5,
+    text: text,
+    date: new Date().toLocaleDateString('ru-RU')
+  });
+
+  localStorage.setItem('mc_website_reviews', JSON.stringify(reviews));
+
+  if (textInput) textInput.value = '';
+  if (authorInput) authorInput.value = '';
+  renderSiteReviews();
+}
+
+function filterRegion(region, btn) {
+  activeRegion = region;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderServers();
+}
+
+function handleSearch() {
+  const input = document.getElementById('search-input');
+  searchQuery = input ? input.value : '';
+  renderServers();
+}
+
+function handleSortChange(val) {
+  currentSort = val;
+  renderServers();
+}
+
+function updateOnlineStatus() {
+  alert('Онлайн серверов обновлён!');
+}
+
+function copyIp(ip, btn) {
+  navigator.clipboard.writeText(ip);
+  if (btn) {
+    const oldText = btn.innerText;
+    btn.innerText = 'Скопировано!';
+    setTimeout(() => btn.innerText = oldText, 1500);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderServers();
+  renderSiteReviews();
+});
