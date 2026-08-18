@@ -4,9 +4,22 @@
   --text-main: #f0f6fc;
   --text-muted: #8b949e;
   --primary: #38bdf8;
-  --primary-hover: #0284c7;
   --star-color: #f59e0b;
   --border-color: #30363d;
+}
+
+/* Полное удаление гигантских иконок перевода и фоновых SVG */
+svg, img, i, [class*="search"], [id*="search"]::data-icon {
+  max-width: 24px !important;
+  max-height: 24px !important;
+}
+
+/* Принудительное скрытие лупы автопереводчика Яндекс/Google */
+yandex-search, 
+.ya-search-icon, 
+div[class*="search-icon"], 
+svg[class*="search"] {
+  display: none !important;
 }
 
 body {
@@ -24,7 +37,7 @@ body {
 
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .logo-badge {
@@ -42,7 +55,7 @@ body {
 
 .header h1 {
   margin: 0 0 10px 0;
-  font-size: 32px;
+  font-size: 30px;
 }
 
 .subtitle {
@@ -51,6 +64,53 @@ body {
   font-size: 15px;
 }
 
+/* Справочник режимов */
+.modes-guide {
+  margin-bottom: 30px;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.modes-guide h2 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--primary);
+}
+
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 15px;
+}
+
+.mode-card {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.mode-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.mode-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+}
+
+.mode-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Панель управления */
 .controls {
   display: flex;
   flex-direction: column;
@@ -99,6 +159,7 @@ body {
 .sort-box {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   color: var(--text-muted);
   font-size: 14px;
@@ -113,6 +174,16 @@ body {
   cursor: pointer;
 }
 
+.refresh-btn {
+  padding: 8px 12px;
+  background: #21262d;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Карточки серверов */
 .server-list {
   display: flex;
   flex-direction: column;
@@ -192,7 +263,6 @@ body {
   font-weight: bold;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.2s;
 }
 
 .copy-btn:hover {
