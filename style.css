@@ -223,7 +223,7 @@ body {
 }
 
 .ip-address {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--primary);
 }
@@ -261,7 +261,7 @@ body {
   line-height: 1.4;
 }
 
-/* Блок кнопок в карточке */
+/* Кнопки в карточке */
 .card-actions {
   display: flex;
   gap: 8px;
@@ -303,13 +303,12 @@ body {
   color: var(--primary);
 }
 
-/* Выпадающая панель отзывов */
+/* Формы и списки отзывов */
 .reviews-box {
   background: #0d1117;
   padding: 15px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  margin-top: 5px;
 }
 
 .add-review-form {
@@ -321,7 +320,10 @@ body {
 
 .add-review-form input,
 .add-review-form select,
-.add-review-form textarea {
+.add-review-form textarea,
+.add-site-review-form input,
+.add-site-review-form select,
+.add-site-review-form textarea {
   background: #161b22;
   border: 1px solid var(--border-color);
   color: var(--text-main);
@@ -341,6 +343,10 @@ body {
   font-weight: bold;
   cursor: pointer;
   font-size: 12px;
+}
+
+.submit-btn:hover {
+  opacity: 0.9;
 }
 
 .reviews-list {
@@ -411,30 +417,6 @@ body {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
-}
-
-.add-site-review-form input,
-.add-site-review-form select,
-.add-site-review-form textarea {
-  background: #0d1117;
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 10px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-}
-
-.add-site-review-form button {
-  align-self: flex-start;
-  padding: 8px 16px;
-  background: var(--primary);
-  color: #0d1117;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 13px;
 }
 
 @media (max-width: 600px) {
