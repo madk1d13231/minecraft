@@ -3,66 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft Server Discovery Portal</title>
-  <link rel="stylesheet" href="style.css?v=100">
+  <title>Мониторинг серверов Minecraft</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="container">
-    <header class="header">
-      <div class="logo-badge">MINECRAFT MONITORING v2.0</div>
-      <h1>Глобальный поиск серверов</h1>
-      <p class="subtitle">Найди идеальный сервер: Анархия, RolePlay, Моды, BedWars и Выживание</p>
-    </header>
+    <div class="header">
+      <div class="logo-badge">MINECRAFT SERVERS</div>
+      <h1>Мониторинг серверов Minecraft</h1>
+      <p class="subtitle">Найди лучший сервер для игры прямо сейчас</p>
+    </div>
 
-    <section class="modes-guide">
-      <h2>Доступные режимы на серверах</h2>
-      <div class="modes-grid">
-        <div class="mode-card">
-          <h3>RolePlay (RP / РП)</h3>
-          <p>Отыгрыш ролей, персональные истории, политика, государственные фракции, суды и города.</p>
-        </div>
-        <div class="mode-card">
-          <h3>Моды & HiTech</h3>
-          <p>Технические и магические сборки: автошахты, ядерные реакторы, космические полеты и Thaumcraft.</p>
-        </div>
-        <div class="mode-card">
-          <h3>Анархия и Гриф</h3>
-          <p>Хаос без правил, зазипованные миры, взрывы баз, клановые войны и кастомные аирдропы.</p>
-        </div>
-        <div class="mode-card">
-          <h3>BedWars & SkyWars</h3>
-          <p>Защита кроватей, битвы на небесных островах и динамичный командный паркур.</p>
-        </div>
-        <div class="mode-card">
-          <h3>Мирное выживание</h3>
-          <p>Строительство городов (Towny), надежные приваты, экономика и торги без постоянных войн.</p>
-        </div>
-        <div class="mode-card">
-          <h3>Королевские битвы</h3>
-          <p>Survival Games и UHC: лутание сундуков на сужающейся карте до последнего выжившего.</p>
-        </div>
-      </div>
-    </section>
-
+    <!-- Панель управления -->
     <div class="controls">
       <div class="search-box">
-        <input 
-          type="text" 
-          id="search-input" 
-          placeholder="Поиск по названию или режиму (РП, Моды, BedWars, Анархия)..." 
-          oninput="handleSearch()"
-        />
+        <input type="text" id="search-input" placeholder="Поиск по названию или режиму (РП, Моды, BedWars, Анархия)..." oninput="handleSearch()">
       </div>
 
       <div class="filter-row">
         <div class="filter-group">
           <button class="filter-btn active" onclick="filterRegion('ALL', this)">Все регионы</button>
-          <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ 🇷🇺</button>
-          <button class="filter-btn" onclick="filterRegion('США', this)">США 🇺🇸</button>
-          <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа 🇪🇺</button>
+          <button class="filter-btn" onclick="filterRegion('СНГ', this)">СНГ <span style="font-size:10px; opacity:0.7">RU</span></button>
+          <button class="filter-btn" onclick="filterRegion('США', this)">США <span style="font-size:10px; opacity:0.7">US</span></button>
+          <button class="filter-btn" onclick="filterRegion('Европа', this)">Европа <span style="font-size:10px; opacity:0.7">EU</span></button>
         </div>
-
         <button class="refresh-btn" onclick="updateOnlineStatus()">Обновить онлайн</button>
       </div>
 
@@ -71,12 +36,31 @@
         <select id="sort-select" onchange="handleSortChange(this.value)">
           <option value="rating-desc">★ Сначала высокий рейтинг</option>
           <option value="rating-asc">★ Сначала низкий рейтинг</option>
-          <option value="name">По названию (IP)</option>
+          <option value="name">По алфавиту</option>
         </select>
       </div>
     </div>
 
+    <!-- Список серверов (Заполняется через JS) -->
     <div id="server-list" class="server-list"></div>
+
+    <!-- Отзывы о сайте -->
+    <div class="site-reviews-section">
+      <h2>💬 Отзывы о мониторинге</h2>
+      <div class="add-site-review-form">
+        <input type="text" id="site-author" placeholder="Ваше имя" maxlength="20">
+        <select id="site-stars">
+          <option value="5">★ 5 (Отличный сайт)</option>
+          <option value="4">★ 4 (Хороший сайт)</option>
+          <option value="3">★ 3 (Нормально)</option>
+          <option value="2">★ 2 (Плохо)</option>
+          <option value="1">★ 1 (Ужасно)</option>
+        </select>
+        <textarea id="site-text" placeholder="Напишите отзыв о нашем сайте..." rows="3"></textarea>
+        <button onclick="submitSiteReview()">Оставить отзыв</button>
+      </div>
+      <div id="site-reviews-list" class="reviews-list"></div>
+    </div>
   </div>
 
   <script src="script.js"></script>
