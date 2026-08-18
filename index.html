@@ -6,18 +6,32 @@
     <title>Мониторинг серверов Minecraft</title>
     <style>
         body { background: #0d1117; color: #c9d1d9; font-family: Arial, sans-serif; padding: 20px; margin: 0; }
-        .container { max-width: 800px; margin: 0 auto; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; }
-        h3 { margin: 0 0 8px 0; color: #58a6ff; }
+        .container { max-width: 850px; margin: 0 auto; }
+        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        h3 { margin: 0; color: #58a6ff; }
         p { margin: 4px 0; font-size: 14px; }
         .desc { color: #8b949e; font-size: 13px; margin-top: 8px; }
+        .badge { background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+        .rating-star { color: #f0883e; font-weight: bold; }
+        
+        /* Стили для отзывов */
+        .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
+        .review-item { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; }
+        .review-form { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+        .review-form input, .review-form select, .review-form button { padding: 6px 10px; border-radius: 4px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 13px; }
+        .review-form input { flex: 1; min-width: 120px; }
+        .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .review-form button:hover { background: #2ea043; }
+
+        /* Кнопка админа */
         #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Список лучших серверов со всего мира</p>
+        <h1>🌍 Мировой мониторинг серверов Minecraft</h1>
+        <p style="color: #8b949e;">Лучшие сервера СНГ, Европы, Америки и Азии с рейтингами и отзывами</p>
         <div id="server-list" style="margin-top: 20px;"></div>
     </div>
 
@@ -25,35 +39,128 @@
 
     <script>
         const PASSWORD = "qwe12345tyu124";
+        let isAdmin = false;
+
+        // Полный список серверов со всего мира
         let allServers = [
-            { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с мини-играми." },
-            { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды", desc: "Крупнейший проект с модами." },
-            { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер." },
-            { name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с ивентами." }
+            // СНГ
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars / SkyBlock", desc: "Главный мировой сервер с огромным онлайном." },
+            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Моды / HiTech", desc: "Крупнейший СНГ проект с индустриальными модами." },
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия." },
+            { id: "holyworld", name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ивентами." },
+            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Гриф / Анархия", desc: "Один из самых известных анархических проектов." },
+            
+            // Европа и Америка
+            { id: "gommehd", name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars", desc: "Крупнейший немецкий и европейский проект." },
+            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "EggWars / Minigames", desc: "Популярный международный сервер с мини-играми." },
+            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "Prison", desc: "Легендарная тюрьма с развитой экономикой." },
+
+            // Азия
+            { id: "cnmine", name: "ChinaCraft", ip: "play.cnmine.net", region: "Азия", flag: "🇨🇳", rating: 4.5, online: 3200, mode: "Выживание", desc: "Крупный азиатский сервер с уникальными постройками." },
+            { id: "jpnblock", name: "NipponServer", ip: "mc.jpnblock.jp", region: "Азия", flag: "🇯🇵", rating: 4.6, online: 1100, mode: "Мирное выживание", desc: "Уютный японский сервер с кастомной генерацией мира." }
         ];
+
+        // Хранилище отзывов в памяти браузера
+        function getReviews(serverId) {
+            try {
+                let data = localStorage.getItem('reviews_' + serverId);
+                return data ? JSON.parse(data) : [];
+            } catch(e) { return []; }
+        }
+
+        function addReview(serverId) {
+            let nameInput = document.getElementById('name_' + serverId);
+            let textInput = document.getElementById('text_' + serverId);
+            let starSelect = document.getElementById('stars_' + serverId);
+
+            let author = nameInput.value.trim() || "Игрок";
+            let text = textInput.value.trim();
+            let stars = parseInt(starSelect.value);
+
+            if (!text) {
+                alert("Напишите текст отзыва!");
+                return;
+            }
+
+            let reviews = getReviews(serverId);
+            reviews.unshift({ author, text, stars, date: new Date().toLocaleDateString() });
+            localStorage.setItem('reviews_' + serverId, JSON.stringify(reviews));
+
+            textInput.value = "";
+            nameInput.value = "";
+            render();
+        }
 
         function render() {
             let list = document.getElementById("server-list");
             if (!list) return;
             
-            list.innerHTML = allServers.map(s => `
-                <div class="card">
-                    <h3>${s.name} (${s.flag} ${s.region})</h3>
-                    <p><strong>IP:</strong> ${s.ip}</p>
-                    <p><strong>Режим:</strong> ${s.mode}</p>
-                    <p><strong>Рейтинг:</strong> ★ ${s.rating} | <strong>Онлайн:</strong> ${s.online}</p>
-                    <p class="desc">${s.desc}</p>
-                </div>
-            `).join("");
+            list.innerHTML = allServers.map(s => {
+                let reviews = getReviews(s.id);
+                let deleteBtn = isAdmin ? `<button onclick="deleteServer('${s.id}')" style="margin-top:10px; background:#da3633; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">🗑️ Удалить сервер</button>` : '';
+
+                return `
+                    <div class="card">
+                        <div class="header-flex">
+                            <h3>${s.name}</h3>
+                            <div>
+                                <span class="rating-star">★ ${s.rating}</span>
+                                <span class="badge">${s.flag} ${s.region}</span>
+                                <span class="badge">${s.mode}</span>
+                            </div>
+                        </div>
+                        <p><strong>IP:</strong> <code>${s.ip}</code></p>
+                        <p><strong>Онлайн:</strong> 👥 ${s.online} игроков</p>
+                        <p class="desc">${s.desc}</p>
+                        ${deleteBtn}
+
+                        <div class="reviews-section">
+                            <strong>💬 Отзывы (${reviews.length}):</strong>
+                            <div class="review-form">
+                                <input type="text" id="name_${s.id}" placeholder="Ваше имя" maxlength="15">
+                                <select id="stars_${s.id}">
+                                    <option value="5">★ 5 (Отлично)</option>
+                                    <option value="4">★ 4 (Хорошо)</option>
+                                    <option value="3">★ 3 (Нормально)</option>
+                                    <option value="2">★ 2 (Плохо)</option>
+                                    <option value="1">★ 1 (Ужасно)</option>
+                                </select>
+                                <input type="text" id="text_${s.id}" placeholder="Ваш отзыв..." style="flex:2;">
+                                <button onclick="addReview('${s.id}')">Отправить</button>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                ${reviews.length === 0 ? '<p style="color:#8b949e; font-size:12px; margin:4px 0;">Пока нет отзывов. Будьте первыми!</p>' : 
+                                    reviews.map(r => `
+                                        <div class="review-item">
+                                            <div style="display:flex; justify-content:space-between; color:#8b949e; font-size:11px;">
+                                                <span><strong>${r.author}</strong> (${'★'.repeat(r.stars)})</span>
+                                                <span>${r.date}</span>
+                                            </div>
+                                            <div style="margin-top:4px;">${r.text}</div>
+                                        </div>
+                                    `).join('')
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join("");
         }
 
         function checkAdmin() {
             let pass = prompt("Введите пароль администратора:");
             if (pass === PASSWORD) {
+                isAdmin = true;
                 alert("Успешный вход в режим администратора!");
+                render();
             } else if (pass !== null) {
                 alert("Неверный пароль!");
             }
+        }
+
+        function deleteServer(id) {
+            allServers = allServers.filter(s => s.id !== id);
+            render();
         }
 
         render();
