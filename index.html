@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мониторинг серверов Minecraft</title>
     <style>
-        body { background: #0d1117; color: #c9d1d9; font-family: Arial, sans-serif; padding: 20px; margin: 0; }
-        .container { max-width: 850px; margin: 0 auto; }
-        .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        /* Фоновое размытое изображение сакуры */
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            position: relative;
+            min-height: 100vh;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1522383225653-ed111181a951?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px);
+            opacity: 0.25;
+            z-index: -1;
+        }
+
+        .container { max-width: 850px; margin: 0 auto; position: relative; z-index: 1; }
+        .card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(5px); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         h3 { margin: 0; color: #58a6ff; }
         p { margin: 4px 0; font-size: 14px; }
@@ -15,7 +36,7 @@
         .badge { background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
         .rating-star { color: #f0883e; font-weight: bold; }
         
-        /* Сетка категорий режимов для новичков */
+        /* Сетка категорий режимов */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -23,7 +44,7 @@
             margin: 20px 0;
         }
         .cat-card {
-            background: #161b22;
+            background: rgba(22, 27, 34, 0.85);
             border: 1px solid #30363d;
             border-radius: 8px;
             padding: 12px;
@@ -33,35 +54,37 @@
         }
         .cat-card:hover {
             border-color: #58a6ff;
-            background: #1f242c;
+            background: rgba(31, 36, 44, 0.95);
             transform: translateY(-2px);
         }
         .cat-icon { font-size: 30px; margin-bottom: 6px; }
         .cat-title { font-size: 14px; font-weight: bold; color: #58a6ff; margin-bottom: 4px; }
         .cat-desc { font-size: 11px; color: #8b949e; line-height: 1.3; }
         
-        .filter-buttons { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+        .filter-buttons { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
         .btn-reset { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
         .btn-reset:hover { background: #30363d; }
+        
+        .btn-add { background: #238636; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
+        .btn-add:hover { background: #2ea043; }
 
         /* Отзывы */
         .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
-        .review-item { background: #0d1117; border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; }
+        .review-item { background: rgba(13, 17, 23, 0.8); border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; }
         .review-form { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
         .review-form input, .review-form select, .review-form button { padding: 6px 10px; border-radius: 4px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 13px; }
         .review-form input { flex: 1; min-width: 120px; }
         .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .review-form button:hover { background: #2ea043; }
-
+        
         #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Выберите режим игры и найдите лучший сервер со всего мира</p>
+        <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
+        <p style="color: #8b949e;">Лучшие сервера со всего мира с отзывами и выбором режимов</p>
 
-        <!-- Категории режимов с описанием -->
+        <!-- Категории режимов -->
         <h3 style="margin-top: 25px; color: #58a6ff;">📌 Выберите режим игры:</h3>
         <div class="categories-grid">
             <div class="cat-card" onclick="filterByMode('Анархия')">
@@ -88,6 +111,7 @@
 
         <div class="filter-buttons">
             <button class="btn-reset" onclick="resetFilter()">Показать все серверы</button>
+            <button id="add-server-btn" class="btn-add" onclick="addNewServer()">➕ Добавить сервер</button>
         </div>
 
         <div id="server-list"></div>
@@ -99,7 +123,6 @@
         const PASSWORD = "qwe12345tyu124";
         let isAdmin = false;
 
-        // Полный список серверов (СНГ, Европа, Азия, США)
         let allServers = [
             { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми." },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием." },
@@ -112,6 +135,8 @@
             { id: "cnmine", name: "ChinaCraft", ip: "play.cnmine.net", region: "Азия", flag: "🇨🇳", rating: 4.5, online: 3200, mode: "Выживание", desc: "Крупный азиатский сервер с мирным выживанием." },
             { id: "jpnblock", name: "NipponServer", ip: "mc.jpnblock.jp", region: "Азия", flag: "🇯🇵", rating: 4.6, online: 1100, mode: "Выживание", desc: "Уютный японский сервер с кастомной генерацией мира." }
         ];
+
+        let currentActiveList = allServers;
 
         function getReviews(serverId) {
             try {
@@ -138,23 +163,27 @@
             reviews.unshift({ author, text, stars, date: new Date().toLocaleDateString() });
             localStorage.setItem('reviews_' + serverId, JSON.stringify(reviews));
 
-            textInput.value = "";
-            nameInput.value = "";
-            render(allServers);
+            render(currentActiveList);
         }
 
         function render(serversToRender) {
+            currentActiveList = serversToRender;
             let list = document.getElementById("server-list");
             if (!list) return;
             
             if (serversToRender.length === 0) {
-                list.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 20px;">Серверы по данному режиму не найдены.</p>';
+                list.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 20px;">Серверы не найдены.</p>';
                 return;
             }
 
             list.innerHTML = serversToRender.map(s => {
                 let reviews = getReviews(s.id);
-                let deleteBtn = isAdmin ? `<button onclick="deleteServer('${s.id}')" style="margin-top:10px; background:#da3633; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">🗑️ Удалить сервер</button>` : '';
+                let adminPanel = isAdmin ? `
+                    <div style="margin-top: 10px; display: flex; gap: 8px;">
+                        <button onclick="editServer('${s.id}')" style="background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">✏️ Изменить</button>
+                        <button onclick="deleteServer('${s.id}')" style="background: #da3633; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Удалить</button>
+                    </div>
+                ` : '';
 
                 return `
                     <div class="card">
@@ -169,7 +198,7 @@
                         <p><strong>IP:</strong> <code>${s.ip}</code></p>
                         <p><strong>Онлайн:</strong> 👥 ${s.online} игроков</p>
                         <p class="desc">${s.desc}</p>
-                        ${deleteBtn}
+                        ${adminPanel}
 
                         <div class="reviews-section">
                             <strong>💬 Отзывы (${reviews.length}):</strong>
@@ -217,16 +246,52 @@
             let pass = prompt("Введите пароль администратора:");
             if (pass === PASSWORD) {
                 isAdmin = true;
+                document.getElementById("add-server-btn").style.display = "block";
                 alert("Успешный вход в режим администратора!");
-                render(allServers);
+                render(currentActiveList);
             } else if (pass !== null) {
                 alert("Неверный пароль!");
             }
         }
 
-        function deleteServer(id) {
-            allServers = allServers.filter(s => s.id !== id);
+        function addNewServer() {
+            let name = prompt("Название сервера:");
+            if (!name) return;
+            let ip = prompt("IP адрес сервера:");
+            if (!ip) return;
+            let region = prompt("Регион (СНГ, США, Европа, Азия):", "СНГ");
+            let flag = prompt("Эмодзи флага:", "🇷🇺");
+            let mode = prompt("Режим (Анархия, PvP, Выживание, BedWars):", "Выживание");
+            let desc = prompt("Описание сервера:");
+
+            let newServer = {
+                id: 'serv_' + Date.now(),
+                name, ip, region, flag, rating: 5.0, online: 100, mode, desc: desc || "Новый сервер"
+            };
+
+            allServers.push(newServer);
             render(allServers);
+        }
+
+        function editServer(id) {
+            let s = allServers.find(item => item.id === id);
+            if (!s) return;
+            let newName = prompt("Изменить название:", s.name);
+            let newIp = prompt("Изменить IP:", s.ip);
+            let newDesc = prompt("Изменить описание:", s.desc);
+
+            if (newName) s.name = newName;
+            if (newIp) s.ip = newIp;
+            if (newDesc) s.desc = newDesc;
+
+            render(currentActiveList);
+        }
+
+        function deleteServer(id) {
+            if (confirm("Точно удалить этот сервер?")) {
+                allServers = allServers.filter(s => s.id !== id);
+                render(allServers);
+            }
         }
 
         render(allServers);
