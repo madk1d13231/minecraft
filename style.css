@@ -8,18 +8,12 @@
   --border-color: #30363d;
 }
 
-/* Полное удаление гигантских иконок перевода и фоновых SVG */
-svg, img, i, [class*="search"], [id*="search"]::data-icon {
-  max-width: 24px !important;
-  max-height: 24px !important;
-}
-
-/* Принудительное скрытие лупы автопереводчика Яндекс/Google */
-yandex-search, 
-.ya-search-icon, 
-div[class*="search-icon"], 
-svg[class*="search"] {
-  display: none !important;
+/* Принудительный запрет растягивания любых иконок */
+svg, img, i, svg * {
+  max-width: 16px !important;
+  max-height: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
 }
 
 body {
@@ -133,6 +127,14 @@ body {
   box-sizing: border-box;
 }
 
+.filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .filter-group {
   display: flex;
   flex-wrap: wrap;
@@ -147,6 +149,7 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 13px;
 }
 
 .filter-btn:hover, .filter-btn.active {
@@ -156,10 +159,31 @@ body {
   font-weight: bold;
 }
 
+/* Красивая аккуратная кнопка обновить */
+.refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  background: #21262d;
+  color: var(--primary);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.refresh-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--primary);
+}
+
 .sort-box {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 10px;
   color: var(--text-muted);
   font-size: 14px;
@@ -168,15 +192,6 @@ body {
 .sort-box select {
   padding: 8px 12px;
   background: #0d1117;
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.refresh-btn {
-  padding: 8px 12px;
-  background: #21262d;
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -275,6 +290,13 @@ body {
     align-items: flex-start;
   }
   .copy-btn {
+    width: 100%;
+  }
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .refresh-btn {
     width: 100%;
   }
 }
