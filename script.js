@@ -32,14 +32,6 @@ const serverDatabase = [
     description: 'Cristalix — Сервер с уникальным клиентом, включающим собственные моды и РП-режимы.' 
   },
   { 
-    ip: 'eu.pvp.land', 
-    port: 25565, 
-    region: 'Европа 🇪🇺', 
-    category: 'PvP Тренировка', 
-    rating: 4.6,
-    description: 'PvP Land — Отработка аима, комбо и клик-таймингов на тренировочных ботах и в дуэлях.' 
-  },
-  { 
     ip: 'minemen.club', 
     port: 25565, 
     region: 'Европа 🇪🇺', 
