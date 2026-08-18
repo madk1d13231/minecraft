@@ -1,6 +1,3 @@
-// Пароль для входа в админку
-const ADMIN_PASSWORD = "qwe12345tyu";
-
 // Загрузка списка серверов (из localStorage или по умолчанию)
 function getStoredServers() {
   try {
@@ -52,7 +49,6 @@ let servers = getStoredServers();
 let activeRegion = 'ALL';
 let currentSort = 'rating-desc';
 let searchQuery = '';
-let isAdmin = false;
 
 function saveServers() {
   localStorage.setItem('mc_custom_servers', JSON.stringify(servers));
@@ -64,27 +60,6 @@ function getStoredReviews() {
     return data ? JSON.parse(data) : {};
   } catch (e) {
     return {};
-  }
-}
-
-// Переключение панели админа
-function toggleAdminPanel() {
-  if (!isAdmin) {
-    const pwd = prompt("Введите пароль администратора:");
-    if (pwd === ADMIN_PASSWORD) {
-      isAdmin = true;
-      document.getElementById('admin-panel').style.display = 'block';
-      document.getElementById('admin-login-btn').innerText = '🚪 Выйти из админки';
-      alert("Авторизация успешна!");
-      renderServers();
-    } else if (pwd !== null) {
-      alert("Неверный пароль!");
-    }
-  } else {
-    isAdmin = false;
-    document.getElementById('admin-panel').style.display = 'none';
-    document.getElementById('admin-login-btn').innerText = '🔐 Вход для админа';
-    renderServers();
   }
 }
 
@@ -180,7 +155,7 @@ function renderServers() {
           </div>
 
           <div class="card-actions">
-            ${isAdmin ? `<button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>` : ''}
+            <button class="delete-btn" onclick="deleteServer('${s.ip}')">🗑️ Удалить</button>
             <button class="review-btn" onclick="toggleReviews('${safeIpId}')">
               💬 Отзывы (${serverReviews.length})
             </button>
