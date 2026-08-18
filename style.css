@@ -117,13 +117,12 @@ body {
   font-size: 14px;
 }
 
-/* Фильтры и кнопка на одной линии */
 .filter-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  flex-wrap: wrap !important;
-  gap: 12px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .filter-group {
@@ -150,23 +149,22 @@ body {
   font-weight: bold;
 }
 
-/* Компактная встроенная кнопка */
 .refresh-btn {
-  padding: 8px 14px !important;
-  background: #0d1117 !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--primary) !important;
-  border-radius: 6px !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.2s !important;
-  white-space: nowrap !important;
+  padding: 8px 14px;
+  background: #0d1117;
+  border: 1px solid var(--border-color);
+  color: var(--primary);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .refresh-btn:hover {
-  background: rgba(56, 189, 248, 0.15) !important;
-  border-color: var(--primary) !important;
+  background: rgba(56, 189, 248, 0.15);
+  border-color: var(--primary);
 }
 
 .sort-box {
@@ -186,7 +184,7 @@ body {
   cursor: pointer;
 }
 
-/* Список серверов */
+/* Карточки серверов */
 .server-list {
   display: flex;
   flex-direction: column;
@@ -195,12 +193,18 @@ body {
 
 .server-card {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   background: var(--card-bg);
   padding: 20px;
   border-radius: 12px;
   border: 1px solid var(--border-color);
+  gap: 15px;
+}
+
+.server-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 15px;
 }
 
@@ -257,8 +261,16 @@ body {
   line-height: 1.4;
 }
 
+/* Блок кнопок в карточке */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .copy-btn {
-  padding: 10px 18px;
+  padding: 9px 16px;
   background: var(--primary);
   color: #0d1117;
   border: none;
@@ -266,23 +278,180 @@ body {
   font-weight: bold;
   cursor: pointer;
   white-space: nowrap;
+  font-size: 13px;
 }
 
 .copy-btn:hover {
   opacity: 0.9;
 }
 
+.review-btn {
+  padding: 9px 14px;
+  background: #0d1117;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.review-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Выпадающая панель отзывов */
+.reviews-box {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 5px;
+}
+
+.add-review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.add-review-form input,
+.add-review-form select,
+.add-review-form textarea {
+  background: #161b22;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.submit-btn {
+  align-self: flex-start;
+  padding: 8px 14px;
+  background: var(--primary);
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-item {
+  background: #161b22;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.review-author {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.review-stars {
+  color: var(--star-color);
+}
+
+.review-date {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.review-text {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.no-reviews {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Блок отзывов о сайте */
+.site-reviews-section {
+  margin-top: 35px;
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.site-reviews-section h2 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--primary);
+}
+
+.add-site-review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-site-review-form input,
+.add-site-review-form select,
+.add-site-review-form textarea {
+  background: #0d1117;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.add-site-review-form button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #0d1117;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 13px;
+}
+
 @media (max-width: 600px) {
-  .server-card {
+  .server-main {
     flex-direction: column;
     align-items: flex-start;
   }
-  .copy-btn {
+  .card-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  .copy-btn, .review-btn {
     width: 100%;
   }
   .filter-row {
     flex-direction: column;
-    align-items: stretch !important;
+    align-items: stretch;
   }
   .refresh-btn {
     width: 100%;
