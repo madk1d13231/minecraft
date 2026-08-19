@@ -32,7 +32,7 @@
         
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 360px;
+            grid-template-columns: 1fr 380px;
             gap: 20px;
         }
         @media (max-width: 950px) {
@@ -86,23 +86,25 @@
             border-radius: 8px;
             padding: 15px;
             backdrop-filter: blur(5px);
+            max-height: 800px;
+            overflow-y: auto;
         }
-        .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; position: sticky; top: 0; background: rgba(22, 27, 34, 0.95); padding-bottom: 6px; z-index: 2; }
         
         /* Карточки лидеров с тирами */
         .leader-card-item {
             background: rgba(13, 17, 23, 0.7);
             border: 1px solid #30363d;
             border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
             font-size: 13px;
         }
         .leader-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-weight: bold;
         }
         .leader-rank-num { color: #8b949e; }
@@ -114,12 +116,12 @@
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
         .mini-tier {
             background: #21262d;
             border: 1px solid #30363d;
-            padding: 2px 6px;
+            padding: 1px 5px;
             border-radius: 4px;
             font-size: 11px;
             color: #c9d1d9;
@@ -140,7 +142,7 @@
 <body>
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и мировой топ PvP бойцов по тирам</p>
+        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и топ-20 PvP бойцов</p>
 
         <!-- Категории режимов -->
         <div class="categories-grid">
@@ -171,10 +173,10 @@
         <div class="main-layout">
             <div id="server-list"></div>
 
-            <!-- Боковая панель с топом игроков и их тирами -->
+            <!-- Боковая панель с топом из 20 игроков -->
             <div class="sidebar-container">
                 <div class="sidebar-panel">
-                    <div class="sidebar-title">🏆 Топ PvP Игроков и их Тиры</div>
+                    <div class="sidebar-title">🏆 Топ-20 PvP Игроков</div>
                     <div id="leaderboard-list"></div>
                 </div>
             </div>
@@ -198,33 +200,28 @@
             { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами." }
         ];
 
-        // Топ игроков соревновательной сцены с их тирами по китам
+        // Топ-20 соревновательных игроков с тирами
         let pvpLeaders = [
-            { 
-                rank: 1, 
-                name: "ItzRealMe", 
-                tiers: [ { kit: "Crystal", tier: "HT1" }, { kit: "Pot", tier: "HT1" }, { kit: "Mace", tier: "HT1" }, { kit: "Sword", tier: "HT2" } ] 
-            },
-            { 
-                rank: 2, 
-                name: "Marlowww", 
-                tiers: [ { kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }, { kit: "Sword", tier: "HT1" } ] 
-            },
-            { 
-                rank: 3, 
-                name: "xX_Slayer_Xx", 
-                tiers: [ { kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }, { kit: "Axe", tier: "HT2" } ] 
-            },
-            { 
-                rank: 4, 
-                name: "ShadowPvP", 
-                tiers: [ { kit: "Pot", tier: "HT2" }, { kit: "Sword", tier: "HT2" }, { kit: "UHC", tier: "HT3" } ] 
-            },
-            { 
-                rank: 5, 
-                name: "KillauraGod", 
-                tiers: [ { kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" } ] 
-            }
+            { rank: 1, name: "ItzRealMe", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "Pot", tier: "HT1" }, { kit: "Mace", tier: "HT1" }] },
+            { rank: 2, name: "Marlowww", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }, { kit: "Sword", tier: "HT1" }] },
+            { rank: 3, name: "xX_Slayer_Xx", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }, { kit: "Axe", tier: "HT2" }] },
+            { rank: 4, name: "ShadowPvP", tiers: [{ kit: "Pot", tier: "HT2" }, { kit: "Sword", tier: "HT2" }, { kit: "UHC", tier: "HT3" }] },
+            { rank: 5, name: "KillauraGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 6, name: "Refraction", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "Sword", tier: "HT2" }] },
+            { rank: 7, name: "Stimpy", tiers: [{ kit: "UHC", tier: "HT1" }, { kit: "Sword", tier: "HT1" }] },
+            { rank: 8, name: "TechnoLegacy", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 9, name: "VapeGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT2" }] },
+            { rank: 10, name: "Dort", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "Sword", tier: "HT2" }] },
+            { rank: 11, name: "IntelEdits", tiers: [{ kit: "Crystal", tier: "HT3" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 12, name: "Huahwi", tiers: [{ kit: "UHC", tier: "HT1" }, { kit: "Axe", tier: "HT1" }] },
+            { rank: 13, name: "TimeDeo", tiers: [{ kit: "SkyBlock", tier: "HT1" }, { kit: "Sword", tier: "HT3" }] },
+            { rank: 14, name: "AciDicBliTz", tiers: [{ kit: "Minigames", tier: "HT2" }] },
+            { rank: 15, name: "TapL", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "BedWars", tier: "HT2" }] },
+            { rank: 16, name: "Nestor", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "Sword", tier: "HT2" }] },
+            { rank: 17, name: "Calvin", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "Pot", tier: "HT2" }] },
+            { rank: 18, name: "Purpled", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 19, name: "Spifey", tiers: [{ kit: "UHC", tier: "HT3" }, { kit: "Sword", tier: "HT3" }] },
+            { rank: 20, name: "Zylice", tiers: [{ kit: "Crystal", tier: "HT3" }, { kit: "Mace", tier: "HT3" }] }
         ];
 
         let currentActiveList = allServers;
