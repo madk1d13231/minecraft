@@ -52,7 +52,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 10px;
-            margin: 20px 0;
+            margin: 20px 0 10px 0;
         }
         .cat-card {
             background: rgba(22, 27, 34, 0.85);
@@ -71,6 +71,29 @@
         .cat-icon { font-size: 24px; margin-bottom: 4px; }
         .cat-title { font-size: 13px; font-weight: bold; color: #58a6ff; }
         
+        /* Панель фильтров по регионам */
+        .regions-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .region-btn {
+            background: rgba(22, 27, 34, 0.85);
+            color: #8b949e;
+            border: 1px solid #30363d;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .region-btn:hover {
+            border-color: #58a6ff;
+            color: #c9d1d9;
+        }
+
         .filter-buttons { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
         .btn-reset { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
         .btn-reset:hover { background: #30363d; }
@@ -164,8 +187,17 @@
             </div>
         </div>
 
+        <!-- Фильтры по регионам -->
+        <div class="regions-bar">
+            <span style="font-size: 13px; color: #8b949e; font-weight: bold;">Регионы:</span>
+            <button class="region-btn" onclick="filterByRegion('СНГ')">🇷🇺 СНГ</button>
+            <button class="region-btn" onclick="filterByRegion('США')">🇺🇸 США / Америка</button>
+            <button class="region-btn" onclick="filterByRegion('Европа')">🇪🇺 Европа</button>
+            <button class="region-btn" onclick="filterByRegion('Азия')">🌏 Азия</button>
+        </div>
+
         <div class="filter-buttons">
-            <button class="btn-reset" onclick="resetFilter()">Показать все серверы</button>
+            <button class="btn-reset" onclick="resetFilter()">Сбросить фильтры (Показать все)</button>
             <button id="add-server-btn" class="btn-add" onclick="addNewServer()">➕ Добавить сервер</button>
         </div>
 
@@ -191,6 +223,7 @@
 
         let allServers = [
             { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми." },
+            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей." },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием." },
             { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов." },
             { id: "holyworld", name: "play.holyworld.ru", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами." },
@@ -203,7 +236,8 @@
             { id: "manacube", name: "ManaCube", ip: "play.manacube.com", region: "США", flag: "🇺🇸", rating: 4.7, online: 2500, mode: "Выживание", desc: "Огромная сеть с уникальными режимами: Креатив, Скайблок, Выживание." },
             { id: "stormrage", name: "Stormrage", ip: "top.stormrage.su", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 980, mode: "Выживание", desc: "Качественное выживание с самописными плагинами и экономикой." },
             { id: "blockdrop", name: "BlockDrop Network", ip: "top.blockdrop.org", region: "Европа", flag: "🇪🇺", rating: 4.6, online: 1600, mode: "BedWars", desc: "Европейская сеть серверов с популярными мини-играми." },
-            { id: "JartexNetwork", name: "JartexNetwork", ip: "top.jartex.fun", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 6100, mode: "BedWars", desc: "Один из топовых международных проектов с огромным онлайном." }
+            { id: "JartexNetwork", name: "JartexNetwork", ip: "top.jartex.fun", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 6100, mode: "BedWars", desc: "Один из топовых международных проектов с огромным онлайном." },
+            { id: "uscmc", name: "UniversalCraft", ip: "mc.universalcraft.net", region: "Азия", flag: "🌏", rating: 4.5, online: 850, mode: "Выживание", desc: "Популярный азиатско-международный проект с кастомным выживанием." }
         ];
 
         // Топ-20 соревновательных игроков с тирами
@@ -353,6 +387,11 @@
 
         function filterByMode(modeName) {
             let filtered = allServers.filter(s => s.mode.toLowerCase().includes(modeName.toLowerCase()));
+            render(filtered);
+        }
+
+        function filterByRegion(regionName) {
+            let filtered = allServers.filter(s => s.region.toLowerCase().includes(regionName.toLowerCase()));
             render(filtered);
         }
 
