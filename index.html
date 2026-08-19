@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мировой мониторинг серверов Minecraft</title>
+    <title>Мировой мониторинг серверов Minecraft + Форум</title>
     <style>
         body {
             background-color: #0d1117;
@@ -49,6 +49,16 @@
 
         .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
         
+        /* Навигация по вкладкам */
+        .nav-tabs {
+            display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px;
+        }
+        .nav-tab-btn {
+            background: #21262d; color: #8b949e; border: 1px solid #30363d;
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s;
+        }
+        .nav-tab-btn.active { background: #1f6feb; color: white; border-color: #388bfd; }
+
         .main-layout {
             display: grid;
             grid-template-columns: 1fr 380px;
@@ -149,6 +159,15 @@
         .review-form input { flex: 1; min-width: 100px; }
         .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
 
+        /* Стили форума */
+        .forum-container { display: none; }
+        .forum-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .btn-create-topic { background: #238636; color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-create-topic:hover { background: #2ea043; }
+        .topic-card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .topic-card:hover { border-color: #58a6ff; }
+        .topic-meta { display: flex; gap: 10px; color: #8b949e; font-size: 12px; margin-top: 8px; align-items: center; }
+
         /* Модальные окна */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -192,58 +211,80 @@
 <body>
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Автоматическое обновление базы каждые 12 часов + Топ-20 PvP бойцов</p>
+        <p style="color: #8b949e;">Мониторинг, база данных, форум сообщества и топ-20 PvP бойцов</p>
 
-        <div class="search-bar" style="margin-top: 15px;">
-            <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
+        <!-- Навигационные вкладки -->
+        <div class="nav-tabs" style="margin-top: 15px;">
+            <button id="tab-servers" class="nav-tab-btn active" onclick="switchTab('servers')">🖥️ Серверы</button>
+            <button id="tab-forum" class="nav-tab-btn" onclick="switchTab('forum')">💬 Форум сообщества</button>
         </div>
 
-        <div class="categories-grid">
-            <div class="cat-card" onclick="filterByMode('Анархия')">
-                <div class="cat-header"><span class="cat-icon">🔥</span><span class="cat-title">Анархия</span></div>
-                <p class="cat-desc">Режим без правил и приватов. Стройте базы, устраивайте рейды и выживайте в жестких условиях.</p>
+        <!-- ВКЛАДКА СЕРВЕРОВ -->
+        <div id="section-servers">
+            <div class="search-bar">
+                <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
             </div>
-            <div class="cat-card" onclick="filterByMode('PvP')">
-                <div class="cat-header"><span class="cat-icon">⚔️</span><span class="cat-title">PvP / Дуэли</span></div>
-                <p class="cat-desc">Тренировки комбо, дуэли 1v1, киты (Crystal, Pot, UHC) и арены для проверки боевых навыков.</p>
-            </div>
-            <div class="cat-card" onclick="filterByMode('Выживание')">
-                <div class="cat-header"><span class="cat-icon">🏡</span><span class="cat-title">Выживание</span></div>
-                <p class="cat-desc">Классическое развитие, защита приватов, экономика, кланы и дружелюбное сообщество.</p>
-            </div>
-            <div class="cat-card" onclick="filterByMode('BedWars')">
-                <div class="cat-header"><span class="cat-icon">🛏️</span><span class="cat-title">BedWars</span></div>
-                <p class="cat-desc">Командная мини-игра: защищайте свою кровать, собирайте ресурсы и уничтожайте базы соперников.</p>
-            </div>
-        </div>
 
-        <div class="regions-bar">
-            <span style="font-size: 13px; color: #8b949e; font-weight: bold;">Регионы:</span>
-            <button class="region-btn" onclick="filterByRegion('СНГ')">🇷🇺 СНГ</button>
-            <button class="region-btn" onclick="filterByRegion('США')">🇺🇸 США / Америка</button>
-            <button class="region-btn" onclick="filterByRegion('Европа')">🇪🇺 Европа</button>
-            <button class="region-btn" onclick="filterByRegion('Азия')">🌏 Азия</button>
-        </div>
-
-        <div class="filter-buttons">
-            <button class="btn-reset" onclick="resetFilter()">Сбросить фильтры (Показать все)</button>
-            <div class="admin-controls">
-                <button id="admin-top-btn" class="btn-admin-top" onclick="manageTop()">🏆 Управление топом</button>
-                <button id="db-view-btn" class="btn-db-view" onclick="openDatabaseModal()">💾 Базы данных</button>
-                <button id="api-sync-btn" class="btn-api-sync" onclick="fetchServerFromApi(true)">🔄 Запросить из API (12ч)</button>
-                <button id="add-server-btn" class="btn-add" onclick="openServerForm()">➕ Добавить сервер</button>
-            </div>
-        </div>
-
-        <div class="main-layout">
-            <div id="server-list"></div>
-
-            <div class="sidebar-container">
-                <div class="sidebar-panel">
-                    <div class="sidebar-title">🏆 Топ-20 PvP Игроков</div>
-                    <div id="leaderboard-list"></div>
+            <div class="categories-grid">
+                <div class="cat-card" onclick="filterByMode('Анархия')">
+                    <div class="cat-header"><span class="cat-icon">🔥</span><span class="cat-title">Анархия</span></div>
+                    <p class="cat-desc">Режим без правил и приватов. Стройте базы, устраивайте рейды и выживайте.</p>
+                </div>
+                <div class="cat-card" onclick="filterByMode('PvP')">
+                    <div class="cat-header"><span class="cat-icon">⚔️</span><span class="cat-title">PvP / Дуэли</span></div>
+                    <p class="cat-desc">Тренировки комбо, дуэли 1v1, киты (Crystal, Pot, UHC) и арены.</p>
+                </div>
+                <div class="cat-card" onclick="filterByMode('Выживание')">
+                    <div class="cat-header"><span class="cat-icon">🏡</span><span class="cat-title">Выживание</span></div>
+                    <p class="cat-desc">Классическое развитие, защита приватов, экономика и кланы.</p>
+                </div>
+                <div class="cat-card" onclick="filterByMode('BedWars')">
+                    <div class="cat-header"><span class="cat-icon">🛏️</span><span class="cat-title">BedWars</span></div>
+                    <p class="cat-desc">Защищайте свою кровать, собирайте ресурсы и уничтожайте соперников.</p>
                 </div>
             </div>
+
+            <div class="regions-bar">
+                <span style="font-size: 13px; color: #8b949e; font-weight: bold;">Регионы:</span>
+                <button class="region-btn" onclick="filterByRegion('СНГ')">🇷🇺 СНГ</button>
+                <button class="region-btn" onclick="filterByRegion('США')">🇺🇸 США / Америка</button>
+                <button class="region-btn" onclick="filterByRegion('Европа')">🇪🇺 Европа</button>
+                <button class="region-btn" onclick="filterByRegion('Азия')">🌏 Азия</button>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="btn-reset" onclick="resetFilter()">Сбросить фильтры (Показать все)</button>
+                <div class="admin-controls">
+                    <button id="admin-top-btn" class="btn-admin-top" onclick="manageTop()">🏆 Управление топом</button>
+                    <button id="db-view-btn" class="btn-db-view" onclick="openDatabaseModal()">💾 Базы данных</button>
+                    <button id="api-sync-btn" class="btn-api-sync" onclick="fetchServerFromApi(true)">🔄 Запросить из API</button>
+                    <button id="add-server-btn" class="btn-add" onclick="openServerForm()">➕ Добавить сервер</button>
+                </div>
+            </div>
+
+            <div class="main-layout">
+                <div id="server-list"></div>
+
+                <div class="sidebar-container">
+                    <div class="sidebar-panel">
+                        <div class="sidebar-title">🏆 Топ-20 PvP Игроков</div>
+                        <div id="leaderboard-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ВКЛАДКА ФОРУМА -->
+        <div id="section-forum" class="forum-container">
+            <div class="forum-header-flex">
+                <div>
+                    <h2 style="color: #58a6ff; margin: 0;">Обсуждения и форум</h2>
+                    <p style="color: #8b949e; font-size: 13px; margin: 4px 0 0 0;">Делитесь мнениями, ищите кланы и предлагайте идеи</p>
+                </div>
+                <button class="btn-create-topic" onclick="openTopicModal()">➕ Создать тему</button>
+            </div>
+
+            <div id="forum-topics-list"></div>
         </div>
     </div>
 
@@ -255,7 +296,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно формы добавления/редактирования -->
+    <!-- Модальное окно формы добавления/редактирования сервера -->
     <div id="serverFormModal" class="modal-overlay" onclick="closeFormModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeFormModalDirect()">✕</button>
@@ -333,6 +374,45 @@
         </div>
     </div>
 
+    <!-- Модальное окно создания темы на форуме -->
+    <div id="topicModal" class="modal-overlay" onclick="closeTopicModalEvent(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTopicModalDirect()">✕</button>
+            <h2 style="color: #58a6ff; margin-top: 0;">Создать тему на форуме</h2>
+            <form onsubmit="saveNewTopic(event)">
+                <div class="form-group">
+                    <label>Ваш ник:</label>
+                    <input type="text" id="t-author" required placeholder="Игрок" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Категория:</label>
+                    <select id="t-category">
+                        <option value="Общие">📌 Общие темы</option>
+                        <option value="Кланы">🛡️ Поиск кланов / игроков</option>
+                        <option value="Идеи">💡 Баги и предложения</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Заголовок темы:</label>
+                    <input type="text" id="t-title" required placeholder="О чем ваша тема?">
+                </div>
+                <div class="form-group">
+                    <label>Сообщение:</label>
+                    <textarea id="t-text" rows="4" required placeholder="Текст сообщения..."></textarea>
+                </div>
+                <button type="submit" class="form-btn-save">Опубликовать</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно просмотра конкретной темы форума с комментариями -->
+    <div id="topicViewModal" class="modal-overlay" onclick="closeTopicViewEvent(event)">
+        <div class="modal-content" style="max-width: 650px;">
+            <button class="modal-close" onclick="closeTopicViewDirect()">✕</button>
+            <div id="topicViewBody"></div>
+        </div>
+    </div>
+
     <!-- Модальное окно баз данных -->
     <div id="databaseModal" class="modal-overlay" onclick="closeDatabaseModalEvent(event)">
         <div class="modal-content" style="max-width: 650px;">
@@ -375,9 +455,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
             { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" },
-            { id: "holyworld", name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в 1.5 месяца", discord: "https://discord.gg/holyworld", store: "https://holyworld.ru" },
-            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su" }
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" }
         ];
 
         let defaultLeaders = [
@@ -386,34 +464,186 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             { rank: 3, name: "xX_Slayer_Xx", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }] }
         ];
 
+        let defaultTopics = [
+            { id: 1, author: "Admin", category: "Общие", title: "Добро пожаловать на форум мониторинга!", text: "Правила простые: уважайте других участников, не спамьте и обсуждайте лучшие сервера Minecraft.", date: "18.06.2026", replies: [] },
+            { id: 2, author: "ShadowPvP", category: "Кланы", title: "Ищем игроков в клан для анархии", text: "Требования: возраст от 14 лет, хороший актив и умение играть с кристаллом. Пишите в ЛС.", date: "19.06.2026", replies: [{ id: 101, author: "VortexKing", text: "Я готов залететь, какой дискорд?", date: "19.06.2026" }] }
+        ];
+
         let allServers = JSON.parse(localStorage.getItem('saved_servers')) || defaultServers;
         let pvpLeaders = JSON.parse(localStorage.getItem('saved_leaders')) || defaultLeaders;
+        let forumTopics = JSON.parse(localStorage.getItem('saved_forum_topics')) || defaultTopics;
         let currentActiveList = allServers;
 
-        function saveServers() {
-            localStorage.setItem('saved_servers', JSON.stringify(allServers));
-        }
+        function saveServers() { localStorage.setItem('saved_servers', JSON.stringify(allServers)); }
+        function saveTopics() { localStorage.setItem('saved_forum_topics', JSON.stringify(forumTopics)); }
 
-        // Автоматическая проверка и запрос из API раз в 12 часов
-        async function checkApiSyncTimer() {
-            let lastSync = localStorage.getItem('last_api_sync_time');
-            let now = Date.now();
-            let twelveHours = 12 * 60 * 60 * 1000;
+        function switchTab(tabName) {
+            document.getElementById("tab-servers").classList.remove("active");
+            document.getElementById("tab-forum").classList.remove("active");
+            document.getElementById("section-servers").style.display = "none";
+            document.getElementById("section-forum").style.display = "none";
 
-            if (!lastSync || (now - parseInt(lastSync)) > twelveHours) {
-                await fetchServerFromApi(false);
-                localStorage.setItem('last_api_sync_time', now.toString());
+            if (tabName === 'servers') {
+                document.getElementById("tab-servers").classList.add("active");
+                document.getElementById("section-servers").style.display = "block";
+            } else {
+                document.getElementById("tab-forum").classList.add("active");
+                document.getElementById("section-forum").style.display = "block";
+                renderForum();
             }
         }
 
+        // --- ФОРУМ ЛОГИКА ---
+        function renderForum() {
+            let list = document.getElementById("forum-topics-list");
+            if (!list) return;
+
+            if (forumTopics.length === 0) {
+                list.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 20px;">На форуме пока нет тем. Создайте первую!</p>';
+                return;
+            }
+
+            list.innerHTML = forumTopics.map(t => {
+                let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
+                let adminDel = isAdmin ? `<button onclick="event.stopPropagation(); deleteTopic(${t.id})" style="background: #da3633; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px;">Удалить</button>` : '';
+
+                return `
+                    <div class="topic-card" onclick="openTopicView(${t.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <span class="badge" style="background: ${badgeColor}; color: white; font-weight: bold; margin-bottom: 6px; display: inline-block;">${t.category}</span>
+                                <h3 style="font-size: 16px; margin: 4px 0;">${t.title}</h3>
+                            </div>
+                            ${adminDel}
+                        </div>
+                        <p style="color: #8b949e; font-size: 13px; margin: 6px 0;">${t.text.length > 100 ? t.text.substring(0, 100) + '...' : t.text}</p>
+                        <div class="topic-meta">
+                            <span>Автор: <strong>${t.author}</strong></span>
+                            <span>•</span>
+                            <span>Дата: ${t.date}</span>
+                            <span>•</span>
+                            <span>💬 Ответы: ${(t.replies || []).length}</span>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function openTopicModal() { document.getElementById("topicModal").style.display = "flex"; }
+        function closeTopicModalEvent(event) { if (event.target.id === "topicModal") closeTopicModalDirect(); }
+        function closeTopicModalDirect() { document.getElementById("topicModal").style.display = "none"; }
+
+        function saveNewTopic(event) {
+            event.preventDefault();
+            let author = document.getElementById("t-author").value.trim();
+            let category = document.getElementById("t-category").value;
+            let title = document.getElementById("t-title").value.trim();
+            let text = document.getElementById("t-text").value.trim();
+
+            let newTopic = {
+                id: Date.now(),
+                author,
+                category,
+                title,
+                text,
+                date: new Date().toLocaleDateString(),
+                replies: []
+            };
+
+            forumTopics.unshift(newTopic);
+            saveTopics();
+            renderForum();
+            closeTopicModalDirect();
+            event.target.reset();
+        }
+
+        function deleteTopic(id) {
+            if (confirm("Точно удалить эту тему?")) {
+                forumTopics = forumTopics.filter(t => t.id !== id);
+                saveTopics();
+                renderForum();
+            }
+        }
+
+        let currentOpenTopicId = null;
+        function openTopicView(id) {
+            let t = forumTopics.find(item => item.id === id);
+            if (!t) return;
+            currentOpenTopicId = id;
+
+            let body = document.getElementById("topicViewBody");
+            let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
+
+            let repliesHtml = (t.replies || []).map(r => `
+                <div class="review-item" style="margin-top: 10px;">
+                    <div style="display:flex; justify-content:space-between; color:#8b949e; font-size:11px;">
+                        <span><strong>${r.author}</strong></span>
+                        <span>${r.date}</span>
+                    </div>
+                    <div style="margin-top:4px;">${r.text}</div>
+                    ${isAdmin ? `<button onclick="deleteReply(${t.id}, ${r.id})" style="position: absolute; top: 6px; right: 6px; background: #da3633; color: white; border: none; border-radius: 3px; font-size: 10px; cursor: pointer; padding: 2px 5px;">Удалить</button>` : ''}
+                </div>
+            `).join("");
+
+            body.innerHTML = `
+                <span class="badge" style="background: ${badgeColor}; color: white; font-weight: bold; margin-bottom: 8px; display: inline-block;">${t.category}</span>
+                <h2 style="color: #58a6ff; margin: 0 0 8px 0;">${t.title}</h2>
+                <div style="color: #8b949e; font-size: 12px; margin-bottom: 15px;">Автор: <strong>${t.author}</strong> | Дата: ${t.date}</div>
+                <p style="background: rgba(13,17,23,0.6); padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.4;">${t.text}</p>
+                
+                <h3 style="font-size: 15px; margin: 20px 0 10px 0; color: #f0883e;">Комментарии (${(t.replies || []).length}):</h3>
+                <div style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
+                    ${(t.replies || []).length === 0 ? '<p style="color:#8b949e; font-size:13px;">Пока нет ответов. Напишите первый!</p>' : repliesHtml}
+                </div>
+
+                <div class="review-form">
+                    <input type="text" id="reply-author" placeholder="Ваше имя" maxlength="15" style="max-width: 120px;">
+                    <input type="text" id="reply-text" placeholder="Написать ответ...">
+                    <button onclick="addReply()">Ответить</button>
+                </div>
+            `;
+            document.getElementById("topicViewModal").style.display = "flex";
+        }
+
+        function closeTopicViewEvent(event) { if (event.target.id === "topicViewModal") closeTopicViewDirect(); }
+        function closeTopicViewDirect() { document.getElementById("topicViewModal").style.display = "none"; }
+
+        function addReply() {
+            let authorInput = document.getElementById("reply-author");
+            let textInput = document.getElementById("reply-text");
+            let author = authorInput.value.trim() || "Игрок";
+            let text = textInput.value.trim();
+
+            if (!text) { alert("Напишите текст ответа!"); return; }
+
+            let t = forumTopics.find(item => item.id === currentOpenTopicId);
+            if (!t) return;
+
+            if (!t.replies) t.replies = [];
+            t.replies.push({ id: Date.now(), author, text, date: new Date().toLocaleDateString() });
+
+            saveTopics();
+            openTopicView(currentOpenTopicId);
+            renderForum();
+        }
+
+        function deleteReply(topicId, replyId) {
+            if (!isAdmin) return;
+            let t = forumTopics.find(item => item.id === topicId);
+            if (!t) return;
+            t.replies = t.replies.filter(r => r.id !== replyId);
+            saveTopics();
+            openTopicView(topicId);
+            renderForum();
+        }
+
+        // --- БАЗОВЫЕ ФУНКЦИИ СЕРВЕРОВ ---
         async function fetchServerFromApi(manual = false) {
-            // Список резервных популярных серверов для автоподтягивания из базы mcsrvstat.us
             const poolIps = ["play.cubecraft.net", "hub.vortexnetwork.net", "play.manacube.com", "purpleprison.net", "minemen.club"];
             let randomIp = poolIps[Math.floor(Math.random() * poolIps.length)];
 
-            // Проверяем, нет ли уже такого сервера в списке
             if (allServers.some(s => s.ip === randomIp)) {
-                if (manual) alert("Случайный сервер уже есть в списке, попробуйте еще раз.");
+                if (manual) alert("Случайный сервер уже есть в списке.");
                 return;
             }
 
@@ -441,30 +671,25 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     allServers.unshift(newServ);
                     saveServers();
                     render(allServers);
-                    if (manual) alert(`Успешно добавлен новый сервер из базы: ${newServ.name} (${randomIp})!`);
+                    if (manual) alert(`Добавлен сервер: ${newServ.name}!`);
                 } else if (manual) {
-                    alert("Сервер из API сейчас оффлайн, попробуйте позже.");
+                    alert("Сервер оффлайн, попробуйте позже.");
                 }
             } catch(e) {
-                if (manual) alert("Не удалось подключиться к базе данных API.");
+                if (manual) alert("Не удалось подключиться к API.");
             }
         }
 
         function renderSidebar() {
             let lbContainer = document.getElementById("leaderboard-list");
             if (!lbContainer) return;
-
             lbContainer.innerHTML = pvpLeaders.map(item => {
                 let rankClass = item.rank === 1 ? "top1" : item.rank === 2 ? "top2" : item.rank === 3 ? "top3" : "";
                 let tiersHtml = item.tiers.map(t => `<div class="mini-tier">${t.kit}: <span>${t.tier}</span></div>`).join("");
-
                 return `
                     <div class="leader-card-item">
                         <div class="leader-card-header">
-                            <div>
-                                <span class="leader-rank-num ${rankClass}">#${item.rank}</span> 
-                                <span style="color: #58a6ff;">${item.name}</span>
-                            </div>
+                            <div><span class="leader-rank-num ${rankClass}">#${item.rank}</span> <span style="color: #58a6ff;">${item.name}</span></div>
                         </div>
                         <div class="tier-tags">${tiersHtml}</div>
                     </div>
@@ -473,21 +698,14 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         }
 
         function getReviews(serverId) {
-            try {
-                let data = localStorage.getItem('reviews_' + serverId);
-                return data ? JSON.parse(data) : [];
-            } catch(e) { return []; }
+            try { return JSON.parse(localStorage.getItem('reviews_' + serverId)) || []; } catch(e) { return []; }
         }
 
         function addReview(serverId, event) {
             event.stopPropagation();
-            let nameInput = document.getElementById('name_' + serverId);
-            let textInput = document.getElementById('text_' + serverId);
-            let starSelect = document.getElementById('stars_' + serverId);
-
-            let author = nameInput.value.trim() || "Игрок";
-            let text = textInput.value.trim();
-            let stars = parseInt(starSelect.value);
+            let author = document.getElementById('name_' + serverId).value.trim() || "Игрок";
+            let text = document.getElementById('text_' + serverId).value.trim();
+            let stars = parseInt(document.getElementById('stars_' + serverId).value);
 
             if (!text) { alert("Напишите текст отзыва!"); return; }
 
@@ -500,8 +718,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         function deleteReview(serverId, reviewId, event) {
             event.stopPropagation();
             if (!isAdmin) return;
-            let reviews = getReviews(serverId);
-            reviews = reviews.filter(r => r.id !== reviewId);
+            let reviews = getReviews(serverId).filter(r => r.id !== reviewId);
             localStorage.setItem('reviews_' + serverId, JSON.stringify(reviews));
             render(currentActiveList);
         }
@@ -580,15 +797,13 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function handleSearch() {
             let query = document.getElementById("search-input").value.toLowerCase();
-            let filtered = allServers.filter(s => s.name.toLowerCase().includes(query) || s.ip.toLowerCase().includes(query));
-            render(filtered);
+            render(allServers.filter(s => s.name.toLowerCase().includes(query) || s.ip.toLowerCase().includes(query)));
         }
 
         function openServerModal(id) {
             let s = allServers.find(item => item.id === id);
             if (!s) return;
-            let modalBody = document.getElementById("modalBody");
-            modalBody.innerHTML = `
+            document.getElementById("modalBody").innerHTML = `
                 <h2 style="color: #58a6ff; margin-top: 0;">${s.name}</h2>
                 <p><strong>IP-адрес:</strong> <code style="background: #21262d; padding: 2px 6px; border-radius: 4px;">${s.ip}</code></p>
                 <p><strong>Режим:</strong> ${s.mode}</p>
@@ -666,8 +881,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 let s = allServers.find(item => item.id === editId);
                 if (s) { s.name = name; s.ip = ip; s.region = region; s.flag = flag; s.mode = mode; s.status = status; s.vip = vip; s.wipe = wipe; s.discord = discord; s.store = store; s.desc = desc; }
             } else {
-                let newServer = { id: 'serv_' + Date.now(), name, ip, region, flag, rating: 5.0, online: 300, mode, status, vip, wipe, discord, store, desc };
-                allServers.push(newServer);
+                allServers.push({ id: 'serv_' + Date.now(), name, ip, region, flag, rating: 5.0, online: 300, mode, status, vip, wipe, discord, store, desc });
             }
             saveServers();
             render(currentActiveList);
@@ -692,6 +906,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 document.getElementById("api-sync-btn").style.display = "block";
                 alert("Успешный вход в режим администратора!");
                 render(currentActiveList);
+                if(document.getElementById("section-forum").style.display === "block") renderForum();
             } else if (pass !== null) { alert("Неверный пароль!"); }
         }
 
@@ -724,8 +939,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }
         }
 
-        // Запуск проверки таймера 12 часов при загрузке страницы
-        checkApiSyncTimer();
         render(allServers);
         renderSidebar();
     </script>
