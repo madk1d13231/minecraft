@@ -50,9 +50,7 @@
         .rating-star { color: #f0883e; font-weight: bold; }
         
         /* Строка поиска */
-        .search-bar {
-            margin-bottom: 15px;
-        }
+        .search-bar { margin-bottom: 15px; }
         .search-input {
             width: 100%;
             padding: 10px 14px;
@@ -67,29 +65,32 @@
         }
         .search-input:focus { border-color: #58a6ff; }
 
-        /* Сетка категорий режимов */
+        /* Сетка категорий режимов с описанием */
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            margin: 20px 0 10px 0;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 20px 0 15px 0;
         }
         .cat-card {
             background: rgba(22, 27, 34, 0.85);
             border: 1px solid #30363d;
             border-radius: 8px;
-            padding: 10px;
-            text-align: center;
+            padding: 12px;
+            text-align: left;
             cursor: pointer;
             transition: 0.2s;
+            backdrop-filter: blur(5px);
         }
         .cat-card:hover {
             border-color: #58a6ff;
             background: rgba(31, 36, 44, 0.95);
             transform: translateY(-2px);
         }
-        .cat-icon { font-size: 24px; margin-bottom: 4px; }
-        .cat-title { font-size: 13px; font-weight: bold; color: #58a6ff; }
+        .cat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .cat-icon { font-size: 22px; }
+        .cat-title { font-size: 14px; font-weight: bold; color: #58a6ff; }
+        .cat-desc { font-size: 11px; color: #8b949e; line-height: 1.3; margin: 0; }
         
         /* Панель фильтров по регионам */
         .regions-bar {
@@ -109,10 +110,7 @@
             font-size: 13px;
             transition: 0.2s;
         }
-        .region-btn:hover {
-            border-color: #58a6ff;
-            color: #c9d1d9;
-        }
+        .region-btn:hover { border-color: #58a6ff; color: #c9d1d9; }
 
         .filter-buttons { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
         .btn-reset { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
@@ -137,7 +135,6 @@
         }
         .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; position: sticky; top: 0; background: rgba(22, 27, 34, 0.95); padding-bottom: 6px; z-index: 2; }
         
-        /* Карточки лидеров с тирами */
         .leader-card-item {
             background: rgba(13, 17, 23, 0.7);
             border: 1px solid #30363d;
@@ -146,35 +143,19 @@
             margin-bottom: 8px;
             font-size: 13px;
         }
-        .leader-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-            font-weight: bold;
-        }
+        .leader-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-weight: bold; }
         .leader-rank-num { color: #8b949e; }
         .leader-rank-num.top1 { color: #ffd700; }
         .leader-rank-num.top2 { color: #c0c0c0; }
         .leader-rank-num.top3 { color: #cd7f32; }
         
-        .tier-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 4px;
-        }
+        .tier-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
         .mini-tier {
-            background: #21262d;
-            border: 1px solid #30363d;
-            padding: 1px 5px;
-            border-radius: 4px;
-            font-size: 11px;
-            color: #c9d1d9;
+            background: #21262d; border: 1px solid #30363d; padding: 1px 5px;
+            border-radius: 4px; font-size: 11px; color: #c9d1d9;
         }
         .mini-tier span { color: #58a6ff; font-weight: bold; }
 
-        /* Отзывы */
         .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
         .review-item { background: rgba(13, 17, 23, 0.8); border: 1px solid #30363d; border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 13px; position: relative; }
         .review-form { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
@@ -185,8 +166,7 @@
         /* Модальное окно */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
             z-index: 10000; backdrop-filter: blur(4px);
         }
         .modal-content {
@@ -199,9 +179,7 @@
             border: none; color: #8b949e; font-size: 20px; cursor: pointer;
         }
         .modal-close:hover { color: #c9d1d9; }
-        .modal-links {
-            display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;
-        }
+        .modal-links { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
         .modal-btn-link {
             background: #21262d; color: #58a6ff; border: 1px solid #30363d;
             padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;
@@ -221,23 +199,35 @@
             <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
         </div>
 
-        <!-- Категории режимов -->
+        <!-- Категории режимов с подробным описанием -->
         <div class="categories-grid">
             <div class="cat-card" onclick="filterByMode('Анархия')">
-                <div class="cat-icon">🔥</div>
-                <div class="cat-title">Анархия</div>
+                <div class="cat-header">
+                    <span class="cat-icon">🔥</span>
+                    <span class="cat-title">Анархия</span>
+                </div>
+                <p class="cat-desc">Режим без правил и приватов. Стройте базы, устраивайте рейды и выживайте в жестких условиях.</p>
             </div>
             <div class="cat-card" onclick="filterByMode('PvP')">
-                <div class="cat-icon">⚔️</div>
-                <div class="cat-title">PvP / Дуэли</div>
+                <div class="cat-header">
+                    <span class="cat-icon">⚔️</span>
+                    <span class="cat-title">PvP / Дуэли</span>
+                </div>
+                <p class="cat-desc">Тренировки комбо, дуэли 1v1, киты (Crystal, Pot, UHC) и арены для проверки боевых навыков.</p>
             </div>
             <div class="cat-card" onclick="filterByMode('Выживание')">
-                <div class="cat-icon">🏡</div>
-                <div class="cat-title">Выживание</div>
+                <div class="cat-header">
+                    <span class="cat-icon">🏡</span>
+                    <span class="cat-title">Выживание</span>
+                </div>
+                <p class="cat-desc">Классическое развитие, защита приватов, экономика, кланы и дружелюбное сообщество.</p>
             </div>
             <div class="cat-card" onclick="filterByMode('BedWars')">
-                <div class="cat-icon">🛏️</div>
-                <div class="cat-title">BedWars</div>
+                <div class="cat-header">
+                    <span class="cat-icon">🛏️</span>
+                    <span class="cat-title">BedWars</span>
+                </div>
+                <p class="cat-desc">Командная мини-игра: защищайте свою кровать, собирайте ресурсы и уничтожайте базы соперников.</p>
             </div>
         </div>
 
@@ -262,7 +252,6 @@
         <div class="main-layout">
             <div id="server-list"></div>
 
-            <!-- Боковая панель с топом из 20 игроков -->
             <div class="sidebar-container">
                 <div class="sidebar-panel">
                     <div class="sidebar-title">🏆 Топ-20 PvP Игроков</div>
@@ -287,7 +276,7 @@
         let isAdmin = false;
 
         let defaultServers = [
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "СНГ", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
             { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
             { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" },
@@ -347,7 +336,7 @@
         }
 
         function addReview(serverId, event) {
-            event.stopPropagation(); // Чтобы не открывалось модальное окно при клике на кнопку
+            event.stopPropagation();
             let nameInput = document.getElementById('name_' + serverId);
             let textInput = document.getElementById('text_' + serverId);
             let starSelect = document.getElementById('stars_' + serverId);
@@ -449,7 +438,6 @@
             }).join("");
         }
 
-        // Логика поиска
         function handleSearch() {
             let query = document.getElementById("search-input").value.toLowerCase();
             let filtered = allServers.filter(s => 
@@ -458,7 +446,6 @@
             render(filtered);
         }
 
-        // Логика модального окна
         function openServerModal(id) {
             let s = allServers.find(item => item.id === id);
             if (!s) return;
