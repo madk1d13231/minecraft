@@ -28,14 +28,14 @@
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
         }
 
-        .container { max-width: 1150px; margin: 0 auto; position: relative; z-index: 1; }
+        .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
         
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 340px;
+            grid-template-columns: 1fr 360px;
             gap: 20px;
         }
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
             .main-layout { grid-template-columns: 1fr; }
         }
 
@@ -87,34 +87,44 @@
             padding: 15px;
             backdrop-filter: blur(5px);
         }
-        .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
         
-        .leader-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid #30363d;
+        /* Карточки лидеров с тирами */
+        .leader-card-item {
+            background: rgba(13, 17, 23, 0.7);
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
             font-size: 13px;
         }
-        .leader-item:last-child { border-bottom: none; }
-        .leader-rank { font-weight: bold; width: 22px; color: #8b949e; }
-        .leader-rank.top1 { color: #ffd700; }
-        .leader-rank.top2 { color: #c0c0c0; }
-        .leader-rank.top3 { color: #cd7f32; }
-        .leader-score { color: #3fb950; font-weight: bold; }
-
-        /* Стили для рангов китов PvP */
-        .tier-item {
+        .leader-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px 0;
-            border-bottom: 1px solid #30363d;
-            font-size: 12px;
+            margin-bottom: 6px;
+            font-weight: bold;
         }
-        .tier-item:last-child { border-bottom: none; }
-        .tier-badge { background: #1f6feb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .leader-rank-num { color: #8b949e; }
+        .leader-rank-num.top1 { color: #ffd700; }
+        .leader-rank-num.top2 { color: #c0c0c0; }
+        .leader-rank-num.top3 { color: #cd7f32; }
+        
+        .tier-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .mini-tier {
+            background: #21262d;
+            border: 1px solid #30363d;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #c9d1d9;
+        }
+        .mini-tier span { color: #58a6ff; font-weight: bold; }
 
         /* Отзывы */
         .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
@@ -130,7 +140,7 @@
 <body>
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и киты соревновательного PvP</p>
+        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и мировой топ PvP бойцов по тирам</p>
 
         <!-- Категории режимов -->
         <div class="categories-grid">
@@ -161,18 +171,11 @@
         <div class="main-layout">
             <div id="server-list"></div>
 
-            <!-- Боковая панель -->
+            <!-- Боковая панель с топом игроков и их тирами -->
             <div class="sidebar-container">
-                <!-- Топ PvP Игроков -->
                 <div class="sidebar-panel">
-                    <div class="sidebar-title">🏆 Топ PvP Игроков</div>
+                    <div class="sidebar-title">🏆 Топ PvP Игроков и их Тиры</div>
                     <div id="leaderboard-list"></div>
-                </div>
-
-                <!-- Ранги ItzRealMe по китам -->
-                <div class="sidebar-panel">
-                    <div class="sidebar-title">⚔️ Киты ItzRealMe (MCTiers)</div>
-                    <div id="tiers-list"></div>
                 </div>
             </div>
         </div>
@@ -195,51 +198,59 @@
             { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами." }
         ];
 
+        // Топ игроков соревновательной сцены с их тирами по китам
         let pvpLeaders = [
-            { rank: 1, name: "ItzRealMe", score: 4120 },
-            { rank: 2, name: "xX_Slayer_Xx", score: 3420 },
-            { rank: 3, name: "TechnoBlade_Fan", score: 2980 },
-            { rank: 4, name: "ShadowPvP", score: 2750 },
-            { rank: 5, name: "KillauraGod", score: 2410 }
-        ];
-
-        let itzRealMeTiers = [
-            { kit: "Crystal (CPvP)", tier: "HT1" },
-            { kit: "Diamond Pot", tier: "HT1" },
-            { kit: "Nethpot", tier: "HT1" },
-            { kit: "SMP (Тотем)", tier: "HT1" },
-            { kit: "Mace PvP", tier: "HT1" },
-            { kit: "Sword (Меч)", tier: "HT2" },
-            { kit: "Axe (Топор)", tier: "LT2" },
-            { kit: "UHC", tier: "LT2" }
+            { 
+                rank: 1, 
+                name: "ItzRealMe", 
+                tiers: [ { kit: "Crystal", tier: "HT1" }, { kit: "Pot", tier: "HT1" }, { kit: "Mace", tier: "HT1" }, { kit: "Sword", tier: "HT2" } ] 
+            },
+            { 
+                rank: 2, 
+                name: "Marlowww", 
+                tiers: [ { kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }, { kit: "Sword", tier: "HT1" } ] 
+            },
+            { 
+                rank: 3, 
+                name: "xX_Slayer_Xx", 
+                tiers: [ { kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }, { kit: "Axe", tier: "HT2" } ] 
+            },
+            { 
+                rank: 4, 
+                name: "ShadowPvP", 
+                tiers: [ { kit: "Pot", tier: "HT2" }, { kit: "Sword", tier: "HT2" }, { kit: "UHC", tier: "HT3" } ] 
+            },
+            { 
+                rank: 5, 
+                name: "KillauraGod", 
+                tiers: [ { kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" } ] 
+            }
         ];
 
         let currentActiveList = allServers;
 
         function renderSidebar() {
             let lbContainer = document.getElementById("leaderboard-list");
-            if (lbContainer) {
-                lbContainer.innerHTML = pvpLeaders.map(item => {
-                    let rankClass = item.rank === 1 ? "top1" : item.rank === 2 ? "top2" : item.rank === 3 ? "top3" : "";
-                    return `
-                        <div class="leader-item">
-                            <span class="leader-rank ${rankClass}">#${item.rank}</span>
-                            <span style="flex:1; margin-left: 6px; overflow:hidden; text-overflow:ellipsis;">${item.name}</span>
-                            <span class="leader-score">${item.score} pts</span>
-                        </div>
-                    `;
-                }).join("");
-            }
+            if (!lbContainer) return;
 
-            let tiersContainer = document.getElementById("tiers-list");
-            if (tiersContainer) {
-                tiersContainer.innerHTML = itzRealMeTiers.map(t => `
-                    <div class="tier-item">
-                        <span>${t.kit}</span>
-                        <span class="tier-badge">${t.tier}</span>
+            lbContainer.innerHTML = pvpLeaders.map(item => {
+                let rankClass = item.rank === 1 ? "top1" : item.rank === 2 ? "top2" : item.rank === 3 ? "top3" : "";
+                let tiersHtml = item.tiers.map(t => `<div class="mini-tier">${t.kit}: <span>${t.tier}</span></div>`).join("");
+
+                return `
+                    <div class="leader-card-item">
+                        <div class="leader-card-header">
+                            <div>
+                                <span class="leader-rank-num ${rankClass}">#${item.rank}</span> 
+                                <span style="color: #58a6ff;">${item.name}</span>
+                            </div>
+                        </div>
+                        <div class="tier-tags">
+                            ${tiersHtml}
+                        </div>
                     </div>
-                `).join("");
-            }
+                `;
+            }).join("");
         }
 
         function getReviews(serverId) {
