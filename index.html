@@ -21,18 +21,29 @@
         .content-section {
             flex: 1;
         }
+        h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        p.subtitle {
+            color: #aaa;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
         .controls {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
         }
         .controls input, .controls select {
-            padding: 8px 12px;
+            padding: 10px 12px;
             background: #252525;
             border: 1px solid #444;
             color: #fff;
             border-radius: 4px;
             outline: none;
+            font-size: 14px;
         }
         .controls input {
             flex-grow: 1;
@@ -56,9 +67,13 @@
         }
         .server-badge {
             background: #333;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-size: 12px;
+        }
+        .server-card p {
+            margin: 6px 0;
+            font-size: 14px;
         }
         
         /* Правая колонка с рейтингом MCTiers */
@@ -117,10 +132,14 @@
             background: #333;
             color: #fff;
             border: 1px solid #555;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
             z-index: 100;
+            font-weight: bold;
+        }
+        .admin-btn:hover {
+            background: #444;
         }
     </style>
 </head>
@@ -129,8 +148,11 @@
     <button class="admin-btn" onclick="checkAdmin()">Админ</button>
 
     <div class="main-layout">
-        <!-- Левая часть: Поиск, фильтры и динамический список серверов -->
+        <!-- Левая часть: Мониторинг серверов, поиск и фильтры -->
         <div class="content-section">
+            <h1>Мониторинг серверов Minecraft</h1>
+            <p class="subtitle">Список лучших серверов со всего мира</p>
+
             <div class="controls">
                 <input type="text" id="searchServer" placeholder="Поиск сервера по названию или IP...">
                 <select id="filterCountry">
@@ -154,7 +176,7 @@
     <script>
         const PASSWORD = "qwe12345tyu124";[cite: 3]
 
-        // Полный список серверов из вашей базы[cite: 3]
+        // База серверов
         const servers = [
             { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "RU", rating: 4.8, online: 1240, mode: "Моды / HiTech / Magic", desc: "Крупнейший проект с индустриальными и магическими модами." },[cite: 3]
             { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "RU", rating: 4.7, online: 3850, mode: "Анархия / Гриф", desc: "Популярный гриферский проект с кастомными предметами." },[cite: 3]
@@ -171,7 +193,7 @@
             { name: "Paladium", ip: "paladium-pvp.fr", region: "Европа", flag: "FR", rating: 4.7, online: 3400, mode: "Modded/Factions", desc: "Знаменитый французский мод-сервер со своей уникальной сборкой." }[cite: 3]
         ];
 
-        // Актуальный массив игроков MCTiers[cite: 1]
+        // Актуальный массив игроков MCTiers
         const pvpLeaders = [
             { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },[cite: 1]
             { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },[cite: 1]
@@ -195,7 +217,7 @@
             { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }[cite: 1]
         ];
 
-        // Функция отрисовки серверов с учетом поиска и фильтров
+        // Отрисовка серверов
         function renderServers(filterText = "", filterRegion = "all") {
             let list = document.getElementById("server-list");
             if (!list) return;
@@ -213,13 +235,13 @@
                         <span class="server-badge">⭐ ${s.rating} (${s.flag} ${s.region})</span>
                     </div>
                     <p><strong>IP:</strong> ${s.ip}</p>
-                    <p><strong>Онлайн:</strong> ${s.online} игроков | <strong>Режим:</strong> ${s.mode}</p>
+                    <p><strong>Режим:</strong> ${s.mode} | <strong>Онлайн:</strong> ${s.online}</p>
                     <p>${s.desc}</p>
                 </div>
             `).join("");
         }
 
-        // Отрисовка таблицы игроков справа
+        // Отрисовка топ-20 игроков справа
         const leaderboardContainer = document.getElementById('leaderboard');
         if (leaderboardContainer) {
             pvpLeaders.forEach(p => {
@@ -232,7 +254,7 @@
             });
         }
 
-        // Обработчики поиска и фильтрации
+        // События для поиска и фильтрации
         document.getElementById("searchServer").addEventListener("input", (e) => {
             let text = e.target.value.toLowerCase();
             let region = document.getElementById("filterCountry").value;
@@ -245,7 +267,7 @@
             renderServers(text, region);
         });
 
-        // Функция проверки пароля администратора[cite: 3]
+        // Проверка пароля администратора[cite: 3]
         function checkAdmin() {
             let pass = prompt("Введите пароль администратора:");[cite: 3]
             if (pass === PASSWORD) {[cite: 3]
@@ -255,7 +277,7 @@
             }
         }
 
-        // Первичная отрисовка серверов при загрузке
+        // Инициализация при загрузке
         renderServers();
     </script>
 </body>
