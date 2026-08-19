@@ -4,32 +4,298 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мониторинг серверов и Топ PvP</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .content-section {
+            flex: 1;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .controls input, .controls select {
+            padding: 8px 12px;
+            background: #252525;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            outline: none;
+        }
+        .controls input {
+            flex-grow: 1;
+        }
+        .server-card {
+            background: #252525;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .server-title {
+            color: #ff9800;
+            font-size: 20px;
+            margin: 0 0 10px 0;
+        }
+        .server-badge {
+            background: #333;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .reviews-section {
+            margin-top: 15px;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+        .review-form {
+            display: flex;
+            gap: 10k;
+            margin-top: 10px;
+            align-items: center;
+        }
+        .review-form input, .review-form select {
+            padding: 6px;
+            background: #1e1e1e;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .review-form input[type="text"] {
+            flex-grow: 1;
+        }
+        .review-form button {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .review-form button:hover {
+            background: #45a049;
+        }
+        
+        /* Правая колонка с рейтингом */
+        .sidebar-leaderboard {
+            width: 380px;
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            height: fit-content;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .sidebar-leaderboard h3 {
+            color: #ff9800;
+            border-bottom: 2px solid #ff9800;
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-size: 16px;
+        }
+        .player-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #333;
+            font-size: 13px;
+            gap: 8px;
+        }
+        .rank {
+            font-weight: bold;
+            color: #ff9800;
+            width: 22px;
+        }
+        .name {
+            flex-grow: 1;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tiers {
+            display: flex;
+            gap: 3px;
+        }
+        .tier-tag {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: #444;
+            color: #fff;
+        }
+        .admin-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+
+    <button class="admin-btn" onclick="alert('Админ-панель: доступ разрешен')">Админ</button>
+
     <div class="main-layout">
-        <!-- Левая колонка с серверами -->
-        <div class="servers-section">
-            <div class="server-card">
-                <h2>Hypixel</h2>
-                <p>IP: play.hypixel.net</p>
-                <p>Онлайн: 48500 игроков</p>
+        <!-- Левая часть: Поиск, фильтры и серверы -->
+        <div class="content-section">
+            <div class="controls">
+                <input type="text" id="searchServer" placeholder="Поиск сервера по названию или IP...">
+                <select id="filterCountry">
+                    <option value="all">Все страны</option>
+                    <option value="usa">США</option>
+                    <option value="cis">СНГ (RU)</option>
+                </select>
             </div>
-            <div class="server-card">
-                <h2>MCSkill</h2>
-                <p>IP: mc.mcraft.pro</p>
-                <p>Онлайн: 1240 игроков</p>
+
+            <div id="serversList">
+                <div class="server-card" data-country="usa" data-name="hypixel">
+                    <div class="server-header">
+                        <h2 class="server-title">Hypixel</h2>
+                        <span class="server-badge">⭐ 5 (US США)</span>
+                    </div>
+                    <p><strong>IP:</strong> play.hypixel.net</p>
+                    <p><strong>Онлайн:</strong> 48500 игроков</p>
+                    <p>Главный мировой сервер с огромным онлайном и мини-играми.</p>
+                    <div class="reviews-section">
+                        <small>Отзывы (0): пока нет отзывов.</small>
+                        <div class="review-form">
+                            <input type="text" placeholder="Ваше имя...">
+                            <select>
+                                <option value="5">5 ⭐</option>
+                                <option value="4">4 ⭐</option>
+                                <option value="3">3 ⭐</option>
+                                <option value="2">2 ⭐</option>
+                                <option value="1">1 ⭐</option>
+                            </select>
+                            <input type="text" placeholder="Ваш отзыв...">
+                            <button onclick="alert('Отзыв отправлен!')">OK</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="server-card" data-country="cis" data-name="mcskill">
+                    <div class="server-header">
+                        <h2 class="server-title">MCSkill</h2>
+                        <span class="server-badge">⭐ 4.8 (RU СНГ)</span>
+                    </div>
+                    <p><strong>IP:</strong> mc.mcraft.pro</p>
+                    <p><strong>Онлайн:</strong> 1240 игроков</p>
+                    <p>Крупнейший СНГ проект с модами и мирным развитием.</p>
+                    <div class="reviews-section">
+                        <small>Отзывы (0): пока нет отзывов.</small>
+                        <div class="review-form">
+                            <input type="text" placeholder="Ваше имя...">
+                            <select>
+                                <option value="5">5 ⭐</option>
+                                <option value="4">4 ⭐</option>
+                                <option value="3">3 ⭐</option>
+                                <option value="2">2 ⭐</option>
+                                <option value="1">1 ⭐</option>
+                            </select>
+                            <input type="text" placeholder="Ваш отзыв...">
+                            <button onclick="alert('Отзыв отправлен!')">OK</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Правая колонка: Маленькая таблица мирового рейтинга -->
+        <!-- Правая колонка: Топ-20 игроков MCTiers -->
         <div class="sidebar-leaderboard">
             <h3>🏆 Топ-20 PvP Игроков</h3>
             <div id="leaderboard"></div>
         </div>
     </div>
 
-    <!-- Подключаем скрипт с актуальными данными игроков -->
-    <script src="script.js"></script>
+    <script>
+        // Актуальный массив игроков MCTiers
+        const pvpLeaders = [
+            { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },
+            { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },
+            { rank: 3, name: "coldified", tiers: ["LT1", "HT3", "HT1", "HT1"] },
+            { rank: 4, name: "Swight", tiers: ["LT3", "HT1", "HT1", "HT1"] },
+            { rank: 5, name: "janekv", tiers: ["HT3", "HT4", "HT1", "HT1"] },
+            { rank: 6, name: "BlvckWlf", tiers: ["HT3", "LT3", "LT3", "HT1"] },
+            { rank: 6, name: "Kylaz", tiers: ["HT3", "LT3", "LT3", "HT1"] },
+            { rank: 8, name: "ninorc15", tiers: ["HT3", "HT3", "LT3", "LT1"] },
+            { rank: 9, name: "Lurrn", tiers: ["LT3", "LT4", "HT1", "LT1"] },
+            { rank: 10, name: "Arsakha", tiers: ["HT3", "HT3", "HT3", "LT3"] },
+            { rank: 10, name: "yMiau", tiers: ["HT3", "LT3", "LT3", "LT3"] },
+            { rank: 12, name: "Juan_Clean", tiers: ["HT3", "LT3", "LT3", "LT3"] },
+            { rank: 12, name: "Deilvi_17", tiers: ["HT3", "HT4", "LT4", "LT4"] },
+            { rank: 12, name: "Freekee_Fang", tiers: ["LT2", "HT3", "HT3", "HT3"] },
+            { rank: 15, name: "Legendarryy", tiers: ["HT2", "HT3", "HT3", "LT3"] },
+            { rank: 16, name: "Spawnplayer", tiers: ["HT3", "HT3", "HT3", "LT3"] },
+            { rank: 17, name: "zivahlol", tiers: ["HT3", "HT3", "HT3", "HT3"] },
+            { rank: 18, name: "sashia2m", tiers: ["HT1", "HT3", "LT3", "LT3"] },
+            { rank: 19, name: "Frxnkey", tiers: ["LT3", "HT3", "HT4", "LT4"] },
+            { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }
+        ];
+
+        // Отрисовка таблицы игроков справа
+        const container = document.getElementById('leaderboard');
+        pvpLeaders.forEach(p => {
+            const row = document.createElement('div');
+            row.className = 'player-row';
+            row.innerHTML = `<span class="rank">${p.rank}.</span>
+                             <span class="name">${p.name}</span>
+                             <div class="tiers">${p.tiers.map(t => `<span class="tier-tag">${t}</span>`).join('')}</div>`;
+            container.appendChild(row);
+        });
+
+        // Простой поиск и фильтрация серверов
+        const searchInput = document.getElementById('searchServer');
+        const countrySelect = document.getElementById('filterCountry');
+        const servers = document.querySelectorAll('.server-card');
+
+        function filterServers() {
+            const searchText = searchInput.value.toLowerCase();
+            const country = countrySelect.value;
+
+            servers.forEach(server => {
+                const name = server.getAttribute('data-name');
+                const sCountry = server.getAttribute('data-country');
+                const textContent = server.innerText.toLowerCase();
+
+                const matchesSearch = textContent.includes(searchText);
+                const matchesCountry = (country === 'all' || sCountry === country);
+
+                if (matchesSearch && matchesCountry) {
+                    server.style.display = 'block';
+                } else {
+                    server.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterServers);
+        countrySelect.addEventListener('change', filterServers);
+    </script>
 </body>
 </html>
