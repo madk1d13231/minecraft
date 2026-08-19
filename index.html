@@ -31,23 +31,6 @@
             margin-top: 0;
             margin-bottom: 20px;
         }
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .controls input, .controls select {
-            padding: 10px 12px;
-            background: #252525;
-            border: 1px solid #444;
-            color: #fff;
-            border-radius: 4px;
-            outline: none;
-            font-size: 14px;
-        }
-        .controls input {
-            flex-grow: 1;
-        }
         .server-card {
             background: #252525;
             padding: 20px;
@@ -148,22 +131,52 @@
     <button class="admin-btn" onclick="checkAdmin()">Админ</button>
 
     <div class="main-layout">
-        <!-- Левая часть: Мониторинг серверов, поиск и фильтры -->
+        <!-- Левая часть: Список серверов -->
         <div class="content-section">
             <h1>Мониторинг серверов Minecraft</h1>
             <p class="subtitle">Список лучших серверов со всего мира</p>
 
-            <div class="controls">
-                <input type="text" id="searchServer" placeholder="Поиск сервера по названию или IP...">
-                <select id="filterCountry">
-                    <option value="all">Все регионы</option>
-                    <option value="СНГ">СНГ</option>
-                    <option value="США">США</option>
-                    <option value="Европа">Европа</option>
-                </select>
-            </div>
+            <div id="server-list">
+                <div class="server-card">
+                    <div class="server-header">
+                        <h2 class="server-title">MCSkill</h2>
+                        <span class="server-badge">⭐ 4.8 (RU СНГ)</span>
+                    </div>
+                    <p><strong>IP:</strong> mc.mcraft.pro</p>
+                    <p><strong>Режим:</strong> Моды / HiTech / Magic | <strong>Онлайн:</strong> 1240</p>
+                    <p>Крупнейший проект с индустриальными и магическими модами.</p>
+                </div>
 
-            <div id="server-list"></div>
+                <div class="server-card">
+                    <div class="server-header">
+                        <h2 class="server-title">Hypixel</h2>
+                        <span class="server-badge">⭐ 5.0 (us США)</span>
+                    </div>
+                    <p><strong>IP:</strong> play.hypixel.net</p>
+                    <p><strong>Режим:</strong> BedWars / SkyBlock | <strong>Онлайн:</strong> 48500</p>
+                    <p>Крупнейший мировой сервер с огромным онлайном и мини-играми.</p>
+                </div>
+
+                <div class="server-card">
+                    <div class="server-header">
+                        <h2 class="server-title">Really World</h2>
+                        <span class="server-badge">⭐ 4.7 (RU СНГ)</span>
+                    </div>
+                    <p><strong>IP:</strong> mc.reallyworld.ru</p>
+                    <p><strong>Режим:</strong> Анархия / Гриф | <strong>Онлайн:</strong> 3850</p>
+                    <p>Популярный гриферский проект с кастомными предметами.</p>
+                </div>
+
+                <div class="server-card">
+                    <div class="server-header">
+                        <h2 class="server-title">HolyWorld</h2>
+                        <span class="server-badge">⭐ 4.7 (RU СНГ)</span>
+                    </div>
+                    <p><strong>IP:</strong> play.holyworld.ru</p>
+                    <p><strong>Режим:</strong> Анархия | <strong>Онлайн:</strong> 3100</p>
+                    <p>Суровая анархия с прокачкой и ежедневными ивентами.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Правая колонка: Топ-20 игроков MCTiers -->
@@ -176,24 +189,7 @@
     <script>
         const PASSWORD = "qwe12345tyu124";[cite: 3]
 
-        // База серверов
-        const servers = [
-            { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "RU", rating: 4.8, online: 1240, mode: "Моды / HiTech / Magic", desc: "Крупнейший проект с индустриальными и магическими модами." },[cite: 3]
-            { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "RU", rating: 4.7, online: 3850, mode: "Анархия / Гриф", desc: "Популярный гриферский проект с кастомными предметами." },[cite: 3]
-            { name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "RU", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами." },[cite: 3]
-            { name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "RU", rating: 4.6, online: 4200, mode: "Гриф / Анархия", desc: "Один из самых известных анархических серверов СНГ." },[cite: 3]
-            { name: "LastCraft", ip: "mc.lastcraft.net", region: "СНГ", flag: "RU", rating: 4.5, online: 950, mode: "BedWars / SkyWars", desc: "Классические мини-игры и аркады на русском языке." },[cite: 3]
-            { name: "DexLand", ip: "play.dexland.su", region: "СНГ", flag: "RU", rating: 4.4, online: 600, mode: "Выживание / Гриф", desc: "Уютный сервер с экономикой и кланами." },[cite: 3]
-            { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "us", rating: 5.0, online: 48500, mode: "BedWars / SkyBlock", desc: "Крупнейший мировой сервер с огромным онлайном и мини-играми." },[cite: 3]
-            { name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "us", rating: 4.8, online: 2100, mode: "Prison / Economy", desc: "Легендарная тюрьма с развитой экономикой и шахтами." },[cite: 3]
-            { name: "VeltMC", ip: "hub.velt.pvp", region: "США", flag: "us", rating: 4.6, online: 1500, mode: "Factions / Practice", desc: "Классический PvP сервер для тренировок и клановых войн." },[cite: 3]
-            { name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "us", rating: 4.7, online: 5400, mode: "EggWars / SkyWars", desc: "Популярный международный сервер с уникальным дизайном." },[cite: 3]
-            { name: "Mineplex EU", ip: "eu.mineplex.com", region: "Европа", flag: "EU", rating: 4.3, online: 800, mode: "Minigames", desc: "Европейское зеркало знаменитой сети мини-игр." },[cite: 3]
-            { name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "DE", rating: 4.8, online: 7200, mode: "BedWars / SkyWars", desc: "Крупнейший немецкий и европейский проект." },[cite: 3]
-            { name: "Paladium", ip: "paladium-pvp.fr", region: "Европа", flag: "FR", rating: 4.7, online: 3400, mode: "Modded/Factions", desc: "Знаменитый французский мод-сервер со своей уникальной сборкой." }[cite: 3]
-        ];
-
-        // Актуальный массив игроков MCTiers
+        // Актуальный массив игроков MCTiers[cite: 1]
         const pvpLeaders = [
             { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },[cite: 1]
             { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },[cite: 1]
@@ -217,30 +213,6 @@
             { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }[cite: 1]
         ];
 
-        // Отрисовка серверов
-        function renderServers(filterText = "", filterRegion = "all") {
-            let list = document.getElementById("server-list");
-            if (!list) return;
-
-            let filtered = servers.filter(s => {
-                let matchesText = s.name.toLowerCase().includes(filterText) || s.ip.toLowerCase().includes(filterText);
-                let matchesRegion = (filterRegion === "all" || s.region === filterRegion);
-                return matchesText && matchesRegion;
-            });
-
-            list.innerHTML = filtered.map(s => `
-                <div class="server-card">
-                    <div class="server-header">
-                        <h2 class="server-title">${s.name}</h2>
-                        <span class="server-badge">⭐ ${s.rating} (${s.flag} ${s.region})</span>
-                    </div>
-                    <p><strong>IP:</strong> ${s.ip}</p>
-                    <p><strong>Режим:</strong> ${s.mode} | <strong>Онлайн:</strong> ${s.online}</p>
-                    <p>${s.desc}</p>
-                </div>
-            `).join("");
-        }
-
         // Отрисовка топ-20 игроков справа
         const leaderboardContainer = document.getElementById('leaderboard');
         if (leaderboardContainer) {
@@ -254,19 +226,6 @@
             });
         }
 
-        // События для поиска и фильтрации
-        document.getElementById("searchServer").addEventListener("input", (e) => {
-            let text = e.target.value.toLowerCase();
-            let region = document.getElementById("filterCountry").value;
-            renderServers(text, region);
-        });
-
-        document.getElementById("filterCountry").addEventListener("change", (e) => {
-            let region = e.target.value;
-            let text = document.getElementById("searchServer").value.toLowerCase();
-            renderServers(text, region);
-        });
-
         // Проверка пароля администратора[cite: 3]
         function checkAdmin() {
             let pass = prompt("Введите пароль администратора:");[cite: 3]
@@ -276,9 +235,6 @@
                 alert("Неверный пароль!");[cite: 3]
             }
         }
-
-        // Инициализация при загрузке
-        renderServers();
     </script>
 </body>
 </html>
