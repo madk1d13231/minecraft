@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мировой мониторинг серверов Minecraft + Форум</title>
+    <title>Мировой мониторинг серверов Minecraft + Форум + Версии</title>
     <style>
         body {
             background-color: #0d1117;
@@ -49,7 +49,6 @@
 
         .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
         
-        /* Навигация по вкладкам */
         .nav-tabs {
             display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 10px;
         }
@@ -71,7 +70,7 @@
         .card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s; }
         .card:hover { border-color: #58a6ff; transform: translateY(-2px); }
         .card.vip-card { border-color: #f0883e; box-shadow: 0 0 10px rgba(240, 136, 62, 0.2); }
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
         h3 { margin: 0; color: #58a6ff; }
         p { margin: 4px 0; font-size: 14px; }
         .desc { color: #8b949e; font-size: 13px; margin-top: 8px; }
@@ -159,16 +158,14 @@
         .review-form input { flex: 1; min-width: 100px; }
         .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
 
-        /* Стили форума */
         .forum-container { display: none; }
         .forum-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .btn-create-topic { background: #238636; color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .btn-create-topic:hover { background: #2ea043; }
         .topic-card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
         .topic-card:hover { border-color: #58a6ff; }
-        .topic-meta { display: flex; gap: 10px; color: #8b949e; font-size: 12px; margin-top: 8px; align-items: center; }
+        .topic-meta { display: flex; gap: 10px; color: #8b949e; font-size: 12px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
 
-        /* Модальные окна */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.7); display: none; justify-content: center; align-items: center;
@@ -191,7 +188,6 @@
         }
         .modal-btn-link:hover { background: #30363d; }
 
-        /* Стили формы */
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 4px; font-weight: bold; }
         .form-group input, .form-group select, .form-group textarea {
@@ -211,9 +207,8 @@
 <body>
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Мониторинг, база данных, форум сообщества и топ-20 PvP бойцов</p>
+        <p style="color: #8b949e;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
 
-        <!-- Навигационные вкладки -->
         <div class="nav-tabs" style="margin-top: 15px;">
             <button id="tab-servers" class="nav-tab-btn active" onclick="switchTab('servers')">🖥️ Серверы</button>
             <button id="tab-forum" class="nav-tab-btn" onclick="switchTab('forum')">💬 Форум сообщества</button>
@@ -222,7 +217,7 @@
         <!-- ВКЛАДКА СЕРВЕРОВ -->
         <div id="section-servers">
             <div class="search-bar">
-                <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
+                <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию, версии или IP..." oninput="handleSearch()">
             </div>
 
             <div class="categories-grid">
@@ -310,6 +305,10 @@
                 <div class="form-group">
                     <label>IP-адрес:</label>
                     <input type="text" id="f-ip" required placeholder="play.example.com">
+                </div>
+                <div class="form-group">
+                    <label>Версия игры:</label>
+                    <input type="text" id="f-version" required placeholder="Например: 1.16 - 1.21+">
                 </div>
                 <div class="form-group">
                     <label>Регион:</label>
@@ -452,10 +451,10 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         let isAdmin = false;
 
         let defaultServers = [
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
-            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
-            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" }
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", version: "1.8 - 1.21+", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
+            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", version: "1.16 - 1.20.4", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
+            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", version: "1.7.10 / 1.12.2 / 1.20.1", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" }
         ];
 
         let defaultLeaders = [
@@ -493,7 +492,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }
         }
 
-        // --- ФОРУМ ЛОГИКА ---
         function renderForum() {
             let list = document.getElementById("forum-topics-list");
             if (!list) return;
@@ -637,7 +635,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             renderForum();
         }
 
-        // --- БАЗОВЫЕ ФУНКЦИИ СЕРВЕРОВ ---
         async function fetchServerFromApi(manual = false) {
             const poolIps = ["play.cubecraft.net", "hub.vortexnetwork.net", "play.manacube.com", "purpleprison.net", "minemen.club"];
             let randomIp = poolIps[Math.floor(Math.random() * poolIps.length)];
@@ -656,6 +653,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                         id: 'api_' + Date.now(),
                         name: data.hostname || randomIp,
                         ip: randomIp,
+                        version: data.version || "1.20 - 1.21+",
                         region: "Европа",
                         flag: "🇪🇺",
                         rating: 4.6,
@@ -751,6 +749,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                             <h3>${s.name} ${vipBadge}</h3>
                             <div>
                                 <span class="rating-star">★ ${s.rating}</span>
+                                <span class="badge">⚙️ ${s.version || '1.16+'}</span>
                                 <span class="badge">${s.status || '🟢 Работает'}</span>
                                 <span class="badge">${s.flag} ${s.region}</span>
                                 <span class="badge">${s.mode}</span>
@@ -797,7 +796,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function handleSearch() {
             let query = document.getElementById("search-input").value.toLowerCase();
-            render(allServers.filter(s => s.name.toLowerCase().includes(query) || s.ip.toLowerCase().includes(query)));
+            render(allServers.filter(s => s.name.toLowerCase().includes(query) || s.ip.toLowerCase().includes(query) || (s.version && s.version.toLowerCase().includes(query))));
         }
 
         function openServerModal(id) {
@@ -806,6 +805,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             document.getElementById("modalBody").innerHTML = `
                 <h2 style="color: #58a6ff; margin-top: 0;">${s.name}</h2>
                 <p><strong>IP-адрес:</strong> <code style="background: #21262d; padding: 2px 6px; border-radius: 4px;">${s.ip}</code></p>
+                <p><strong>Поддерживаемые версии:</strong> <span style="color: #58a6ff; font-weight: bold;">${s.version || '1.16+'}</span></p>
                 <p><strong>Режим:</strong> ${s.mode}</p>
                 <p><strong>Регион:</strong> ${s.flag} ${s.region}</p>
                 <p><strong>Статус:</strong> ${s.status || '🟢 Работает'}</p>
@@ -842,6 +842,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 document.getElementById("edit-id").value = s.id;
                 document.getElementById("f-name").value = s.name;
                 document.getElementById("f-ip").value = s.ip;
+                document.getElementById("f-version").value = s.version || "1.16+";
                 document.getElementById("f-region").value = s.region || "СНГ";
                 document.getElementById("f-flag").value = s.flag || "🇷🇺";
                 document.getElementById("f-mode").value = s.mode || "Выживание";
@@ -867,6 +868,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             let editId = document.getElementById("edit-id").value;
             let name = document.getElementById("f-name").value;
             let ip = document.getElementById("f-ip").value;
+            let version = document.getElementById("f-version").value;
             let region = document.getElementById("f-region").value;
             let flag = document.getElementById("f-flag").value;
             let mode = document.getElementById("f-mode").value;
@@ -879,9 +881,9 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
             if (editId) {
                 let s = allServers.find(item => item.id === editId);
-                if (s) { s.name = name; s.ip = ip; s.region = region; s.flag = flag; s.mode = mode; s.status = status; s.vip = vip; s.wipe = wipe; s.discord = discord; s.store = store; s.desc = desc; }
+                if (s) { s.name = name; s.ip = ip; s.version = version; s.region = region; s.flag = flag; s.mode = mode; s.status = status; s.vip = vip; s.wipe = wipe; s.discord = discord; s.store = store; s.desc = desc; }
             } else {
-                allServers.push({ id: 'serv_' + Date.now(), name, ip, region, flag, rating: 5.0, online: 300, mode, status, vip, wipe, discord, store, desc });
+                allServers.push({ id: 'serv_' + Date.now(), name, ip, version, region, flag, rating: 5.0, online: 300, mode, status, vip, wipe, discord, store, desc });
             }
             saveServers();
             render(currentActiveList);
