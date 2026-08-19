@@ -28,15 +28,14 @@
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%);
         }
 
-        .container { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+        .container { max-width: 1150px; margin: 0 auto; position: relative; z-index: 1; }
         
-        /* Двухколоночная верстка (Контент + Таблица лидеров сбоку) */
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 340px;
             gap: 20px;
         }
-        @media (max-width: 850px) {
+        @media (max-width: 900px) {
             .main-layout { grid-template-columns: 1fr; }
         }
 
@@ -79,21 +78,22 @@
         .btn-add { background: #238636; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
         .btn-add:hover { background: #2ea043; }
 
-        /* Боковая панель: Таблица лидеров PvP */
+        /* Боковая панель */
+        .sidebar-container { display: flex; flex-direction: column; gap: 15px; }
         .sidebar-panel {
             background: rgba(22, 27, 34, 0.9);
             border: 1px solid #30363d;
             border-radius: 8px;
             padding: 15px;
-            height: fit-content;
             backdrop-filter: blur(5px);
         }
-        .sidebar-title { font-size: 16px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        
         .leader-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #30363d;
             font-size: 13px;
         }
@@ -103,6 +103,18 @@
         .leader-rank.top2 { color: #c0c0c0; }
         .leader-rank.top3 { color: #cd7f32; }
         .leader-score { color: #3fb950; font-weight: bold; }
+
+        /* Стили для рангов китов PvP */
+        .tier-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #30363d;
+            font-size: 12px;
+        }
+        .tier-item:last-child { border-bottom: none; }
+        .tier-badge { background: #1f6feb; color: white; padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 11px; }
 
         /* Отзывы */
         .reviews-section { margin-top: 12px; border-top: 1px solid #30363d; padding-top: 10px; }
@@ -118,7 +130,7 @@
 <body>
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
-        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и таблица лидеров PvP</p>
+        <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и киты соревновательного PvP</p>
 
         <!-- Категории режимов -->
         <div class="categories-grid">
@@ -145,15 +157,22 @@
             <button id="add-server-btn" class="btn-add" onclick="addNewServer()">➕ Добавить сервер</button>
         </div>
 
-        <!-- Основной контент + Таблица лидеров сбоку -->
+        <!-- Основной контент + Боковая колонка -->
         <div class="main-layout">
             <div id="server-list"></div>
 
-            <!-- Боковая колонка: Топ PvP -->
-            <div class="sidebar-panel">
-                <div class="sidebar-title">🏆 Топ PvP Игроков</div>
-                <div id="leaderboard-list">
-                    <!-- Заполняется через JS -->
+            <!-- Боковая панель -->
+            <div class="sidebar-container">
+                <!-- Топ PvP Игроков -->
+                <div class="sidebar-panel">
+                    <div class="sidebar-title">🏆 Топ PvP Игроков</div>
+                    <div id="leaderboard-list"></div>
+                </div>
+
+                <!-- Ранги ItzRealMe по китам -->
+                <div class="sidebar-panel">
+                    <div class="sidebar-title">⚔️ Киты ItzRealMe (MCTiers)</div>
+                    <div id="tiers-list"></div>
                 </div>
             </div>
         </div>
@@ -173,42 +192,54 @@
             { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ." },
             { id: "gommehd", name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars", desc: "Крупнейший немецкий и европейский проект мини-игр." },
             { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "BedWars", desc: "Популярный международный сервер с уникальным дизайном." },
-            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами." },
-            { id: "cnmine", name: "ChinaCraft", ip: "play.cnmine.net", region: "Азия", flag: "🇨🇳", rating: 4.5, online: 3200, mode: "Выживание", desc: "Крупный азиатский сервер с мирным выживанием." },
-            { id: "jpnblock", name: "NipponServer", ip: "mc.jpnblock.jp", region: "Азия", flag: "🇯🇵", rating: 4.6, online: 1100, mode: "Выживание", desc: "Уютный японский сервер с кастомной генерацией мира." }
+            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами." }
         ];
 
-        // Список лидеров PvP
         let pvpLeaders = [
-            { rank: 1, name: "xX_Slayer_Xx", score: 3420 },
-            { rank: 2, name: "TechnoBlade_Fan", score: 2980 },
-            { rank: 3, name: "ShadowPvP", score: 2750 },
-            { rank: 4, name: "KillauraGod", score: 2410 },
-            { rank: 5, name: "DiamondSword", score: 2190 },
-            { rank: 6, name: "FrostBite", score: 1950 },
-            { rank: 7, name: "NimblePVP", score: 1830 }
+            { rank: 1, name: "ItzRealMe", score: 4120 },
+            { rank: 2, name: "xX_Slayer_Xx", score: 3420 },
+            { rank: 3, name: "TechnoBlade_Fan", score: 2980 },
+            { rank: 4, name: "ShadowPvP", score: 2750 },
+            { rank: 5, name: "KillauraGod", score: 2410 }
+        ];
+
+        let itzRealMeTiers = [
+            { kit: "Crystal (CPvP)", tier: "HT1" },
+            { kit: "Diamond Pot", tier: "HT1" },
+            { kit: "Nethpot", tier: "HT1" },
+            { kit: "SMP (Тотем)", tier: "HT1" },
+            { kit: "Mace PvP", tier: "HT1" },
+            { kit: "Sword (Меч)", tier: "HT2" },
+            { kit: "Axe (Топор)", tier: "LT2" },
+            { kit: "UHC", tier: "LT2" }
         ];
 
         let currentActiveList = allServers;
 
-        function renderLeaderboard() {
+        function renderSidebar() {
             let lbContainer = document.getElementById("leaderboard-list");
-            if (!lbContainer) return;
+            if (lbContainer) {
+                lbContainer.innerHTML = pvpLeaders.map(item => {
+                    let rankClass = item.rank === 1 ? "top1" : item.rank === 2 ? "top2" : item.rank === 3 ? "top3" : "";
+                    return `
+                        <div class="leader-item">
+                            <span class="leader-rank ${rankClass}">#${item.rank}</span>
+                            <span style="flex:1; margin-left: 6px; overflow:hidden; text-overflow:ellipsis;">${item.name}</span>
+                            <span class="leader-score">${item.score} pts</span>
+                        </div>
+                    `;
+                }).join("");
+            }
 
-            lbContainer.innerHTML = pvpLeaders.map(item => {
-                let rankClass = "";
-                if (item.rank === 1) rankClass = "top1";
-                else if (item.rank === 2) rankClass = "top2";
-                else if (item.rank === 3) rankClass = "top3";
-
-                return `
-                    <div class="leader-item">
-                        <span class="leader-rank ${rankClass}">#${item.rank}</span>
-                        <span style="flex:1; margin-left: 8px; overflow:hidden; text-overflow:ellipsis;">${item.name}</span>
-                        <span class="leader-score">${item.score} pts</span>
+            let tiersContainer = document.getElementById("tiers-list");
+            if (tiersContainer) {
+                tiersContainer.innerHTML = itzRealMeTiers.map(t => `
+                    <div class="tier-item">
+                        <span>${t.kit}</span>
+                        <span class="tier-badge">${t.tier}</span>
                     </div>
-                `;
-            }).join("");
+                `).join("");
+            }
         }
 
         function getReviews(serverId) {
@@ -368,7 +399,7 @@
         }
 
         render(allServers);
-        renderLeaderboard();
+        renderSidebar();
     </script>
 </body>
 </html>
