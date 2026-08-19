@@ -112,6 +112,8 @@
         .btn-add:hover { background: #2ea043; }
         .btn-admin-top { background: #1f6feb; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
         .btn-admin-top:hover { background: #388bfd; }
+        .btn-db-view { background: #8957e5; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; display: none; }
+        .btn-db-view:hover { background: #a371f7; }
 
         .sidebar-container { display: flex; flex-direction: column; gap: 15px; }
         .sidebar-panel {
@@ -153,8 +155,8 @@
         }
         .modal-content {
             background: #161b22; border: 1px solid #30363d; border-radius: 12px;
-            width: 90%; max-width: 500px; padding: 25px; position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 90%; max-width: 550px; padding: 25px; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 85vh; overflow-y: auto;
         }
         .modal-close {
             position: absolute; top: 15px; right: 15px; background: transparent;
@@ -168,7 +170,7 @@
         }
         .modal-btn-link:hover { background: #30363d; }
 
-        /* Стили формы редактирования/добавления */
+        /* Стили формы */
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 4px; font-weight: bold; }
         .form-group input, .form-group select, .form-group textarea {
@@ -225,6 +227,7 @@
             <button class="btn-reset" onclick="resetFilter()">Сбросить фильтры (Показать все)</button>
             <div class="admin-controls">
                 <button id="admin-top-btn" class="btn-admin-top" onclick="manageTop()">🏆 Управление топом</button>
+                <button id="db-view-btn" class="btn-db-view" onclick="openDatabaseModal()">💾 Архитектура баз данных</button>
                 <button id="add-server-btn" class="btn-add" onclick="openServerForm()">➕ Добавить сервер</button>
             </div>
         </div>
@@ -249,7 +252,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно формы добавления/редактирования сервера с выпадающими списками -->
+    <!-- Модальное окно формы добавления/редактирования сервера -->
     <div id="serverFormModal" class="modal-overlay" onclick="closeFormModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeFormModalDirect()">✕</button>
@@ -327,6 +330,42 @@
         </div>
     </div>
 
+    <!-- Модальное окно архитектуры баз данных -->
+    <div id="databaseModal" class="modal-overlay" onclick="closeDatabaseModalEvent(event)">
+        <div class="modal-content" style="max-width: 650px;">
+            <button class="modal-close" onclick="closeDatabaseModalDirect()">✕</button>
+            <h2 style="color: #8957e5; margin-top: 0;">💾 Архитектура баз данных сети</h2>
+            <p style="color: #8b949e; font-size: 13px;">Структура таблиц высокого уровня для масштабирования проекта до уровня крупных конкурентов:</p>
+            <pre style="background: #0d1117; padding: 12px; border-radius: 6px; border: 1px solid #30363d; color: #58a6ff; font-size: 11px; overflow-x: auto;">
+-- 1. Таблица игроков (базовые данные: баланс, привилегии)
+CREATE TABLE IF NOT EXISTS `net_players` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `uuid` VARCHAR(36) NOT NULL UNIQUE,
+    `username` VARCHAR(16) NOT NULL,
+    `balance` DOUBLE DEFAULT 0.00
+);
+
+-- 2. Таблица авторизации (AuthMe)
+CREATE TABLE IF NOT EXISTS `net_auth` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `player_id` INT NOT NULL,
+    `password_hash` VARCHAR(255) NOT NULL,
+    `last_ip` VARCHAR(45) NOT NULL
+);
+
+-- 3. Таблица логов и действий (CoreProtect / История)
+CREATE TABLE IF NOT EXISTS `net_action_logs` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `player_id` INT NOT NULL,
+    `action_type` VARCHAR(32) NOT NULL,
+    `world` VARCHAR(32) NOT NULL,
+    `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+            </pre>
+            <button onclick="closeDatabaseModalDirect()" class="form-btn-save" style="background: #21262d; border: 1px solid #30363d; margin-top: 5px;">Закрыть</button>
+        </div>
+    </div>
+
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
 
     <script>
@@ -352,8 +391,30 @@
             { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
             { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" },
-            { id: "holyworld", name: "play.holyworld.ru", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в 1.5 месяца", discord: "https://discord.gg/holyworld", store: "https://holyworld.ru" },
-            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su" }
+            { id: "holyworld", name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в 1.5 месяца", discord: "https://discord.gg/holyworld", store: "https://holyworld.ru" },
+            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su" },
+            
+            // Добавленные 20 серверов
+            { id: "manacube", name: "ManaCube", ip: "play.manacube.com", region: "США", flag: "🇺🇸", rating: 4.7, online: 2100, mode: "Выживание", desc: "Один из старейших и самых популярных мировых проектов с уникальными режимами.", status: "🟢 Работает", vip: false, wipe: "Каждые 4 месяца", discord: "https://discord.gg/manacube", store: "https://manacube.com/store" },
+            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 1800, mode: "Анархия", desc: "Легендарная тюрьма с экономикой, кастомизацией и PvP.", status: "🟢 Работает", vip: false, wipe: "Редко", discord: "https://discord.gg/purpleprison", store: "https://purpleprison.store" },
+            { id: "minemen", name: "Minemen Club", ip: "minemen.club", region: "Европа", flag: "🇪🇺", rating: 4.9, online: 3500, mode: "PvP", desc: "Лучший мировой соревновательный PvP-сервер для дуэлей и practice.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/minemen", store: "https://store.minemen.club" },
+            { id: "blockdrop", name: "BlockDrop Network", ip: "top.blockdrop.org", region: "Европа", flag: "🇪🇺", rating: 4.5, online: 1100, mode: "BedWars", desc: "Европейский проект с качественными мини-играми и SkyBlock.", status: "🟢 Работает", vip: false, wipe: "По сезонам", discord: "https://discord.gg/blockdrop", store: "https://store.blockdrop.org" },
+            { id: "vortex", name: "Vortex Network", ip: "hub.vortexnetwork.net", region: "Европа", flag: "🇪🇺", rating: 4.6, online: 1400, mode: "Выживание", desc: "Популярный сервер с модами Pixelmon, SkyFactory и классическим выживанием.", status: "🟢 Работает", vip: false, wipe: "Раз в 6 месяцев", discord: "https://discord.gg/vortex", store: "https://store.vortexnetwork.net" },
+            { id: "insanity", name: "Insanity Craft", ip: "play.insanitycraft.com", region: "США", flag: "🇺🇸", rating: 4.6, online: 950, mode: "Выживание", desc: "Качественное выживание с кастомными кейсами, кланами и питомцами.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/insanitycraft", store: "https://store.insanitycraft.com" },
+            { id: "zeal", name: "ZealMC", ip: "play.zealmc.net", region: "СНГ", flag: "🇷🇺", rating: 4.4, online: 600, mode: "Выживание", desc: "Уютный сервер с классическими механиками и доброй администрацией.", status: "🟢 Работает", vip: false, wipe: "По опросу игроков", discord: "https://discord.gg/zealmc", store: "https://shop.zealmc.net" },
+            { id: "mush", name: "MushMC", ip: "mc.mush.com.br", region: "Азия", flag: "🌏", rating: 4.7, online: 4500, mode: "BedWars", desc: "Огромный бразильский и международный сервер мини-игр и PvP.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/mushmc", store: "https://loja.mush.com.br" },
+            { id: "sway", name: "SwayMC", ip: "play.swaymc.ru", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 420, mode: "Анархия", desc: "Молодая и стремительно развивающаяся анархия с быстрой прокачкой.", status: "🟢 Работает", vip: false, wipe: "Каждые 3 недели", discord: "https://discord.gg/swaymc", store: "https://swaymc.ru" },
+            { id: "storm", name: "StormCraft", ip: "play.stormcraft.su", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 890, mode: "Выживание", desc: "Выживание с кастомным оружием, боссами и аукционами.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/stormcraft", store: "https://stormcraft.su" },
+            { id: "craftrise", name: "CraftRise", ip: "play.craftrise.net", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 6200, mode: "BedWars", desc: "Один из крупнейших европейских лаунчер-серверов с уникальным клиентом.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/craftrise", store: "https://store.craftrise.net" },
+            { id: "arizona", name: "Arizona Mine", ip: "mc.arizona-v.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 1500, mode: "Выживание", desc: "Проект по мотивам известного мультиплеера с уникальными работами.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/arizonamine", store: "https://arizona-v.su" },
+            { id: "cristalix", name: "Cristalix", ip: "mc.cristalix.moe", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 9400, mode: "BedWars", desc: "Легендарный СНГ проект с мини-играми, своим лаунчером и кучей режимов.", status: "🟢 Работает", vip: true, wipe: "По режимам", discord: "https://discord.gg/cristalix", store: "https://cristalix.moe/store" },
+            { id: "vimeworld", name: "VimeWorld", ip: "mc.vimeworld.com", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 7800, mode: "Minigames", desc: "Классика мини-игр СНГ с огромным онлайном и историей.", status: "🟢 Работает", vip: false, wipe: "По сезонам", discord: "https://discord.gg/vimeworld", store: "https://vimeworld.com/store" },
+            { id: "borealis", name: "Borealis", ip: "mc.borealis.su", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 1150, mode: "Выживание", desc: "Сервер с тяжелыми индустриальными модами и честной экономикой.", status: "🟢 Работает", vip: false, wipe: "Раз в 4 месяца", discord: "https://discord.gg/borealis", store: "https://borealis.su" },
+            { id: "cubecraft", name: "CubeCraft Games", ip: "play.cubecraft.net", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 8900, mode: "BedWars", desc: "Официальный крупный мировой проект с поддержкой BedWars и EggWars.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/cubecraft", store: "https://store.cubecraft.net" },
+            { id: "hive", name: "The Hive", ip: "geo.hivebedrock.network", region: "США", flag: "🇺🇸", rating: 4.9, online: 25000, mode: "PvP", desc: "Знаменитый глобальный игровой проект с идеальной стабильностью.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/hive", store: "https://hivemc.store" },
+            { id: "mineplex", name: "Mineplex", ip: "us.mineplex.com", region: "США", flag: "🇺🇸", rating: 4.3, online: 400, mode: "Minigames", desc: "Классический ретро-сервер мини-игр.", status: "🛠️ Техработы", vip: false, wipe: "Никогда", discord: "https://discord.gg/mineplex", store: "https://mineplex.com" },
+            { id: "pixelblock", name: "PixelBlock", ip: "play.pixelblock.co", region: "Европа", flag: "🇪🇺", rating: 4.4, online: 720, mode: "Анархия", desc: "Простой анархический сервер без лишних плагинов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/pixelblock", store: "https://pixelblock.co" },
+            { id: "nexus", name: "Nexus Grief", ip: "play.nexusgrief.net", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 1300, mode: "Анархия", desc: "Динамичный гриферский сервер с кастомными чарами и кланами.", status: "🟢 Работает", vip: false, wipe: "Каждый месяц", discord: "https://discord.gg/nexusgrief", store: "https://nexusgrief.net" }
         ];
 
         let defaultLeaders = [
@@ -361,7 +422,22 @@
             { rank: 2, name: "Marlowww", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }, { kit: "Sword", tier: "HT1" }] },
             { rank: 3, name: "xX_Slayer_Xx", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }, { kit: "Axe", tier: "HT2" }] },
             { rank: 4, name: "ShadowPvP", tiers: [{ kit: "Pot", tier: "HT2" }, { kit: "Sword", tier: "HT2" }, { kit: "UHC", tier: "HT3" }] },
-            { rank: 5, name: "KillauraGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" }] }
+            { rank: 5, name: "KillauraGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 6, name: "VortexKing", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT2" }] },
+            { rank: 7, name: "Speedster", tiers: [{ kit: "UHC", tier: "HT1" }, { kit: "Sword", tier: "HT2" }] },
+            { rank: 8, name: "LegendPvP", tiers: [{ kit: "Crystal", tier: "HT3" }, { kit: "Mace", tier: "HT1" }] },
+            { rank: 9, name: "Nightmare", tiers: [{ kit: "Pot", tier: "HT3" }, { kit: "SMP", tier: "HT2" }] },
+            { rank: 10, name: "Zenith", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "UHC", tier: "HT2" }] },
+            { rank: 11, name: "AlphaWolf", tiers: [{ kit: "Sword", tier: "HT1" }] },
+            { rank: 12, name: "BetaTest", tiers: [{ kit: "Pot", tier: "HT2" }] },
+            { rank: 13, name: "GammaRay", tiers: [{ kit: "Crystal", tier: "HT3" }] },
+            { rank: 14, name: "DeltaForce", tiers: [{ kit: "Mace", tier: "HT3" }] },
+            { rank: 15, name: "OmegaStark", tiers: [{ kit: "SMP", tier: "HT1" }] },
+            { rank: 16, name: "EchoPlayer", tiers: [{ kit: "UHC", tier: "HT3" }] },
+            { rank: 17, name: "Phantom", tiers: [{ kit: "Crystal", tier: "HT2" }] },
+            { rank: 18, name: "Specter", tiers: [{ kit: "Pot", tier: "HT1" }] },
+            { rank: 19, name: "Valkyrie", tiers: [{ kit: "Sword", tier: "HT2" }] },
+            { rank: 20, name: "Titanium", tiers: [{ kit: "Crystal", tier: "HT3" }] }
         ];
 
         let allServers = JSON.parse(localStorage.getItem('saved_servers')) || defaultServers;
@@ -548,7 +624,6 @@
             document.getElementById("serverModal").style.display = "none";
         }
 
-        // Логика выпадающих списков в форме добавления/редактирования
         function updateFlagSelect() {
             let region = document.getElementById("f-region").value;
             let flagSelect = document.getElementById("f-flag");
@@ -636,6 +711,16 @@
             closeFormModalDirect();
         }
 
+        function openDatabaseModal() {
+            document.getElementById("databaseModal").style.display = "flex";
+        }
+        function closeDatabaseModalEvent(event) {
+            if (event.target.id === "databaseModal") closeDatabaseModalDirect();
+        }
+        function closeDatabaseModalDirect() {
+            document.getElementById("databaseModal").style.display = "none";
+        }
+
         function filterByMode(modeName) {
             let filtered = allServers.filter(s => s.mode.toLowerCase().includes(modeName.toLowerCase()));
             render(filtered);
@@ -657,6 +742,7 @@
                 isAdmin = true;
                 document.getElementById("add-server-btn").style.display = "block";
                 document.getElementById("admin-top-btn").style.display = "block";
+                document.getElementById("db-view-btn").style.display = "block";
                 alert("Успешный вход в режим администратора!");
                 render(currentActiveList);
             } else if (pass !== null) {
