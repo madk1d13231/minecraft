@@ -42,7 +42,6 @@
             padding: 20px;
             margin-bottom: 15px;
             border-radius: 8px;
-            position: relative;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .server-header {
@@ -61,41 +60,8 @@
             border-radius: 4px;
             font-size: 12px;
         }
-        .reviews-section {
-            margin-top: 15px;
-            border-top: 1px solid #333;
-            padding-top: 10px;
-        }
-        .review-form {
-            display: flex;
-            gap: 10k;
-            margin-top: 10px;
-            align-items: center;
-        }
-        .review-form input, .review-form select {
-            padding: 6px;
-            background: #1e1e1e;
-            border: 1px solid #444;
-            color: #fff;
-            border-radius: 4px;
-        }
-        .review-form input[type="text"] {
-            flex-grow: 1;
-        }
-        .review-form button {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 6px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .review-form button:hover {
-            background: #45a049;
-        }
         
-        /* Правая колонка с рейтингом */
+        /* Правая колонка с рейтингом MCTiers */
         .sidebar-leaderboard {
             width: 380px;
             background: #252525;
@@ -154,76 +120,28 @@
             padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
+            z-index: 100;
         }
     </style>
 </head>
 <body>
 
-    <button class="admin-btn" onclick="alert('Админ-панель: доступ разрешен')">Админ</button>
+    <button class="admin-btn" onclick="checkAdmin()">Админ</button>
 
     <div class="main-layout">
-        <!-- Левая часть: Поиск, фильтры и серверы -->
+        <!-- Левая часть: Поиск, фильтры и динамический список серверов -->
         <div class="content-section">
             <div class="controls">
                 <input type="text" id="searchServer" placeholder="Поиск сервера по названию или IP...">
                 <select id="filterCountry">
-                    <option value="all">Все страны</option>
-                    <option value="usa">США</option>
-                    <option value="cis">СНГ (RU)</option>
+                    <option value="all">Все регионы</option>
+                    <option value="СНГ">СНГ</option>
+                    <option value="США">США</option>
+                    <option value="Европа">Европа</option>
                 </select>
             </div>
 
-            <div id="serversList">
-                <div class="server-card" data-country="usa" data-name="hypixel">
-                    <div class="server-header">
-                        <h2 class="server-title">Hypixel</h2>
-                        <span class="server-badge">⭐ 5 (US США)</span>
-                    </div>
-                    <p><strong>IP:</strong> play.hypixel.net</p>
-                    <p><strong>Онлайн:</strong> 48500 игроков</p>
-                    <p>Главный мировой сервер с огромным онлайном и мини-играми.</p>
-                    <div class="reviews-section">
-                        <small>Отзывы (0): пока нет отзывов.</small>
-                        <div class="review-form">
-                            <input type="text" placeholder="Ваше имя...">
-                            <select>
-                                <option value="5">5 ⭐</option>
-                                <option value="4">4 ⭐</option>
-                                <option value="3">3 ⭐</option>
-                                <option value="2">2 ⭐</option>
-                                <option value="1">1 ⭐</option>
-                            </select>
-                            <input type="text" placeholder="Ваш отзыв...">
-                            <button onclick="alert('Отзыв отправлен!')">OK</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="server-card" data-country="cis" data-name="mcskill">
-                    <div class="server-header">
-                        <h2 class="server-title">MCSkill</h2>
-                        <span class="server-badge">⭐ 4.8 (RU СНГ)</span>
-                    </div>
-                    <p><strong>IP:</strong> mc.mcraft.pro</p>
-                    <p><strong>Онлайн:</strong> 1240 игроков</p>
-                    <p>Крупнейший СНГ проект с модами и мирным развитием.</p>
-                    <div class="reviews-section">
-                        <small>Отзывы (0): пока нет отзывов.</small>
-                        <div class="review-form">
-                            <input type="text" placeholder="Ваше имя...">
-                            <select>
-                                <option value="5">5 ⭐</option>
-                                <option value="4">4 ⭐</option>
-                                <option value="3">3 ⭐</option>
-                                <option value="2">2 ⭐</option>
-                                <option value="1">1 ⭐</option>
-                            </select>
-                            <input type="text" placeholder="Ваш отзыв...">
-                            <button onclick="alert('Отзыв отправлен!')">OK</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="server-list"></div>
         </div>
 
         <!-- Правая колонка: Топ-20 игроков MCTiers -->
@@ -234,68 +152,111 @@
     </div>
 
     <script>
-        // Актуальный массив игроков MCTiers
-        const pvpLeaders = [
-            { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },
-            { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },
-            { rank: 3, name: "coldified", tiers: ["LT1", "HT3", "HT1", "HT1"] },
-            { rank: 4, name: "Swight", tiers: ["LT3", "HT1", "HT1", "HT1"] },
-            { rank: 5, name: "janekv", tiers: ["HT3", "HT4", "HT1", "HT1"] },
-            { rank: 6, name: "BlvckWlf", tiers: ["HT3", "LT3", "LT3", "HT1"] },
-            { rank: 6, name: "Kylaz", tiers: ["HT3", "LT3", "LT3", "HT1"] },
-            { rank: 8, name: "ninorc15", tiers: ["HT3", "HT3", "LT3", "LT1"] },
-            { rank: 9, name: "Lurrn", tiers: ["LT3", "LT4", "HT1", "LT1"] },
-            { rank: 10, name: "Arsakha", tiers: ["HT3", "HT3", "HT3", "LT3"] },
-            { rank: 10, name: "yMiau", tiers: ["HT3", "LT3", "LT3", "LT3"] },
-            { rank: 12, name: "Juan_Clean", tiers: ["HT3", "LT3", "LT3", "LT3"] },
-            { rank: 12, name: "Deilvi_17", tiers: ["HT3", "HT4", "LT4", "LT4"] },
-            { rank: 12, name: "Freekee_Fang", tiers: ["LT2", "HT3", "HT3", "HT3"] },
-            { rank: 15, name: "Legendarryy", tiers: ["HT2", "HT3", "HT3", "LT3"] },
-            { rank: 16, name: "Spawnplayer", tiers: ["HT3", "HT3", "HT3", "LT3"] },
-            { rank: 17, name: "zivahlol", tiers: ["HT3", "HT3", "HT3", "HT3"] },
-            { rank: 18, name: "sashia2m", tiers: ["HT1", "HT3", "LT3", "LT3"] },
-            { rank: 19, name: "Frxnkey", tiers: ["LT3", "HT3", "HT4", "LT4"] },
-            { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }
+        const PASSWORD = "qwe12345tyu124";[cite: 3]
+
+        // Полный список серверов из вашей базы[cite: 3]
+        const servers = [
+            { name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "RU", rating: 4.8, online: 1240, mode: "Моды / HiTech / Magic", desc: "Крупнейший проект с индустриальными и магическими модами." },[cite: 3]
+            { name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "RU", rating: 4.7, online: 3850, mode: "Анархия / Гриф", desc: "Популярный гриферский проект с кастомными предметами." },[cite: 3]
+            { name: "HolyWorld", ip: "play.holyworld.ru", region: "СНГ", flag: "RU", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами." },[cite: 3]
+            { name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "RU", rating: 4.6, online: 4200, mode: "Гриф / Анархия", desc: "Один из самых известных анархических серверов СНГ." },[cite: 3]
+            { name: "LastCraft", ip: "mc.lastcraft.net", region: "СНГ", flag: "RU", rating: 4.5, online: 950, mode: "BedWars / SkyWars", desc: "Классические мини-игры и аркады на русском языке." },[cite: 3]
+            { name: "DexLand", ip: "play.dexland.su", region: "СНГ", flag: "RU", rating: 4.4, online: 600, mode: "Выживание / Гриф", desc: "Уютный сервер с экономикой и кланами." },[cite: 3]
+            { name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "us", rating: 5.0, online: 48500, mode: "BedWars / SkyBlock", desc: "Крупнейший мировой сервер с огромным онлайном и мини-играми." },[cite: 3]
+            { name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "us", rating: 4.8, online: 2100, mode: "Prison / Economy", desc: "Легендарная тюрьма с развитой экономикой и шахтами." },[cite: 3]
+            { name: "VeltMC", ip: "hub.velt.pvp", region: "США", flag: "us", rating: 4.6, online: 1500, mode: "Factions / Practice", desc: "Классический PvP сервер для тренировок и клановых войн." },[cite: 3]
+            { name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "us", rating: 4.7, online: 5400, mode: "EggWars / SkyWars", desc: "Популярный международный сервер с уникальным дизайном." },[cite: 3]
+            { name: "Mineplex EU", ip: "eu.mineplex.com", region: "Европа", flag: "EU", rating: 4.3, online: 800, mode: "Minigames", desc: "Европейское зеркало знаменитой сети мини-игр." },[cite: 3]
+            { name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "DE", rating: 4.8, online: 7200, mode: "BedWars / SkyWars", desc: "Крупнейший немецкий и европейский проект." },[cite: 3]
+            { name: "Paladium", ip: "paladium-pvp.fr", region: "Европа", flag: "FR", rating: 4.7, online: 3400, mode: "Modded/Factions", desc: "Знаменитый французский мод-сервер со своей уникальной сборкой." }[cite: 3]
         ];
 
+        // Актуальный массив игроков MCTiers[cite: 1]
+        const pvpLeaders = [
+            { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },[cite: 1]
+            { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },[cite: 1]
+            { rank: 3, name: "coldified", tiers: ["LT1", "HT3", "HT1", "HT1"] },[cite: 1]
+            { rank: 4, name: "Swight", tiers: ["LT3", "HT1", "HT1", "HT1"] },[cite: 1]
+            { rank: 5, name: "janekv", tiers: ["HT3", "HT4", "HT1", "HT1"] },[cite: 1]
+            { rank: 6, name: "BlvckWlf", tiers: ["HT3", "LT3", "LT3", "HT1"] },[cite: 1]
+            { rank: 6, name: "Kylaz", tiers: ["HT3", "LT3", "LT3", "HT1"] },[cite: 1]
+            { rank: 8, name: "ninorc15", tiers: ["HT3", "HT3", "LT3", "LT1"] },[cite: 1]
+            { rank: 9, name: "Lurrn", tiers: ["LT3", "LT4", "HT1", "LT1"] },[cite: 1]
+            { rank: 10, name: "Arsakha", tiers: ["HT3", "HT3", "HT3", "LT3"] },[cite: 1]
+            { rank: 10, name: "yMiau", tiers: ["HT3", "LT3", "LT3", "LT3"] },[cite: 1]
+            { rank: 12, name: "Juan_Clean", tiers: ["HT3", "LT3", "LT3", "LT3"] },[cite: 1]
+            { rank: 12, name: "Deilvi_17", tiers: ["HT3", "HT4", "LT4", "LT4"] },[cite: 1]
+            { rank: 12, name: "Freekee_Fang", tiers: ["LT2", "HT3", "HT3", "HT3"] },[cite: 1]
+            { rank: 15, name: "Legendarryy", tiers: ["HT2", "HT3", "HT3", "LT3"] },[cite: 1]
+            { rank: 16, name: "Spawnplayer", tiers: ["HT3", "HT3", "HT3", "LT3"] },[cite: 1]
+            { rank: 17, name: "zivahlol", tiers: ["HT3", "HT3", "HT3", "HT3"] },[cite: 1]
+            { rank: 18, name: "sashia2m", tiers: ["HT1", "HT3", "LT3", "LT3"] },[cite: 1]
+            { rank: 19, name: "Frxnkey", tiers: ["LT3", "HT3", "HT4", "LT4"] },[cite: 1]
+            { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }[cite: 1]
+        ];
+
+        // Функция отрисовки серверов с учетом поиска и фильтров
+        function renderServers(filterText = "", filterRegion = "all") {
+            let list = document.getElementById("server-list");
+            if (!list) return;
+
+            let filtered = servers.filter(s => {
+                let matchesText = s.name.toLowerCase().includes(filterText) || s.ip.toLowerCase().includes(filterText);
+                let matchesRegion = (filterRegion === "all" || s.region === filterRegion);
+                return matchesText && matchesRegion;
+            });
+
+            list.innerHTML = filtered.map(s => `
+                <div class="server-card">
+                    <div class="server-header">
+                        <h2 class="server-title">${s.name}</h2>
+                        <span class="server-badge">⭐ ${s.rating} (${s.flag} ${s.region})</span>
+                    </div>
+                    <p><strong>IP:</strong> ${s.ip}</p>
+                    <p><strong>Онлайн:</strong> ${s.online} игроков | <strong>Режим:</strong> ${s.mode}</p>
+                    <p>${s.desc}</p>
+                </div>
+            `).join("");
+        }
+
         // Отрисовка таблицы игроков справа
-        const container = document.getElementById('leaderboard');
-        pvpLeaders.forEach(p => {
-            const row = document.createElement('div');
-            row.className = 'player-row';
-            row.innerHTML = `<span class="rank">${p.rank}.</span>
-                             <span class="name">${p.name}</span>
-                             <div class="tiers">${p.tiers.map(t => `<span class="tier-tag">${t}</span>`).join('')}</div>`;
-            container.appendChild(row);
-        });
-
-        // Простой поиск и фильтрация серверов
-        const searchInput = document.getElementById('searchServer');
-        const countrySelect = document.getElementById('filterCountry');
-        const servers = document.querySelectorAll('.server-card');
-
-        function filterServers() {
-            const searchText = searchInput.value.toLowerCase();
-            const country = countrySelect.value;
-
-            servers.forEach(server => {
-                const name = server.getAttribute('data-name');
-                const sCountry = server.getAttribute('data-country');
-                const textContent = server.innerText.toLowerCase();
-
-                const matchesSearch = textContent.includes(searchText);
-                const matchesCountry = (country === 'all' || sCountry === country);
-
-                if (matchesSearch && matchesCountry) {
-                    server.style.display = 'block';
-                } else {
-                    server.style.display = 'none';
-                }
+        const leaderboardContainer = document.getElementById('leaderboard');
+        if (leaderboardContainer) {
+            pvpLeaders.forEach(p => {
+                const row = document.createElement('div');
+                row.className = 'player-row';
+                row.innerHTML = `<span class="rank">${p.rank}.</span>
+                                 <span class="name">${p.name}</span>
+                                 <div class="tiers">${p.tiers.map(t => `<span class="tier-tag">${t}</span>`).join('')}</div>`;
+                leaderboardContainer.appendChild(row);
             });
         }
 
-        searchInput.addEventListener('input', filterServers);
-        countrySelect.addEventListener('change', filterServers);
+        // Обработчики поиска и фильтрации
+        document.getElementById("searchServer").addEventListener("input", (e) => {
+            let text = e.target.value.toLowerCase();
+            let region = document.getElementById("filterCountry").value;
+            renderServers(text, region);
+        });
+
+        document.getElementById("filterCountry").addEventListener("change", (e) => {
+            let region = e.target.value;
+            let text = document.getElementById("searchServer").value.toLowerCase();
+            renderServers(text, region);
+        });
+
+        // Функция проверки пароля администратора[cite: 3]
+        function checkAdmin() {
+            let pass = prompt("Введите пароль администратора:");[cite: 3]
+            if (pass === PASSWORD) {[cite: 3]
+                alert("Успешный вход в режим администратора!");[cite: 3]
+            } else if (pass !== null) {[cite: 3]
+                alert("Неверный пароль!");[cite: 3]
+            }
+        }
+
+        // Первичная отрисовка серверов при загрузке
+        renderServers();
     </script>
 </body>
 </html>
