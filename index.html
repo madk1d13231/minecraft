@@ -39,7 +39,8 @@
             .main-layout { grid-template-columns: 1fr; }
         }
 
-        .card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(5px); }
+        .card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s; }
+        .card:hover { border-color: #58a6ff; transform: translateY(-2px); }
         .card.vip-card { border-color: #f0883e; box-shadow: 0 0 10px rgba(240, 136, 62, 0.2); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         h3 { margin: 0; color: #58a6ff; }
@@ -48,6 +49,24 @@
         .badge { background: #21262d; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
         .rating-star { color: #f0883e; font-weight: bold; }
         
+        /* Строка поиска */
+        .search-bar {
+            margin-bottom: 15px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(22, 27, 34, 0.9);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #c9d1d9;
+            font-size: 15px;
+            box-sizing: border-box;
+            outline: none;
+            backdrop-filter: blur(5px);
+        }
+        .search-input:focus { border-color: #58a6ff; }
+
         /* Сетка категорий режимов */
         .categories-grid {
             display: grid;
@@ -162,6 +181,32 @@
         .review-form input, .review-form select, .review-form button { padding: 6px 10px; border-radius: 4px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; font-size: 13px; }
         .review-form input { flex: 1; min-width: 100px; }
         .review-form button { background: #238636; color: white; border: none; cursor: pointer; font-weight: bold; }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none; justify-content: center; align-items: center;
+            z-index: 10000; backdrop-filter: blur(4px);
+        }
+        .modal-content {
+            background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+            width: 90%; max-width: 600px; padding: 25px; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .modal-close {
+            position: absolute; top: 15px; right: 15px; background: transparent;
+            border: none; color: #8b949e; font-size: 20px; cursor: pointer;
+        }
+        .modal-close:hover { color: #c9d1d9; }
+        .modal-links {
+            display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;
+        }
+        .modal-btn-link {
+            background: #21262d; color: #58a6ff; border: 1px solid #30363d;
+            padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: bold;
+        }
+        .modal-btn-link:hover { background: #30363d; }
         
         #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
     </style>
@@ -170,6 +215,11 @@
     <div class="container">
         <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
         <p style="color: #8b949e;">Лучшие сервера со всего мира, отзывы и топ-20 PvP бойцов</p>
+
+        <!-- Строка поиска -->
+        <div class="search-bar" style="margin-top: 15px;">
+            <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
+        </div>
 
         <!-- Категории режимов -->
         <div class="categories-grid">
@@ -222,30 +272,27 @@
         </div>
     </div>
 
+    <!-- Модальное окно с деталями сервера -->
+    <div id="serverModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" id="modalContentBox">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
 
     <script>
         const PASSWORD = "qwe12345tyu124";
         let isAdmin = false;
 
-        // Базовые данные серверов
         let defaultServers = [
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true },
-            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false },
-            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false },
-            { id: "holyworld", name: "play.holyworld.ru", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами.", status: "🟢 Работает", vip: false },
-            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ.", status: "🟢 Работает", vip: false },
-            { id: "gommehd", name: "GommeHD", ip: "gommehd.net", region: "Европа", flag: "🇩🇪", rating: 4.8, online: 7200, mode: "BedWars", desc: "Крупнейший немецкий и европейский проект мини-игр.", status: "🟢 Работает", vip: false },
-            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", region: "США", flag: "🇺🇸", rating: 4.7, online: 5400, mode: "BedWars", desc: "Популярный международный сервер с уникальным дизайном.", status: "🟢 Работает", vip: false },
-            { id: "purpleprison", name: "Purple Prison", ip: "purpleprison.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 2100, mode: "PvP", desc: "Легендарная тюрьма с развитой экономикой и PvP-аренами.", status: "🟢 Работает", vip: false },
-            { id: "minemen", name: "Minemen Club", ip: "minemen.club", region: "США", flag: "🇺🇸", rating: 4.9, online: 3400, mode: "PvP", desc: "Лучший соревновательный сервер для тренировок и практики PvP.", status: "🟢 Работает", vip: false },
-            { id: "pvplegacy", name: "PvP Legacy", ip: "pvplegacy.net", region: "США", flag: "🇺🇸", rating: 4.8, online: 1800, mode: "PvP", desc: "Популярный сервер для классических и современных дуэлей.", status: "🟢 Работает", vip: false },
-            { id: "manacube", name: "ManaCube", ip: "play.manacube.com", region: "США", flag: "🇺🇸", rating: 4.7, online: 2500, mode: "Выживание", desc: "Огромная сеть с уникальными режимами: Креатив, Скайблок, Выживание.", status: "🟢 Работает", vip: false },
-            { id: "stormrage", name: "Stormrage", ip: "top.stormrage.su", region: "СНГ", flag: "🇷🇺", rating: 4.5, online: 980, mode: "Выживание", desc: "Качественное выживание с самописными плагинами и экономикой.", status: "🟢 Работает", vip: false },
-            { id: "blockdrop", name: "BlockDrop Network", ip: "top.blockdrop.org", region: "Европа", flag: "🇪🇺", rating: 4.6, online: 1600, mode: "BedWars", desc: "Европейская сеть серверов с популярными мини-играми.", status: "🟢 Работает", vip: false },
-            { id: "JartexNetwork", name: "JartexNetwork", ip: "top.jartex.fun", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 6100, mode: "BedWars", desc: "Один из топовых международных проектов с огромным онлайном.", status: "🟢 Работает", vip: false },
-            { id: "uscmc", name: "UniversalCraft", ip: "mc.universalcraft.net", region: "Азия", flag: "🌏", rating: 4.5, online: 850, mode: "Выживание", desc: "Популярный азиатско-международный проект с кастомным выживанием.", status: "🟢 Работает", vip: false }
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", region: "СНГ", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
+            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
+            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" },
+            { id: "holyworld", name: "play.holyworld.ru", ip: "play.holyworld.ru", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3100, mode: "Анархия", desc: "Суровая анархия с прокачкой и ежедневными ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в 1.5 месяца", discord: "https://discord.gg/holyworld", store: "https://holyworld.ru" },
+            { id: "funtime", name: "FunTime", ip: "funtime.su", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 4200, mode: "Анархия", desc: "Один из самых известных анархических проектов СНГ.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su" }
         ];
 
         let defaultLeaders = [
@@ -253,25 +300,9 @@
             { rank: 2, name: "Marlowww", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }, { kit: "Sword", tier: "HT1" }] },
             { rank: 3, name: "xX_Slayer_Xx", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }, { kit: "Axe", tier: "HT2" }] },
             { rank: 4, name: "ShadowPvP", tiers: [{ kit: "Pot", tier: "HT2" }, { kit: "Sword", tier: "HT2" }, { kit: "UHC", tier: "HT3" }] },
-            { rank: 5, name: "KillauraGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" }] },
-            { rank: 6, name: "Refraction", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "Sword", tier: "HT2" }] },
-            { rank: 7, name: "Stimpy", tiers: [{ kit: "UHC", tier: "HT1" }, { kit: "Sword", tier: "HT1" }] },
-            { rank: 8, name: "TechnoLegacy", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "SMP", tier: "HT2" }] },
-            { rank: 9, name: "VapeGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT2" }] },
-            { rank: 10, name: "Dort", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "Sword", tier: "HT2" }] },
-            { rank: 11, name: "IntelEdits", tiers: [{ kit: "Crystal", tier: "HT3" }, { kit: "SMP", tier: "HT2" }] },
-            { rank: 12, name: "Huahwi", tiers: [{ kit: "UHC", tier: "HT1" }, { kit: "Axe", tier: "HT1" }] },
-            { rank: 13, name: "TimeDeo", tiers: [{ kit: "SkyBlock", tier: "HT1" }, { kit: "Sword", tier: "HT3" }] },
-            { rank: 14, name: "AciDicBliTz", tiers: [{ kit: "Minigames", tier: "HT2" }] },
-            { rank: 15, name: "TapL", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "BedWars", tier: "HT2" }] },
-            { rank: 16, name: "Nestor", tiers: [{ kit: "UHC", tier: "HT2" }, { kit: "Sword", tier: "HT2" }] },
-            { rank: 17, name: "Calvin", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "Pot", tier: "HT2" }] },
-            { rank: 18, name: "Purpled", tiers: [{ kit: "BedWars", tier: "HT1" }, { kit: "SMP", tier: "HT2" }] },
-            { rank: 19, name: "Spifey", tiers: [{ kit: "UHC", tier: "HT3" }, { kit: "Sword", tier: "HT3" }] },
-            { rank: 20, name: "Zylice", tiers: [{ kit: "Crystal", tier: "HT3" }, { kit: "Mace", tier: "HT3" }] }
+            { rank: 5, name: "KillauraGod", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Mace", tier: "HT2" }, { kit: "SMP", tier: "HT2" }] }
         ];
 
-        // Загрузка из localStorage или дефолт
         let allServers = JSON.parse(localStorage.getItem('saved_servers')) || defaultServers;
         let pvpLeaders = JSON.parse(localStorage.getItem('saved_leaders')) || defaultLeaders;
         let currentActiveList = allServers;
@@ -315,7 +346,8 @@
             } catch(e) { return []; }
         }
 
-        function addReview(serverId) {
+        function addReview(serverId, event) {
+            event.stopPropagation(); // Чтобы не открывалось модальное окно при клике на кнопку
             let nameInput = document.getElementById('name_' + serverId);
             let textInput = document.getElementById('text_' + serverId);
             let starSelect = document.getElementById('stars_' + serverId);
@@ -336,7 +368,8 @@
             render(currentActiveList);
         }
 
-        function deleteReview(serverId, reviewId) {
+        function deleteReview(serverId, reviewId, event) {
+            event.stopPropagation();
             if (!isAdmin) return;
             let reviews = getReviews(serverId);
             reviews = reviews.filter(r => r.id !== reviewId);
@@ -349,7 +382,6 @@
             let list = document.getElementById("server-list");
             if (!list) return;
             
-            // Сортировка: сначала VIP (закрепленные), затем обычные
             let sorted = [...serversToRender].sort((a, b) => (b.vip === true) - (a.vip === true));
 
             if (sorted.length === 0) {
@@ -362,13 +394,13 @@
                 let vipBadge = s.vip ? '<span class="badge" style="background: #f0883e; color: #0d1117; font-weight: bold;">👑 VIP</span>' : '';
                 let adminPanel = isAdmin ? `
                     <div style="margin-top: 10px; display: flex; gap: 8px;">
-                        <button onclick="editServer('${s.id}')" style="background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">✏️ Изменить</button>
-                        <button onclick="deleteServer('${s.id}')" style="background: #da3633; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Удалить</button>
+                        <button onclick="event.stopPropagation(); editServer('${s.id}')" style="background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">✏️ Изменить</button>
+                        <button onclick="event.stopPropagation(); deleteServer('${s.id}')" style="background: #da3633; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Удалить</button>
                     </div>
                 ` : '';
 
                 return `
-                    <div class="card ${s.vip ? 'vip-card' : ''}">
+                    <div class="card ${s.vip ? 'vip-card' : ''}" onclick="openServerModal('${s.id}')">
                         <div class="header-flex">
                             <h3>${s.name} ${vipBadge}</h3>
                             <div>
@@ -383,7 +415,7 @@
                         <p class="desc">${s.desc}</p>
                         ${adminPanel}
 
-                        <div class="reviews-section">
+                        <div class="reviews-section" onclick="event.stopPropagation()">
                             <strong>💬 Отзывы (${reviews.length}):</strong>
                             <div class="review-form">
                                 <input type="text" id="name_${s.id}" placeholder="Имя" maxlength="15">
@@ -395,10 +427,10 @@
                                     <option value="1">★ 1</option>
                                 </select>
                                 <input type="text" id="text_${s.id}" placeholder="Отзыв..." style="flex:2;">
-                                <button onclick="addReview('${s.id}')">OK</button>
+                                <button onclick="addReview('${s.id}', event)">OK</button>
                             </div>
                             <div style="margin-top: 8px;">
-                                ${reviews.length === 0 ? '<p style="color:#8b949e; font-size:12px; margin:4px 0;">Пока нет отзывов.</p>' : 
+                                ${reviews.length === 0 ? '<p style="color:#8b949e; font-size:12px; margin:4px 0;">Пока нет отзывов. Кликните на карточку для подробностей!</p>' : 
                                     reviews.map(r => `
                                         <div class="review-item">
                                             <div style="display:flex; justify-content:space-between; color:#8b949e; font-size:11px;">
@@ -406,7 +438,7 @@
                                                 <span>${r.date}</span>
                                             </div>
                                             <div style="margin-top:4px;">${r.text}</div>
-                                            ${isAdmin ? `<button onclick="deleteReview('${s.id}', ${r.id})" style="position: absolute; top: 6px; right: 6px; background: #da3633; color: white; border: none; border-radius: 3px; font-size: 10px; cursor: pointer; padding: 2px 5px;">Удалить</button>` : ''}
+                                            ${isAdmin ? `<button onclick="deleteReview('${s.id}', ${r.id}, event)" style="position: absolute; top: 6px; right: 6px; background: #da3633; color: white; border: none; border-radius: 3px; font-size: 10px; cursor: pointer; padding: 2px 5px;">Удалить</button>` : ''}
                                         </div>
                                     `).join('')
                                 }
@@ -415,6 +447,49 @@
                     </div>
                 `;
             }).join("");
+        }
+
+        // Логика поиска
+        function handleSearch() {
+            let query = document.getElementById("search-input").value.toLowerCase();
+            let filtered = allServers.filter(s => 
+                s.name.toLowerCase().includes(query) || s.ip.toLowerCase().includes(query)
+            );
+            render(filtered);
+        }
+
+        // Логика модального окна
+        function openServerModal(id) {
+            let s = allServers.find(item => item.id === id);
+            if (!s) return;
+
+            let modalBody = document.getElementById("modalBody");
+            modalBody.innerHTML = `
+                <h2 style="color: #58a6ff; margin-top: 0;">${s.name}</h2>
+                <p><strong>Полный IP-адрес:</strong> <code style="background: #21262d; padding: 2px 6px; border-radius: 4px;">${s.ip}</code></p>
+                <p><strong>Режим:</strong> ${s.mode}</p>
+                <p><strong>Регион:</strong> ${s.flag} ${s.region}</p>
+                <p><strong>Статус:</strong> ${s.status || '🟢 Работает'}</p>
+                <p><strong>Последний вайп:</strong> ${s.wipe || 'Не указано'}</p>
+                <p style="margin-top: 15px;"><strong>Описание:</strong></p>
+                <p style="color: #8b949e; background: rgba(13,17,23,0.5); padding: 10px; border-radius: 6px;">${s.desc}</p>
+                
+                <div class="modal-links">
+                    ${s.discord ? `<a href="${s.discord}" target="_blank" class="modal-btn-link">💬 Discord сервер</a>` : ''}
+                    ${s.store ? `<a href="${s.store}" target="_blank" class="modal-btn-link">🛒 Магазин / Донат</a>` : ''}
+                </div>
+            `;
+            document.getElementById("serverModal").style.display = "flex";
+        }
+
+        function closeModal(event) {
+            if (event.target.id === "serverModal") {
+                closeModalDirect();
+            }
+        }
+
+        function closeModalDirect() {
+            document.getElementById("serverModal").style.display = "none";
         }
 
         function filterByMode(modeName) {
@@ -428,6 +503,7 @@
         }
 
         function resetFilter() {
+            document.getElementById("search-input").value = "";
             render(allServers);
         }
 
@@ -454,11 +530,14 @@
             let mode = prompt("Режим (Анархия, PvP, Выживание, BedWars):", "Выживание");
             let status = prompt("Статус (🟢 Работает, 🔴 Оффлайн, 🛠️ Техработы):", "🟢 Работает");
             let vipChoice = confirm("Закрепить сервер в топе как VIP? (ОК - Да, Отмена - Нет)");
+            let wipe = prompt("Дата/периодичность вайпа:", "Раз в месяц");
+            let discord = prompt("Ссылка на Discord:", "https://discord.gg/...");
+            let store = prompt("Ссылка на магазин:", "https://...");
             let desc = prompt("Описание сервера:");
 
             let newServer = {
                 id: 'serv_' + Date.now(),
-                name, ip, region, flag, rating: 5.0, online: 100, mode, status, vip: vipChoice, desc: desc || "Новый сервер"
+                name, ip, region, flag, rating: 5.0, online: 100, mode, status, vip: vipChoice, wipe, discord, store, desc: desc || "Новый сервер"
             };
 
             allServers.push(newServer);
@@ -471,14 +550,16 @@
             if (!s) return;
             let newName = prompt("Изменить название:", s.name);
             let newIp = prompt("Изменить IP:", s.ip);
-            let newStatus = prompt("Изменить статус (🟢 Работает, 🔴 Оффлайн, 🛠️ Техработы):", s.status || "🟢 Работает");
-            let newVip = confirm(`Текущий статус VIP: ${s.vip ? 'Да' : 'Нет'}. Изменить на противоположный?`);
+            let newWipe = prompt("Изменить инфо о вайпе:", s.wipe || "Раз в месяц");
+            let newDiscord = prompt("Ссылка на Discord:", s.discord || "");
+            let newStore = prompt("Ссылка на магазин:", s.store || "");
             let newDesc = prompt("Изменить описание:", s.desc);
 
             if (newName) s.name = newName;
             if (newIp) s.ip = newIp;
-            if (newStatus) s.status = newStatus;
-            if (newVip) s.vip = !s.vip;
+            if (newWipe) s.wipe = newWipe;
+            if (newDiscord !== null) s.discord = newDiscord;
+            if (newStore !== null) s.store = newStore;
             if (newDesc) s.desc = newDesc;
 
             saveServers();
