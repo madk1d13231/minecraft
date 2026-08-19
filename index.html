@@ -3,96 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Топ-20 PvP Игроков (MCTiers)</title>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 20px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #252525;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        h2 {
-            color: #ff9800;
-            border-bottom: 2px solid #ff9800;
-            padding-bottom: 10px;
-        }
-        .player-row {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #333;
-            gap: 15px;
-        }
-        .rank {
-            font-weight: bold;
-            color: #ff9800;
-            width: 30px;
-        }
-        .name {
-            flex-grow: 1;
-            font-weight: 500;
-        }
-        .tiers {
-            display: flex;
-            gap: 5px;
-        }
-        .tier-tag {
-            font-size: 10px;
-            padding: 2px 5px;
-            border-radius: 3px;
-            background: #444;
-            color: #fff;
-        }
-    </style>
+    <title>Мониторинг серверов и Топ PvP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Топ-20 PvP Игроков</h2>
-        <div id="leaderboard"></div>
+    <div class="main-layout">
+        <!-- Левая колонка с серверами -->
+        <div class="servers-section">
+            <div class="server-card">
+                <h2>Hypixel</h2>
+                <p>IP: play.hypixel.net</p>
+                <p>Онлайн: 48500 игроков</p>
+            </div>
+            <div class="server-card">
+                <h2>MCSkill</h2>
+                <p>IP: mc.mcraft.pro</p>
+                <p>Онлайн: 1240 игроков</p>
+            </div>
+        </div>
+
+        <!-- Правая колонка: Маленькая таблица мирового рейтинга -->
+        <div class="sidebar-leaderboard">
+            <h3>🏆 Топ-20 PvP Игроков</h3>
+            <div id="leaderboard"></div>
+        </div>
     </div>
 
-    <script>
-        const pvpLeaders = [
-            { rank: 1, name: "Marlowww", tiers: ["HT1", "HT1", "HT1", "HT1"] },
-            { rank: 2, name: "ItzRealMe", tiers: ["HT3", "HT1", "HT1", "HT1"] },
-            { rank: 3, name: "coldified", tiers: ["LT1", "HT3", "HT1", "HT1"] },
-            { rank: 4, name: "Swight", tiers: ["LT3", "HT1", "HT1", "HT1"] },
-            { rank: 5, name: "janekv", tiers: ["HT3", "HT4", "HT1", "HT1"] },
-            { rank: 6, name: "BlvckWlf", tiers: ["HT3", "LT3", "LT3", "HT1"] },
-            { rank: 6, name: "Kylaz", tiers: ["HT3", "LT3", "LT3", "HT1"] },
-            { rank: 8, name: "ninorc15", tiers: ["HT3", "HT3", "LT3", "LT1"] },
-            { rank: 9, name: "Lurrn", tiers: ["LT3", "LT4", "HT1", "LT1"] },
-            { rank: 10, name: "Arsakha", tiers: ["HT3", "HT3", "HT3", "LT3"] },
-            { rank: 10, name: "yMiau", tiers: ["HT3", "LT3", "LT3", "LT3"] },
-            { rank: 12, name: "Juan_Clean", tiers: ["HT3", "LT3", "LT3", "LT3"] },
-            { rank: 12, name: "Deilvi_17", tiers: ["HT3", "HT4", "LT4", "LT4"] },
-            { rank: 12, name: "Freekee_Fang", tiers: ["LT2", "HT3", "HT3", "HT3"] },
-            { rank: 15, name: "Legendarryy", tiers: ["HT2", "HT3", "HT3", "LT3"] },
-            { rank: 16, name: "Spawnplayer", tiers: ["HT3", "HT3", "HT3", "LT3"] },
-            { rank: 17, name: "zivahlol", tiers: ["HT3", "HT3", "HT3", "HT3"] },
-            { rank: 18, name: "sashia2m", tiers: ["HT1", "HT3", "LT3", "LT3"] },
-            { rank: 19, name: "Frxnkey", tiers: ["LT3", "HT3", "HT4", "LT4"] },
-            { rank: 20, name: "Hosthan", tiers: ["LT3", "HT3", "HT3", "LT3"] }
-        ];
-
-        const container = document.getElementById('leaderboard');
-        pvpLeaders.forEach(p => {
-            const row = document.createElement('div');
-            row.className = 'player-row';
-            row.innerHTML = `<span class="rank">${p.rank}.</span>
-                             <span class="name">${p.name}</span>
-                             <div class="tiers">${p.tiers.map(t => `<span class="tier-tag">${t}</span>`).join('')}</div>`;
-            container.appendChild(row);
-        });
-    </script>
+    <!-- Подключаем скрипт с актуальными данными игроков -->
+    <script src="script.js"></script>
 </body>
 </html>
-```[cite: 1]
