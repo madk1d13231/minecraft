@@ -73,6 +73,7 @@
             gap: 6px;
         }
         .btn:hover { background-color: #30363d; border-color: #8b949e; }
+        .btn.active-filter { background-color: #1f6feb; border-color: #58a6ff; color: white; }
         .btn-primary { background-color: #238636; color: white; border-color: #2ea043; }
         .btn-primary:hover { background-color: #2ea043; }
 
@@ -152,7 +153,6 @@
         .rank-badge { font-weight: bold; padding: 1px 6px; border-radius: 4px; }
         .r-gm { background: #f0883e33; color: #f0883e; }
         .r-master { background: #58a6ff33; color: #58a6ff; }
-        .r-ace { background: #3fb95033; color: #3fb950; }
 
         .modal {
             display: none;
@@ -197,11 +197,11 @@
             <div class="filters-panel">
                 <input type="text" id="search-input" class="search-box" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
                 <div class="filter-group">
-                    <button class="btn" onclick="filterByMode('Анархия')">🔥 Анархия</button>
-                    <button class="btn" onclick="filterByMode('BedWars')">🛏️ BedWars</button>
-                    <button class="btn" onclick="filterByMode('Выживание')">🌲 Выживание</button>
-                    <button class="btn" onclick="filterByMode('Скайблок')">☁️ Скайблок</button>
-                    <button class="btn" onclick="filterByMode('PvP')">⚔️ PvP</button>
+                    <button class="btn filter-btn" data-mode="Анархия" onclick="filterByMode('Анархия')">🔥 Анархия</button>
+                    <button class="btn filter-btn" data-mode="BedWars" onclick="filterByMode('BedWars')">🛏️ BedWars</button>
+                    <button class="btn filter-btn" data-mode="Выживание" onclick="filterByMode('Выживание')">🌲 Выживание</button>
+                    <button class="btn filter-btn" data-mode="Скайблок" onclick="filterByMode('Скайблок')">☁️ Скайблок</button>
+                    <button class="btn filter-btn" data-mode="PvP" onclick="filterByMode('PvP')">⚔️ PvP</button>
                     <button class="btn" style="background: #30363d; border-color: var(--accent-pink); color: var(--accent-pink);" onclick="resetFilters()">🔄 Сбросить</button>
                 </div>
             </div>
@@ -289,7 +289,7 @@
             }
         }
 
-        // База из более чем 25 серверов с понятными подсказками для новичков
+        // Большой список из 26 серверов
         let serversData = [
             { id: 1, name: "FunTime", ip: "play.funtime.su", version: "1.16 - 1.20+", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: здесь нет защиты территории (приватов) и почти нет правил. Стройте скрытые базы.", status: "🟢 Работает", vip: true, online: 4280, maxOnline: 5000, rating: 4.9, desc: "Крупнейший сервер анархии с кланами, аукционом и кастомными предметами.", history: [3800, 3950, 4100, 4200, 4280] },
             { id: 2, name: "HolyWorld", ip: "mc.holyworld.ru", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: анархичный проект с дюп-зонами, ивентами и жестким выживанием без приватов.", status: "🟢 Работает", vip: true, online: 3150, maxOnline: 4000, rating: 4.8, desc: "Популярный проект с частыми вайпами, клановыми войнами и кастомными кейсами.", history: [2900, 3050, 3100, 3120, 3150] },
@@ -300,7 +300,7 @@
             { id: 7, name: "MatrixPvP", ip: "play.matrixpvp.net", version: "1.12 - 1.20", region: "Европа", flag: "🇪🇺", mode: "PvP", beginnerHint: "💡 Для новичков: тренируйте сражения, дуэли 1v1 и CrystalPVP.", status: "🟢 Работает", vip: false, online: 840, maxOnline: 1500, rating: 4.6, desc: "Хардкорные PvP тренировки и турниры с денежными призами.", history: [750, 800, 820, 830, 840] },
             { id: 8, name: "CubeCraft", ip: "play.cubecraft.net", version: "1.9 - 1.20", region: "Европа", flag: "🇪🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: популярные мини-игры и командные сражения на островах.", status: "🟢 Работает", vip: false, online: 12500, maxOnline: 20000, rating: 4.7, desc: "Международный сервер с огромным выбором аркадных режимов.", history: [11000, 11500, 12000, 12200, 12500] },
             { id: 9, name: "Mineland", ip: "join.mineland.net", version: "1.12 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: множество мини-режимов, выживание и творческий мир.", status: "🟢 Работает", vip: false, online: 3400, maxOnline: 5000, rating: 4.5, desc: "Многорежимный проект с кастомными плагинами и ивентами.", history: [3100, 3200, 3300, 3350, 3400] },
-            { id: 10, name: "MST Network", ip: "mc.mstnetwork.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Скайблок", beginnerHint: "💡 For beginners: прокачка острова и кастомный выживательный геймплей.", status: "🟢 Работает", vip: false, online: 1120, maxOnline: 2000, rating: 4.6, desc: "Качественные режимы Скайблок и Анархия с уникальной экономикой.", history: [1000, 1050, 1080, 1100, 1120] },
+            { id: 10, name: "MST Network", ip: "mc.mstnetwork.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Скайблок", beginnerHint: "💡 Для новичков: прокачка острова и кастомный выживательный геймплей.", status: "🟢 Работает", vip: false, online: 1120, maxOnline: 2000, rating: 4.6, desc: "Качественные режимы Скайблок и Анархия с уникальной экономикой.", history: [1000, 1050, 1080, 1100, 1120] },
             { id: 11, name: "GriefLand", ip: "play.griefland.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: жесткое выживание с грифером и рейдами баз.", status: "🟢 Работает", vip: false, online: 1540, maxOnline: 2500, rating: 4.4, desc: "Анархия для любителей хардкорных баталий.", history: [1400, 1450, 1500, 1520, 1540] },
             { id: 12, name: "VimeWorld", ip: "mc.vimeworld.com", version: "1.8", region: "СНГ", flag: "🇷🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: классические мини-игры на версии 1.8 с огромным онлайном.", status: "🟢 Работает", vip: true, online: 8900, maxOnline: 12000, rating: 4.9, desc: "Легендарная платформа мини-игр с уникальным античитом.", history: [8200, 8500, 8700, 8800, 8900] },
             { id: 13, name: "SurvivalMania", ip: "play.survivalmania.ru", version: "1.14 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: классика выживания с кланами и работами.", status: "🟢 Работает", vip: false, online: 760, maxOnline: 1200, rating: 4.3, desc: "Уютный сервер с классическими правилами.", history: [700, 720, 740, 750, 760] },
@@ -311,7 +311,7 @@
             { id: 18, name: "DraftCraft", ip: "play.draftcraft.ru", version: "1.18 - 1.21", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: ванильное выживание на последних версиях игры.", status: "🟢 Работает", vip: false, online: 530, maxOnline: 1000, rating: 4.5, desc: "Чистое выживание без приватов по веревочкам и грифа.", history: [500, 510, 520, 525, 530] },
             { id: 19, name: "RedesSky", ip: "play.redessky.com", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: популярные мини-игры и быстрый поиск команд.", status: "🟢 Работает", vip: false, online: 4100, maxOnline: 6000, rating: 4.7, desc: "Зарубежный аналог мини-игр с отличным пингом.", history: [3900, 4000, 4050, 4080, 4100] },
             { id: 20, name: "SimpleSurvival", ip: "play.simplesurvival.org", version: "1.19 - 1.21", region: "США", flag: "🇺🇸", mode: "Выживание", beginnerHint: "💡 Для новичков: простое и понятное выживание с защитой привата.", status: "🟢 Работает", vip: false, online: 1650, maxOnline: 2500, rating: 4.6, desc: "Международный классический сервер выживания.", history: [1500, 1580, 1600, 1620, 1650] },
-            { id: 21, name: "AnarchyWorld", ip: "play.anarchyworld.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия",:", beginnerHint: "💡 Для новичков: жесткий мир без правил, читеров банят автоматически.", status: "🟢 Работает", vip: false, online: 1190, maxOnline: 2000, rating: 4.3, desc: "Классическая анархия для хардкорных игроков.", history: [1100, 1130, 1160, 1180, 1190] },
+            { id: 21, name: "AnarchyWorld", ip: "play.anarchyworld.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: жесткий мир без правил, читеров банят автоматически.", status: "🟢 Работает", vip: false, online: 1190, maxOnline: 2000, rating: 4.3, desc: "Классическая анархия для хардкорных игроков.", history: [1100, 1130, 1160, 1180, 1190] },
             { id: 22, name: "SkyBlock.net", ip: "play.skyblock.net", version: "1.12 - 1.20", region: "США", flag: "🇺🇸", mode: "Скайблок", beginnerHint: "💡 Для новичков: прародитель всех скайблок серверов мира.", status: "🟢 Работает", vip: false, online: 890, maxOnline: 1500, rating: 4.4, desc: "Классический оригинальный SkyBlock.", history: [820, 850, 870, 880, 890] },
             { id: 23, name: "PvPLegends", ip: "play.pvplegends.com", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", mode: "PvP", beginnerHint: "💡 Для новичков: арены, тренировка стрельбы из лука и мечей.", status: "🟢 Работает", vip: false, online: 720, maxOnline: 1200, rating: 4.5, desc: "Современные PvP арены и рейтинговые матчи.", history: [680, 700, 710, 715, 720] },
             { id: 24, name: "PixelBlock", ip: "play.pixelblock.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: мини-игры и быстрые командные баталии.", status: "🟢 Работает", vip: false, online: 540, maxOnline: 1000, rating: 4.2, desc: "Удобный мини-игровой сервер для СНГ.", history: [500, 520, 530, 535, 540] },
@@ -398,6 +398,16 @@
 
         function filterByMode(mode) {
             currentFilterMode = currentFilterMode === mode ? '' : mode;
+            
+            // Подсветка активной кнопки
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.getAttribute('data-mode') === currentFilterMode) {
+                    btn.classList.add('active-filter');
+                } else {
+                    btn.classList.remove('active-filter');
+                }
+            });
+
             renderServers();
         }
 
@@ -405,6 +415,7 @@
             currentFilterMode = '';
             currentSearchQuery = '';
             document.getElementById('search-input').value = '';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
             renderServers();
         }
 
