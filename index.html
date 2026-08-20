@@ -237,7 +237,7 @@
             display: none; z-index: 20000; transition: 0.3s;
         }
 
-        /* Стили для блока авторизации/регистрации в шапке */
+        /* Стили для авторизации */
         .auth-bar {
             background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px;
             padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
@@ -274,7 +274,6 @@
                 <p id="main-subtitle" style="color: #8b949e; margin: 4px 0 0 0;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
             </div>
             
-            <!-- Блок входа и регистрации в шапке с кнопкой видимости пароля -->
             <div class="auth-bar" id="auth-container">
                 <div id="auth-form-inputs" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <input type="email" id="auth-email" placeholder="Email...">
@@ -299,7 +298,7 @@
             <button id="tab-forum" class="nav-tab-btn" onclick="switchTab('forum')">💬 <span class="t-forum">Форум сообщества</span></button>
         </div>
 
-        <!-- ВКЛАДКА СЕРВЕРОВ (ГЛАВНАЯ) -->
+        <!-- ВКЛАДКА СЕРВЕРОВ -->
         <div id="section-servers">
             <div class="search-bar">
                 <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию, версии или IP..." oninput="handleSearch()">
@@ -526,7 +525,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
     <div id="copy-toast">📋 IP скопирован в буфер обмена!</div>
 
-    <!-- Функция переключения видимости пароля -->
     <script>
         function togglePasswordVisibility() {
             const passInput = document.getElementById('auth-password');
@@ -541,7 +539,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         }
     </script>
 
-    <!-- Firebase модуль (Вход, Регистрация и Сессия) -->
+    <!-- Firebase модуль -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -567,22 +565,18 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         const userBox = document.getElementById('auth-user-box');
         const userDisplay = document.getElementById('user-email-display');
 
-        // Регистрация
         document.getElementById('signup-btn').addEventListener('click', () => {
             const email = emailInput.value;
             const password = passInput.value;
             if (!email || !password) { alert("Введите email и пароль!"); return; }
-
             createUserWithEmailAndPassword(auth, email, password)
                 .catch((error) => { alert("Ошибка регистрации: " + error.message); });
         });
 
-        // Вход (Авторизация)
         document.getElementById('login-btn').addEventListener('click', () => {
             const email = emailInput.value;
             const password = passInput.value;
             if (!email || !password) { alert("Введите email и пароль!"); return; }
-
             signInWithEmailAndPassword(auth, email, password)
                 .catch((error) => {
                     if (error.code === 'auth/invalid-credential') {
@@ -593,12 +587,10 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 });
         });
 
-        // Выход из аккаунта
         document.getElementById('logout-btn').addEventListener('click', () => {
             signOut(auth);
         });
 
-        // Отслеживание состояния сессии пользователя
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 formInputs.style.display = 'none';
@@ -616,7 +608,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         });
     </script>
 
-    <!-- Основной скрипт сайта -->
+    <!-- Основной скрипт с 25+ серверами -->
     <script>
         function createSakuraPetal() {
             const petal = document.createElement('div');
@@ -640,7 +632,28 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", version: "1.8 - 1.21+", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net", history: [41000, 43500, 48500, 47000, 52000, 49000, 48500] },
             { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", version: "1.16 - 1.20.4", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su", history: [1800, 2100, 2400, 2250, 2600, 2300, 2400] },
             { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", version: "1.7.10 / 1.12.2 / 1.20.1", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net", history: [900, 1100, 1240, 1150, 1300, 1200, 1240] },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru", history: [3000, 3400, 3850, 3600, 4100, 3900, 3850] }
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru", history: [3000, 3400, 3850, 3600, 4100, 3900, 3850] },
+            { id: "funtime", name: "FunTime", ip: "funtime.su", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 6200, mode: "Анархия", desc: "Легендарный анархический проект с огромным онлайном и частыми вайпами.", status: "🟢 Работает", vip: true, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su", history: [5500, 5800, 6200, 6000, 6400, 6100, 6200] },
+            { id: "holyland", name: "HolyLand", ip: "mc.holyland.su", version: "1.16.5 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 1450, mode: "Анархия", desc: "Новый хардкорный сервер с уникальными механиками боя и кланами.", status: "🟢 Работает", vip: false, wipe: "Раз в 2 месяца", discord: "https://discord.gg/holyland", store: "https://holyland.su", history: [1200, 1350, 1450, 1400, 1500, 1420, 1450] },
+            { id: "cristalix", name: "Cristalix", ip: "mc.cristalix.gg", version: "1.8 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 7800, mode: "BedWars", desc: "Крупнейшая мини-игровая платформа в СНГ: BedWars, SkyWars, Prison.", status: "🟢 Работает", vip: false, wipe: "Не требуется", discord: "https://discord.gg/cristalix", store: "https://cristalix.gg", history: [7000, 7500, 7800, 7600, 8200, 7700, 7800] },
+            { id: "mineland", name: "MineLand", ip: "join.mineland.net", version: "1.12 - 1.21", region: "Европа", flag: "🇪🇺", rating: 4.5, online: 3100, mode: "Выживание", desc: "Международный проект с кастомными режимами и экономикой.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/mineland", store: "https://mineland.net", history: [2800, 2950, 3100, 3050, 3200, 3120, 3100] },
+            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", version: "1.9 - 1.21+", region: "Европа", flag: "🇪🇺", rating: 4.7, online: 15400, mode: "BedWars", desc: "Популярный мировой сервер с качественными мини-играми.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/cubecraft", store: "https://cubecraft.net", history: [14000, 14800, 15400, 15100, 16000, 15300, 15400] },
+            { id: "mineplex", name: "Mineplex EU", ip: "eu.mineplex.com", version: "1.8 - 1.19", region: "Европа", flag: "🇪🇺", rating: 4.1, online: 890, mode: "PvP", desc: "Классические аркады и PvP-арены.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/mineplex", store: "https://mineplex.com", history: [800, 850, 890, 870, 920, 880, 890] },
+            { id: "hypixel_ru", name: "VimeWorld", ip: "mc.vimeworld.com", version: "1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 5300, mode: "Minigames", desc: "Легендарный мини-игровой проект с классическим ванильным вайбом.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/vimeworld", store: "https://vimeworld.com", history: [4800, 5100, 5300, 5200, 5500, 5250, 5300] },
+            { id: "pvland", name: "PvLand", ip: "mc.pvland.ru", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.4, online: 950, mode: "PvP", desc: "Узкоспециализированный проект для тренировок кит-пвп и зелья.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/pvland", store: "https://pvland.ru", history: [850, 900, 950, 920, 980, 940, 950] },
+            { id: "stardust", name: "StarDust", ip: "play.stardust.su", version: "1.12.2 - 1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 640, mode: "Выживание", desc: "Уютный сервер с магией, техническими модами и RPG.", status: "🟢 Работает", vip: false, wipe: "По обновлению модов", discord: "https://discord.gg/stardust", store: "https://stardust.su", history: [600, 620, 640, 630, 660, 635, 640] },
+            { id: "stormrage", name: "StormRage", ip: "mc.stormrage.org", version: "1.20+", region: "Европа", flag: "🇪🇺", rating: 4.5, online: 1120, mode: "Анархия", desc: "Хардкорный анархический сервер с кланами и без багов.", status: "🟢 Работает", vip: false, wipe: "Каждые 2 месяца", discord: "https://discord.gg/stormrage", store: "https://stormrage.org", history: [1000, 1080, 1120, 1100, 1150, 1110, 1120] },
+            { id: "pixelmon_pro", name: "PixelmonPRO", ip: "hub.pixelmon.pro", version: "1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2100, mode: "Выживание", desc: "Лучший сервер с модом покемонов, аренами и турнирами.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/pixelmon", store: "https://pixelmon.pro", history: [1900, 2050, 2100, 2080, 2150, 2090, 2100] },
+            { id: "redesky", name: "RedeSky", ip: "redesky.com", version: "1.8 - 1.20", region: "США", flag: "🇺🇸", rating: 4.6, online: 6400, mode: "BedWars", desc: "Международный проект, известный своими кастомными скайблок режимами.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/redesky", store: "https://redesky.com", history: [6000, 6200, 6400, 6300, 6550, 6380, 6400] },
+            { id: "frostland", name: "FrostLand", ip: "mc.frostland.net", version: "1.18 - 1.21", region: "Европа", flag: "🇪🇺", rating: 4.4, online: 830, mode: "Выживание", desc: "Зимнее выживание с городами, кланами и ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/frostland", store: "https://frostland.net", history: [750, 800, 830, 810, 860, 820, 830] },
+            { id: "azurite", name: "AzuritePvP", ip: "play.azurite.cc", version: "1.8 - 1.21", region: "Азия", flag: "🌏", rating: 4.5, online: 1250, mode: "PvP", desc: "Азиатский хаб для тренировки комбо-хитов и дуэлей.", status: "🟢 Работает", vip: false, wipe: "Раз в 3 месяца", discord: "https://discord.gg/azurite", store: "https://azurite.cc", history: [1100, 1200, 1250, 1220, 1300, 1240, 1250] },
+            { id: "cherrycraft", name: "CherryCraft", ip: "play.cherry.su", version: "1.20 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 1650, mode: "Выживание", desc: "Красивый ванильный сервер с уютным сообществом и без приватов по нитям.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/cherry", store: "https://cherry.su", history: [1500, 1600, 1650, 1620, 1700, 1640, 1650] },
+            { id: "nexusgrief", name: "NexusGrief", ip: "mc.nexusgrief.ru", version: "1.16.5 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 980, mode: "Анархия", desc: "Молодая анархия с бесплатными кейсами и кастомными предметами.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/nexus", store: "https://nexusgrief.ru", history: [900, 950, 980, 960, 1010, 975, 980] },
+            { id: "galaxymine", name: "GalaxyMine", ip: "play.galaxymine.ru", version: "1.12.2", region: "СНГ", flag: "🇷🇺", rating: 4.2, online: 720, mode: "Выживание", desc: "Классические космические сборки с модами IndustrialCraft и BuildCraft.", status: "🟢 Работает", vip: false, wipe: "Раз в 4 месяца", discord: "https://discord.gg/galaxy", store: "https://galaxymine.ru", history: [680, 700, 720, 710, 740, 715, 720] },
+            { id: "badlion", name: "Badlion Network", ip: "eu.badlion.net", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 4300, mode: "PvP", desc: "Знаменитый PvP клиент и сеть серверов для тренировок.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/badlion", store: "https://store.badlion.net", history: [4000, 4200, 4300, 4250, 4450, 4280, 4300] },
+            { id: "pvp_wars", name: "PvPWars", ip: "hub.pvpwars.com", version: "1.8 - 1.21", region: "США", flag: "🇺🇸", rating: 4.6, online: 2900, mode: "BedWars", desc: "Американский проект с упором на кастомный скайблок и бедварс.", status: "🟢 Работает", vip: false, wipe: "Раз в 2 месяца", discord: "https://discord.gg/pvpwars", store: "https://pvpwars.com", history: [2700, 2850, 2900, 2880, 3000, 2890, 2900] },
+            { id: "olympusmc", name: "OlympusMC", ip: "play.olympusmc.asia", version: "1.19 - 1.21", region: "Азия", flag: "🌏", rating: 4.4, online: 1100, mode: "Выживание", desc: "Азиатский RPG сервер с мифическими боссами и подземельями.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/olympus", store: "https://olympusmc.asia", history: [1000, 1050, 1100, 1080, 1130, 1090, 1100] },
+            { id: "shadowmc", name: "ShadowMC", ip: "play.shadowmc.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 680, mode: "Анархия", desc: "Простой и быстрый гриф-сервер без лишних модов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/shadowmc", store: "https://shadowmc.ru", history: [620, 650, 680, 670, 700, 675, 680] }
         ];
 
         let defaultLeaders = [
@@ -1049,7 +1062,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }
         }
 
-        // Первичный запуск отрисовки
         renderServers(allServers);
         renderLeaderboard();
     </script>
