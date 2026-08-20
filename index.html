@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Мировой мониторинг серверов Minecraft + Форум + Версии</title>
+    <title id="page-title">Мировой мониторинг серверов Minecraft + Профили, Графики и Регистрация</title>
+    <!-- Подключаем Chart.js для графиков онлайна -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             background-color: #0b0f15;
@@ -54,6 +56,17 @@
         .top-panel-bar {
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
         }
+        .user-panel-auth {
+            display: flex; align-items: center; gap: 10px; background: rgba(22, 27, 34, 0.85);
+            border: 1px solid #30363d; padding: 6px 12px; border-radius: 8px; backdrop-filter: blur(10px); font-size: 13px;
+        }
+        .auth-btn {
+            background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;
+        }
+        .auth-btn:hover { background: #2ea043; }
+        .auth-btn-secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; }
+        .auth-btn-secondary:hover { background: #30363d; }
+
         .nav-tabs {
             display: flex; gap: 10px; border-bottom: 1px solid #30363d; padding-bottom: 10px; flex-wrap: wrap;
         }
@@ -77,7 +90,7 @@
             .main-layout { grid-template-columns: 1fr; }
         }
 
-        .card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(5px); cursor: pointer; transition: 0.2s; }
+        .card { background: rgba(22, 27, 34, 0.85); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px); cursor: pointer; transition: 0.2s; }
         .card:hover { border-color: #58a6ff; transform: translateY(-2px); }
         .card.vip-card { border-color: #f0883e; box-shadow: 0 0 10px rgba(240, 136, 62, 0.2); }
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
@@ -105,7 +118,7 @@
         .cat-card {
             background: rgba(22, 27, 34, 0.85); border: 1px solid #30363d;
             border-radius: 8px; padding: 12px; text-align: left;
-            cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px);
+            cursor: pointer; transition: 0.2s; backdrop-filter: blur(10px);
         }
         .cat-card:hover { border-color: #58a6ff; background: rgba(31, 36, 44, 0.95); transform: translateY(-2px); }
         .cat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
@@ -139,7 +152,7 @@
         .sidebar-container { display: flex; flex-direction: column; gap: 15px; }
         .sidebar-panel {
             background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d;
-            border-radius: 8px; padding: 15px; backdrop-filter: blur(5px);
+            border-radius: 8px; padding: 15px; backdrop-filter: blur(10px);
             max-height: 800px; overflow-y: auto;
         }
         .sidebar-title { font-size: 15px; font-weight: bold; color: #f0883e; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; position: sticky; top: 0; background: rgba(22, 27, 34, 0.95); padding-bottom: 6px; z-index: 2; }
@@ -179,9 +192,25 @@
         .forum-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .btn-create-topic { background: #238636; color: white; border: none; padding: 9px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .btn-create-topic:hover { background: #2ea043; }
-        .topic-card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+        .topic-card { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; backdrop-filter: blur(10px); }
         .topic-card:hover { border-color: #58a6ff; }
         .topic-meta { display: flex; gap: 10px; color: #8b949e; font-size: 12px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+
+        /* Стили для страницы профиля сервера */
+        #section-server-profile { display: none; }
+        .profile-container {
+            background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 12px;
+            padding: 25px; backdrop-filter: blur(10px);
+        }
+        .btn-back {
+            background: #21262d; color: #c9d1d9; border: 1px solid #30363d;
+            padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-back:hover { background: #30363d; }
+        .chart-wrapper {
+            background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+            padding: 15px; margin-top: 20px; position: relative; height: 300px;
+        }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -225,7 +254,6 @@
         
         #admin-btn { position: fixed; bottom: 15px; left: 15px; background: #21262d; color: #8b949e; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; z-index: 9999; }
 
-        /* Уведомление о скопированном IP */
         #copy-toast {
             position: fixed; bottom: 20px; right: 20px; background: #238636; color: white;
             padding: 10px 18px; border-radius: 6px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -240,7 +268,12 @@
                 <h1 id="main-title" style="margin: 0;">🌸 Мировой мониторинг серверов Minecraft</h1>
                 <p id="main-subtitle" style="color: #8b949e; margin: 4px 0 0 0;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
             </div>
-            <button class="lang-switch" onclick="toggleLanguage()">🌐 EN / RU</button>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div class="user-panel-auth" id="user-auth-panel">
+                    <!-- Заполняется динамически скриптом -->
+                </div>
+                <button class="lang-switch" onclick="toggleLanguage()">🌐 EN / RU</button>
+            </div>
         </div>
 
         <div class="nav-tabs" style="margin-top: 15px;">
@@ -248,7 +281,7 @@
             <button id="tab-forum" class="nav-tab-btn" onclick="switchTab('forum')">💬 <span class="t-forum">Форум сообщества</span></button>
         </div>
 
-        <!-- ВКЛАДКА СЕРВЕРОВ -->
+        <!-- ВКЛАДКА СЕРВЕРОВ (ГЛАВНАЯ) -->
         <div id="section-servers">
             <div class="search-bar">
                 <input type="text" id="search-input" class="search-input" placeholder="🔍 Найти сервер по названию, версии или IP..." oninput="handleSearch()">
@@ -295,7 +328,6 @@
                 <div id="server-list"></div>
 
                 <div class="sidebar-container">
-                    <!-- Блок статистики в админке -->
                     <div id="admin-stats-box" class="admin-stats-box">
                         <h4>📊 Статистика системы</h4>
                         <p>Серверов в базе: <strong id="stat-servers-count">0</strong></p>
@@ -308,7 +340,6 @@
                         <div id="leaderboard-list"></div>
                     </div>
 
-                    <!-- Рекламный / Монетизационный блок -->
                     <div class="promo-banner">
                         <p style="margin: 0 0 6px 0; font-weight: bold; color: #f0883e;">👑 Продвижение серверов</p>
                         <p style="margin: 0 0 8px 0; font-size: 12px;">Хотите закрепить ваш сервер в самом верху списка? Закажите VIP-статус.</p>
@@ -316,6 +347,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- СТРАНИЦА ПРОФИЛЯ СЕРВЕРА С ГРАФИКОМ -->
+        <div id="section-server-profile">
+            <button class="btn-back" onclick="goBackToList()">← Назад к списку</button>
+            <div class="profile-container" id="profile-content-box"></div>
         </div>
 
         <!-- ВКЛАДКА ФОРУМА -->
@@ -332,15 +369,27 @@
         </div>
     </div>
 
-    <!-- Модальное окно деталей сервера -->
-    <div id="serverModal" class="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModalDirect()">✕</button>
-            <div id="modalBody"></div>
+    <!-- Модальные окна -->
+    <!-- Регистрация / Авторизация -->
+    <div id="authModal" class="modal-overlay" onclick="closeAuthModalEvent(event)">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="modal-close" onclick="closeAuthModalDirect()">✕</button>
+            <h2 id="authModalTitle" style="color: #58a6ff; margin-top: 0;">Регистрация аккаунта</h2>
+            <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                <div class="form-group">
+                    <label>Имя пользователя (Ник):</label>
+                    <input type="text" id="auth-username" required placeholder="Например: Steve" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label>Пароль:</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" id="authSubmitBtn" class="form-btn-save">Зарегистрироваться</button>
+                <p id="authSwitchText" style="text-align: center; font-size: 12px; color: #8b949e; margin-top: 15px; cursor: pointer;" onclick="toggleAuthMode()">Уже есть аккаунт? <u>Войти</u></p>
+            </form>
         </div>
     </div>
 
-    <!-- Модальное окно формы добавления/редактирования сервера -->
     <div id="serverFormModal" class="modal-overlay" onclick="closeFormModal(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeFormModalDirect()">✕</button>
@@ -422,16 +471,11 @@
         </div>
     </div>
 
-    <!-- Модальное окно создания темы на форуме -->
     <div id="topicModal" class="modal-overlay" onclick="closeTopicModalEvent(event)">
         <div class="modal-content">
             <button class="modal-close" onclick="closeTopicModalDirect()">✕</button>
             <h2 style="color: #58a6ff; margin-top: 0;">Создать тему на форуме</h2>
             <form onsubmit="saveNewTopic(event)">
-                <div class="form-group">
-                    <label>Ваш ник:</label>
-                    <input type="text" id="t-author" required placeholder="Игрок" maxlength="20">
-                </div>
                 <div class="form-group">
                     <label>Категория:</label>
                     <select id="t-category">
@@ -453,7 +497,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно просмотра конкретной темы форума с комментариями -->
     <div id="topicViewModal" class="modal-overlay" onclick="closeTopicViewEvent(event)">
         <div class="modal-content" style="max-width: 650px;">
             <button class="modal-close" onclick="closeTopicViewDirect()">✕</button>
@@ -461,7 +504,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно баз данных -->
     <div id="databaseModal" class="modal-overlay" onclick="closeDatabaseModalEvent(event)">
         <div class="modal-content" style="max-width: 650px;">
             <button class="modal-close" onclick="closeDatabaseModalDirect()">✕</button>
@@ -501,11 +543,16 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         let isAdmin = false;
         let currentLang = 'ru';
 
+        // Состояние пользователя
+        let registeredUsers = JSON.parse(localStorage.getItem('saved_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('current_user')) || null;
+        let isLoginMode = false; // false = Регистрация, true = Вход
+
         let defaultServers = [
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", version: "1.8 - 1.21+", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net" },
-            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", version: "1.16 - 1.20.4", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su" },
-            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", version: "1.7.10 / 1.12.2 / 1.20.1", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net" },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru" }
+            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", version: "1.8 - 1.21+", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net", history: [41000, 43500, 48500, 47000, 52000, 49000, 48500] },
+            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", version: "1.16 - 1.20.4", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su", history: [1800, 2100, 2400, 2250, 2600, 2300, 2400] },
+            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", version: "1.7.10 / 1.12.2 / 1.20.1", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net", history: [900, 1100, 1240, 1150, 1300, 1200, 1240] },
+            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru", history: [3000, 3400, 3850, 3600, 4100, 3900, 3850] }
         ];
 
         let defaultLeaders = [
@@ -523,11 +570,121 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         let pvpLeaders = JSON.parse(localStorage.getItem('saved_leaders')) || defaultLeaders;
         let forumTopics = JSON.parse(localStorage.getItem('saved_forum_topics')) || defaultTopics;
         let currentActiveList = allServers;
+        let activeChartInstance = null;
 
         function saveServers() { localStorage.setItem('saved_servers', JSON.stringify(allServers)); updateAdminStats(); }
         function saveTopics() { localStorage.setItem('saved_forum_topics', JSON.stringify(forumTopics)); updateAdminStats(); }
+        function saveAuthData() {
+            localStorage.setItem('saved_users', JSON.stringify(registeredUsers));
+            localStorage.setItem('current_user', JSON.stringify(currentUser));
+            renderAuthPanel();
+        }
 
-        // Функция копирования IP в буфер обмена
+        // Логика авторизации
+        function renderAuthPanel() {
+            let panel = document.getElementById("user-auth-panel");
+            if (!panel) return;
+
+            if (currentUser) {
+                panel.innerHTML = `
+                    <span>👤 <strong style="color: #58a6ff;">${currentUser.username}</strong></span>
+                    <button class="auth-btn auth-btn-secondary" onclick="logoutUser()">Выйти</button>
+                `;
+            } else {
+                panel.innerHTML = `
+                    <span style="color: #8b949e;">Гость</span>
+                    <button class="auth-btn" onclick="openAuthModal(false)">Регистрация</button>
+                    <button class="auth-btn auth-btn-secondary" onclick="openAuthModal(true)">Вход</button>
+                `;
+            }
+        }
+
+        function openAuthModal(loginMode = false) {
+            isLoginMode = loginMode;
+            document.getElementById("authModalTitle").innerText = isLoginMode ? "Вход в аккаунт" : "Регистрация аккаунта";
+            document.getElementById("authSubmitBtn").innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
+            document.getElementById("authSwitchText").innerHTML = isLoginMode ? 
+                "Нет аккаунта? <u>Зарегистрироваться</u>" : "Уже есть аккаунт? <u>Войти</u>";
+            document.getElementById("authForm").reset();
+            document.getElementById("authModal").style.display = "flex";
+        }
+
+        function closeAuthModalEvent(event) { if (event.target.id === "authModal") closeAuthModalDirect(); }
+        function closeAuthModalDirect() { document.getElementById("authModal").style.display = "none"; }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById("authModalTitle").innerText = isLoginMode ? "Вход в аккаунт" : "Регистрация аккаунта";
+            document.getElementById("authSubmitBtn").innerText = isLoginMode ? "Войти" : "Зарегистрироваться";
+            document.getElementById("authSwitchText").innerHTML = isLoginMode ? 
+                "Нет аккаунта? <u>Зарегистрироваться</u>" : "Уже есть аккаунт? <u>Войти</u>";
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            let username = document.getElementById("auth-username").value.trim();
+            let password = document.getElementById("auth-password").value.trim();
+
+            if (!isLoginMode) {
+                // Регистрация
+                let existing = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+                if (existing) {
+                    alert("Пользователь с таким ником уже существует!");
+                    return;
+                }
+                let newUser = { username, password };
+                registeredUsers.push(newUser);
+                currentUser = newUser;
+                saveAuthData();
+                closeAuthModalDirect();
+                alert(`Успешная регистрация! Добро пожаловать, ${username}`);
+            } else {
+                // Вход
+                let user = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
+                if (!user) {
+                    alert("Неверное имя пользователя или пароль!");
+                    return;
+                }
+                currentUser = user;
+                saveAuthData();
+                closeAuthModalDirect();
+                alert(`С возвращением, ${username}!`);
+            }
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            saveAuthData();
+            alert("Вы вышли из аккаунта.");
+        }
+
+        async function updateServerStatus(event, serverId) {
+            event.stopPropagation();
+            const server = allServers.find(s => s.id === serverId);
+            if (!server) return;
+
+            try {
+                const response = await fetch(`https://api.mcsrvstat.us/3/${server.ip}`);
+                const data = await response.json();
+
+                if (data.online) {
+                    server.online = data.players.online;
+                    server.status = "🟢 Работает";
+                    if (data.version) server.version = data.version;
+                } else {
+                    server.status = "🔴 Оффлайн";
+                    server.online = 0;
+                }
+
+                saveServers();
+                renderServers(currentActiveList);
+                alert(currentLang === 'ru' ? `Станция успешно опрошена! Онлайн: ${server.online}` : `Server polled successfully! Online: ${server.online}`);
+            } catch (error) {
+                console.error("Ошибка API:", error);
+                alert(currentLang === 'ru' ? "Не удалось связаться с API сервера." : "Failed to connect to server API.");
+            }
+        }
+
         function copyIpToClipboard(event, ip) {
             event.stopPropagation();
             navigator.clipboard.writeText(ip).then(() => {
@@ -537,7 +694,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             });
         }
 
-        // Система голосования за сервер (защита 1 раз в сутки)
         function voteForServer(event, id) {
             event.stopPropagation();
             let lastVoteKey = 'voted_' + id;
@@ -557,18 +713,16 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 renderServers(currentActiveList);
                 localStorage.setItem(lastVoteKey, now);
                 alert(currentLang === 'ru' ? "Спасибо за голос! Рейтинг сервера повышен." : "Thanks for voting! Server rating increased.");
-                openServerModal(id);
+                openServerProfile(id);
             }
         }
 
-        // Обновление статистики в админке
         function updateAdminStats() {
             document.getElementById("stat-servers-count").innerText = allServers.length;
             document.getElementById("stat-online-sum").innerText = allServers.reduce((sum, s) => sum + s.online, 0).toLocaleString();
             document.getElementById("stat-topics-count").innerText = forumTopics.length;
         }
 
-        // Переключение языка (RU / EN)
         function toggleLanguage() {
             currentLang = currentLang === 'ru' ? 'en' : 'ru';
             if (currentLang === 'en') {
@@ -597,6 +751,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             document.getElementById("tab-servers").classList.remove("active");
             document.getElementById("tab-forum").classList.remove("active");
             document.getElementById("section-servers").style.display = "none";
+            document.getElementById("section-server-profile").style.display = "none";
             document.getElementById("section-forum").style.display = "none";
 
             if (tabName === 'servers') {
@@ -607,6 +762,111 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 document.getElementById("section-forum").style.display = "block";
                 renderForum();
             }
+        }
+
+        function openServerProfile(id) {
+            let s = allServers.find(item => item.id === id);
+            if (!s) return;
+
+            document.getElementById("section-servers").style.display = "none";
+            document.getElementById("section-forum").style.display = "none";
+            let profileSec = document.getElementById("section-server-profile");
+            profileSec.style.display = "block";
+
+            let box = document.getElementById("profile-content-box");
+            box.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <span class="badge">${s.flag} ${s.region}</span>
+                        <span class="badge" style="color: #58a6ff;">${s.mode}</span>
+                        ${s.vip ? '<span class="badge" style="background: #f0883e; color: white; font-weight: bold;">👑 VIP</span>' : ''}
+                        <h2 style="color: #58a6ff; margin: 10px 0 5px 0;">${s.name}</h2>
+                        <p style="font-family: monospace; color: #8b949e;">IP: <strong style="color: #58a6ff; cursor: pointer;" onclick="copyIpToClipboard(event, '${s.ip}')">${s.ip}</strong></p>
+                    </div>
+                    <div>
+                        <button class="modal-btn-vote" onclick="voteForServer(event, '${s.id}')">👍 Голосовать (+0.1)</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0;">
+                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
+                        <span style="color: #8b949e; font-size: 12px;">Версия игры</span>
+                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.version}</p>
+                    </div>
+                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
+                        <span style="color: #8b949e; font-size: 12px;">Текущий статус</span>
+                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.status}</p>
+                    </div>
+                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
+                        <span style="color: #8b949e; font-size: 12px;">Рейтинг</span>
+                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #f0883e;">⭐ ${s.rating}</p>
+                    </div>
+                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
+                        <span style="color: #8b949e; font-size: 12px;">Вайп</span>
+                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.wipe || 'Не указано'}</p>
+                    </div>
+                </div>
+
+                <p style="margin: 15px 0; line-height: 1.5; color: #c9d1d9;">${s.desc}</p>
+
+                <div class="modal-links" style="margin-bottom: 20px;">
+                    ${s.discord ? `<a href="${s.discord}" target="_blank" class="modal-btn-link">💬 Discord сервера</a>` : ''}
+                    ${s.store ? `<a href="${s.store}" target="_blank" class="modal-btn-link">🛒 Магазин доната</a>` : ''}
+                    <button onclick="updateServerStatus(event, '${s.id}'); openServerProfile('${s.id}');" class="modal-btn-link" style="background: #238636; color: white; border: none; cursor: pointer;">🔄 Обновить онлайн</button>
+                </div>
+
+                <h3 style="color: #58a6ff; margin-top: 25px;">📈 График онлайна за неделю</h3>
+                <div class="chart-wrapper">
+                    <canvas id="serverOnlineChart"></canvas>
+                </div>
+            `;
+
+            setTimeout(() => {
+                let ctx = document.getElementById('serverOnlineChart').getContext('2d');
+                if (activeChartInstance) {
+                    activeChartInstance.destroy();
+                }
+
+                let historyData = s.history || [s.online, s.online, s.online, s.online, s.online, s.online, s.online];
+
+                activeChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Сегодня'],
+                        datasets: [{
+                            label: 'Онлайн игроков',
+                            data: historyData,
+                            borderColor: '#58a6ff',
+                            backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#c9d1d9' } }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                            y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
+                        }
+                    }
+                });
+            }, 50);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBackToList() {
+            if (activeChartInstance) {
+                activeChartInstance.destroy();
+                activeChartInstance = null;
+            }
+            document.getElementById("section-server-profile").style.display = "none";
+            document.getElementById("section-servers").style.display = "block";
         }
 
         function renderForum() {
@@ -620,7 +880,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
             list.innerHTML = forumTopics.map(t => {
                 let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
-                let adminDel = isAdmin ? `<button onclick="event.stopPropagation(); deleteTopic(${t.id})" style="background: #da3633; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px;">Удалить</button>` : '';
+                let adminDel = (isAdmin || (currentUser && currentUser.username === t.author)) ? `<button onclick="event.stopPropagation(); deleteTopic(${t.id})" style="background: #da3633; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px;">Удалить</button>` : '';
 
                 return `
                     <div class="topic-card" onclick="openTopicView(${t.id})">
@@ -644,20 +904,32 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }).join("");
         }
 
-        function openTopicModal() { document.getElementById("topicModal").style.display = "flex"; }
+        function openTopicModal() {
+            if (!currentUser) {
+                alert("Чтобы создавать темы на форуме, пожалуйста, войдите в аккаунт или зарегистрируйтесь!");
+                openAuthModal(false);
+                return;
+            }
+            document.getElementById("topicModal").style.display = "flex";
+        }
+
         function closeTopicModalEvent(event) { if (event.target.id === "topicModal") closeTopicModalDirect(); }
         function closeTopicModalDirect() { document.getElementById("topicModal").style.display = "none"; }
 
         function saveNewTopic(event) {
             event.preventDefault();
-            let author = document.getElementById("t-author").value.trim();
+            if (!currentUser) {
+                alert("Необходимо авторизоваться!");
+                return;
+            }
+
             let category = document.getElementById("t-category").value;
             let title = document.getElementById("t-title").value.trim();
             let text = document.getElementById("t-text").value.trim();
 
             let newTopic = {
                 id: Date.now(),
-                author,
+                author: currentUser.username,
                 category,
                 title,
                 text,
@@ -690,7 +962,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
 
             let repliesHtml = (t.replies || []).map(r => `
-                <div class="review-item">
+                <div style="background: #0d1117; border: 1px solid #30363d; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 13px;">
                     <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; color: #58a6ff; margin-bottom: 4px;">
                         <span>${r.author}</span>
                         <span style="color: #8b949e; font-weight: normal;">${r.date}</span>
@@ -698,6 +970,13 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     <p style="margin: 0; color: #c9d1d9;">${r.text}</p>
                 </div>
             `).join("");
+
+            let replyInputArea = currentUser ? `
+                <form onsubmit="addTopicReply(event)" style="display: flex; gap: 6px; margin-top: 10px;">
+                    <input type="text" id="reply-text" required placeholder="Ваш ответ..." style="flex: 1; padding: 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px;">
+                    <button type="submit" style="background: #238636; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">Отправить</button>
+                </form>
+            ` : `<p style="color: #8b949e; font-size: 13px; text-align: center; margin-top: 10px;">Чтобы оставлять ответы, <u style="cursor: pointer; color: #58a6ff;" onclick="closeTopicViewDirect(); openAuthModal(true);">войдите в аккаунт</u>.</p>`;
 
             body.innerHTML = `
                 <span class="badge" style="background: ${badgeColor}; color: white; font-weight: bold; margin-bottom: 8px; display: inline-block;">${t.category}</span>
@@ -710,11 +989,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     ${repliesHtml || '<p style="color: #8b949e; font-size: 13px;">Пока нет ответов. Будьте первыми!</p>'}
                 </div>
                 
-                <form class="review-form" onsubmit="addTopicReply(event)">
-                    <input type="text" id="reply-author" required placeholder="Ваш ник" maxlength="20">
-                    <input type="text" id="reply-text" required placeholder="Ваш ответ..." style="flex: 2;">
-                    <button type="submit">Отправить</button>
-                </form>
+                ${replyInputArea}
             `;
 
             document.getElementById("topicViewModal").style.display = "flex";
@@ -725,7 +1000,8 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function addTopicReply(event) {
             event.preventDefault();
-            let author = document.getElementById("reply-author").value.trim();
+            if (!currentUser) return;
+
             let text = document.getElementById("reply-text").value.trim();
 
             let t = forumTopics.find(item => item.id === currentOpenTopicId);
@@ -733,7 +1009,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 if (!t.replies) t.replies = [];
                 t.replies.push({
                     id: Date.now(),
-                    author,
+                    author: currentUser.username,
                     text,
                     date: new Date().toLocaleDateString()
                 });
@@ -755,7 +1031,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }
 
             container.innerHTML = sorted.map(s => `
-                <div class="card ${s.vip ? 'vip-card' : ''}" onclick="openServerModal('${s.id}')">
+                <div class="card ${s.vip ? 'vip-card' : ''}" onclick="openServerProfile('${s.id}')">
                     <div class="header-flex">
                         <div>
                             <span class="badge">${s.flag} ${s.region}</span>
@@ -774,7 +1050,10 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     <p class="desc">${s.desc}</p>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
                         <span style="font-size: 12px;">${s.status}</span>
-                        ${isAdmin ? `<button onclick="event.stopPropagation(); editServer('${s.id}')" style="background: #1f6feb; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">Изменить</button>` : ''}
+                        <div>
+                            <button onclick="updateServerStatus(event, '${s.id}')" style="background: #238636; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-right: 5px;">🔄 Обновить</button>
+                            ${isAdmin ? `<button onclick="event.stopPropagation(); editServer('${s.id}')" style="background: #1f6feb; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">Изменить</button>` : ''}
+                        </div>
                     </div>
                 </div>
             `).join("");
@@ -826,36 +1105,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             currentActiveList = allServers;
             renderServers(allServers);
         }
-
-        let currentModalServerId = null;
-        function openServerModal(id) {
-            let s = allServers.find(item => item.id === id);
-            if (!s) return;
-            currentModalServerId = id;
-
-            let body = document.getElementById("modalBody");
-            body.innerHTML = `
-                <span class="badge">${s.flag} ${s.region}</span>
-                <span class="badge" style="color: #58a6ff;">${s.mode}</span>
-                <h2 style="color: #58a6ff; margin: 8px 0;">${s.name}</h2>
-                <p style="font-family: monospace; color: #8b949e;">IP: <strong style="color: #58a6ff; cursor: pointer;" onclick="copyIpToClipboard(event, '${s.ip}')">${s.ip}</strong></p>
-                <p>Версия: <strong>${s.version}</strong></p>
-                <p>Статус: <strong>${s.status}</strong></p>
-                <p>Рейтинг: <strong style="color: #f0883e;">⭐ ${s.rating}</strong></p>
-                <p>Вайп: <strong>${s.wipe || 'Не указано'}</strong></p>
-                <p style="margin-top: 10px;">${s.desc}</p>
-                
-                <div class="modal-links">
-                    ${s.discord ? `<a href="${s.discord}" target="_blank" class="modal-btn-link">💬 Discord</a>` : ''}
-                    ${s.store ? `<a href="${s.store}" target="_blank" class="modal-btn-link">🛒 Магазин</a>` : ''}
-                    <button class="modal-btn-vote" onclick="voteForServer(event, '${s.id}')">👍 Голосовать (+0.1)</button>
-                </div>
-            `;
-            document.getElementById("serverModal").style.display = "flex";
-        }
-
-        function closeModal(event) { if (event.target.id === "serverModal") closeModalDirect(); }
-        function closeModalDirect() { document.getElementById("serverModal").style.display = "none"; }
 
         function openServerForm() {
             document.getElementById("formModalTitle").innerText = "Добавить сервер";
@@ -923,7 +1172,8 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 let newServer = {
                     id: 'serv_' + Date.now(),
                     name, ip, version, region, flag, mode, status, vip, wipe, discord, store, desc,
-                    rating: 4.8, online: Math.floor(Math.random() * 2000) + 500
+                    rating: 4.8, online: Math.floor(Math.random() * 2000) + 500,
+                    history: [1000, 1200, 1500, 1400, 1800, 1600, 1500]
                 };
                 allServers.unshift(newServer);
             }
@@ -1001,7 +1251,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function fetchServerFromApi(alertOnFinish = false) {
             let demoApiServers = [
-                { id: "api_funtime", name: "FunTime", ip: "play.funtime.su", version: "1.16 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 11200, mode: "Анархия", desc: "Загружено через API: Легендарная анархия с кастомными кейсами.", status: "🟢 Работает", vip: true, wipe: "Каждые 3 недели", discord: "https://discord.gg/funtime", store: "https://funtime.su" }
+                { id: "api_funtime", name: "FunTime", ip: "play.funtime.su", version: "1.16 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 11200, mode: "Анархия", desc: "Загружено через API: Легендарная анархия с кастомными кейсами.", status: "🟢 Работает", vip: true, wipe: "Каждые 3 недели", discord: "https://discord.gg/funtime", store: "https://funtime.su", history: [9500, 10200, 11200, 10800, 12100, 11500, 11200] }
             ];
             demoApiServers.forEach(ds => {
                 if (!allServers.some(s => s.id === ds.id)) {
@@ -1013,6 +1263,8 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             if (alertOnFinish) alert("Синхронизация с API успешно выполнена! Данные обновлены.");
         }
 
+        // Инициализация при старте
+        renderAuthPanel();
         renderServers(allServers);
         renderLeaderboard();
         updateAdminStats();
