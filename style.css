@@ -1,1 +1,15 @@
-
+.sakura-branch, 
+.sakura-petal {
+    /* Полностью убираем размытие */
+    filter: none !important;
+    
+    /* Делаем цвет максимально насыщенным и непрозрачным */
+    opacity: 1 !important;
+    
+    /* Делаем края картинок или элементов резкими (без сглаживания браузером) */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    
+    /* Аккуратная и чёткая тень вместо размытого свечения (чтобы элемент отделялся от фона) */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
