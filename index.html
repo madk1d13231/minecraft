@@ -33,22 +33,36 @@
             -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%);
         }
 
-        .sakura-petal {
+        /* Дождь из незеритовых мечей */
+        .netherite-rain {
             position: fixed;
-            top: -20px;
-            background: linear-gradient(135deg, #ffb7c5, #ff8da1);
-            border-radius: 150% 0 150% 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             z-index: 999;
-            opacity: 0.7;
-            box-shadow: 0 0 5px rgba(255, 183, 197, 0.3);
+        }
+
+        .sword {
+            position: absolute;
+            top: -50px;
+            width: 12px;
+            height: 36px;
+            background: linear-gradient(to bottom, #4a4a4a 0%, #2b2b2b 40%, #5a189a 40%, #3c096c 100%);
+            clip-path: polygon(35% 0%, 65% 0%, 65% 70%, 100% 70%, 100% 85%, 65% 85%, 65% 100%, 35% 100%, 35% 85%, 0% 85%, 0% 70%, 35% 70%);
             animation: fall linear infinite;
         }
 
         @keyframes fall {
-            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0.8; }
-            50% { transform: translateY(50vh) translateX(40px) rotate(180deg); opacity: 0.6; }
-            100% { transform: translateY(105vh) translateX(-30px) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0.8;
+            }
         }
 
         .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
@@ -267,10 +281,13 @@
     </style>
 </head>
 <body>
+    <!-- Контейнер для падающих незеритовых мечей -->
+    <div class="netherite-rain" id="rain-container"></div>
+
     <div class="container">
         <div class="top-panel-bar">
             <div>
-                <h1 id="main-title" style="margin: 0;">🌸 Мировой мониторинг серверов Minecraft</h1>
+                <h1 id="main-title" style="margin: 0;">⚔️ Мировой мониторинг серверов Minecraft</h1>
                 <p id="main-subtitle" style="color: #8b949e; margin: 4px 0 0 0;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
             </div>
             
@@ -537,6 +554,24 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 toggleBtn.textContent = '👁️';
             }
         }
+
+        // Скрипт генерации дождя из незеритовых мечей
+        const container = document.getElementById('rain-container');
+        const swordCount = 35; // Количество мечей на экране
+
+        for (let i = 0; i < swordCount; i++) {
+            const sword = document.createElement('div');
+            sword.classList.add('sword');
+            
+            sword.style.left = Math.random() * 100 + 'vw';
+            sword.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            sword.style.animationDelay = Math.random() * 5 + 's';
+            
+            const scale = Math.random() * 0.6 + 0.7;
+            sword.style.transform = `scale(${scale})`;
+
+            container.appendChild(sword);
+        }
     </script>
 
     <!-- Firebase модуль -->
@@ -602,468 +637,8 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 formInputs.style.display = 'flex';
                 userBox.style.display = 'none';
                 userDisplay.textContent = '';
-                emailInput.value = '';
-                passInput.value = '';
             }
         });
-    </script>
-
-    <!-- Основной скрипт с 25+ серверами -->
-    <script>
-        function createSakuraPetal() {
-            const petal = document.createElement('div');
-            petal.classList.add('sakura-petal');
-            const size = Math.random() * 8 + 8;
-            petal.style.width = size + 'px';
-            petal.style.height = (size * 0.6) + 'px';
-            petal.style.left = Math.random() * window.innerWidth + 'px';
-            const duration = Math.random() * 7 + 5;
-            petal.style.animationDuration = duration + 's';
-            setTimeout(() => petal.remove(), duration * 1000);
-            document.body.appendChild(petal);
-        }
-        setInterval(createSakuraPetal, 400);
-
-        const PASSWORD = "qwe12345tyu124";
-        let isAdmin = false;
-        let currentLang = 'ru';
-
-        let defaultServers = [
-            { id: "hypixel", name: "Hypixel", ip: "play.hypixel.net", version: "1.8 - 1.21+", region: "США", flag: "🇺🇸", rating: 5.0, online: 48500, mode: "BedWars", desc: "Главный мировой сервер с огромным онлайном и мини-играми.", status: "🟢 Работает", vip: true, wipe: "Каждый понедельник", discord: "https://discord.gg/hypixel", store: "https://store.hypixel.net", history: [41000, 43500, 48500, 47000, 52000, 49000, 48500] },
-            { id: "skytime", name: "SkyTime", ip: "mc.skytime.su", version: "1.16 - 1.20.4", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2400, mode: "PvP", desc: "Популярный СНГ проект для тренировок, тренировочного PvP и дуэлей.", status: "🟢 Работает", vip: false, wipe: "1 раз в 3 месяца", discord: "https://discord.gg/skytime", store: "https://shop.skytime.su", history: [1800, 2100, 2400, 2250, 2600, 2300, 2400] },
-            { id: "mcskill", name: "MCSkill", ip: "mc.mcraft.pro", version: "1.7.10 / 1.12.2 / 1.20.1", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 1240, mode: "Выживание", desc: "Крупнейший СНГ проект с модами и мирным развитием.", status: "🟢 Работает", vip: false, wipe: "По мере необходимости", discord: "https://discord.gg/mcskill", store: "https://mcskill.net", history: [900, 1100, 1240, 1150, 1300, 1200, 1240] },
-            { id: "reallyworld", name: "Really World", ip: "mc.reallyworld.ru", version: "1.16.5 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 3850, mode: "Анархия", desc: "Популярный гриферский сервер и анархия без приватов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/reallyworld", store: "https://reallyworld.ru", history: [3000, 3400, 3850, 3600, 4100, 3900, 3850] },
-            { id: "funtime", name: "FunTime", ip: "funtime.su", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 6200, mode: "Анархия", desc: "Легендарный анархический проект с огромным онлайном и частыми вайпами.", status: "🟢 Работает", vip: true, wipe: "Раз в месяц", discord: "https://discord.gg/funtime", store: "https://funtime.su", history: [5500, 5800, 6200, 6000, 6400, 6100, 6200] },
-            { id: "holyland", name: "HolyLand", ip: "mc.holyland.su", version: "1.16.5 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.6, online: 1450, mode: "Анархия", desc: "Новый хардкорный сервер с уникальными механиками боя и кланами.", status: "🟢 Работает", vip: false, wipe: "Раз в 2 месяца", discord: "https://discord.gg/holyland", store: "https://holyland.su", history: [1200, 1350, 1450, 1400, 1500, 1420, 1450] },
-            { id: "cristalix", name: "Cristalix", ip: "mc.cristalix.gg", version: "1.8 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 7800, mode: "BedWars", desc: "Крупнейшая мини-игровая платформа в СНГ: BedWars, SkyWars, Prison.", status: "🟢 Работает", vip: false, wipe: "Не требуется", discord: "https://discord.gg/cristalix", store: "https://cristalix.gg", history: [7000, 7500, 7800, 7600, 8200, 7700, 7800] },
-            { id: "mineland", name: "MineLand", ip: "join.mineland.net", version: "1.12 - 1.21", region: "Европа", flag: "🇪🇺", rating: 4.5, online: 3100, mode: "Выживание", desc: "Международный проект с кастомными режимами и экономикой.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/mineland", store: "https://mineland.net", history: [2800, 2950, 3100, 3050, 3200, 3120, 3100] },
-            { id: "cubecraft", name: "CubeCraft", ip: "play.cubecraft.net", version: "1.9 - 1.21+", region: "Европа", flag: "🇪🇺", rating: 4.7, online: 15400, mode: "BedWars", desc: "Популярный мировой сервер с качественными мини-играми.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/cubecraft", store: "https://cubecraft.net", history: [14000, 14800, 15400, 15100, 16000, 15300, 15400] },
-            { id: "mineplex", name: "Mineplex EU", ip: "eu.mineplex.com", version: "1.8 - 1.19", region: "Европа", flag: "🇪🇺", rating: 4.1, online: 890, mode: "PvP", desc: "Классические аркады и PvP-арены.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/mineplex", store: "https://mineplex.com", history: [800, 850, 890, 870, 920, 880, 890] },
-            { id: "hypixel_ru", name: "VimeWorld", ip: "mc.vimeworld.com", version: "1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 5300, mode: "Minigames", desc: "Легендарный мини-игровой проект с классическим ванильным вайбом.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/vimeworld", store: "https://vimeworld.com", history: [4800, 5100, 5300, 5200, 5500, 5250, 5300] },
-            { id: "pvland", name: "PvLand", ip: "mc.pvland.ru", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.4, online: 950, mode: "PvP", desc: "Узкоспециализированный проект для тренировок кит-пвп и зелья.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/pvland", store: "https://pvland.ru", history: [850, 900, 950, 920, 980, 940, 950] },
-            { id: "stardust", name: "StarDust", ip: "play.stardust.su", version: "1.12.2 - 1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 640, mode: "Выживание", desc: "Уютный сервер с магией, техническими модами и RPG.", status: "🟢 Работает", vip: false, wipe: "По обновлению модов", discord: "https://discord.gg/stardust", store: "https://stardust.su", history: [600, 620, 640, 630, 660, 635, 640] },
-            { id: "stormrage", name: "StormRage", ip: "mc.stormrage.org", version: "1.20+", region: "Европа", flag: "🇪🇺", rating: 4.5, online: 1120, mode: "Анархия", desc: "Хардкорный анархический сервер с кланами и без багов.", status: "🟢 Работает", vip: false, wipe: "Каждые 2 месяца", discord: "https://discord.gg/stormrage", store: "https://stormrage.org", history: [1000, 1080, 1120, 1100, 1150, 1110, 1120] },
-            { id: "pixelmon_pro", name: "PixelmonPRO", ip: "hub.pixelmon.pro", version: "1.16.5", region: "СНГ", flag: "🇷🇺", rating: 4.8, online: 2100, mode: "Выживание", desc: "Лучший сервер с модом покемонов, аренами и турнирами.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/pixelmon", store: "https://pixelmon.pro", history: [1900, 2050, 2100, 2080, 2150, 2090, 2100] },
-            { id: "redesky", name: "RedeSky", ip: "redesky.com", version: "1.8 - 1.20", region: "США", flag: "🇺🇸", rating: 4.6, online: 6400, mode: "BedWars", desc: "Международный проект, известный своими кастомными скайблок режимами.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/redesky", store: "https://redesky.com", history: [6000, 6200, 6400, 6300, 6550, 6380, 6400] },
-            { id: "frostland", name: "FrostLand", ip: "mc.frostland.net", version: "1.18 - 1.21", region: "Европа", flag: "🇪🇺", rating: 4.4, online: 830, mode: "Выживание", desc: "Зимнее выживание с городами, кланами и ивентами.", status: "🟢 Работает", vip: false, wipe: "Раз в год", discord: "https://discord.gg/frostland", store: "https://frostland.net", history: [750, 800, 830, 810, 860, 820, 830] },
-            { id: "azurite", name: "AzuritePvP", ip: "play.azurite.cc", version: "1.8 - 1.21", region: "Азия", flag: "🌏", rating: 4.5, online: 1250, mode: "PvP", desc: "Азиатский хаб для тренировки комбо-хитов и дуэлей.", status: "🟢 Работает", vip: false, wipe: "Раз в 3 месяца", discord: "https://discord.gg/azurite", store: "https://azurite.cc", history: [1100, 1200, 1250, 1220, 1300, 1240, 1250] },
-            { id: "cherrycraft", name: "CherryCraft", ip: "play.cherry.su", version: "1.20 - 1.21+", region: "СНГ", flag: "🇷🇺", rating: 4.7, online: 1650, mode: "Выживание", desc: "Красивый ванильный сервер с уютным сообществом и без приватов по нитям.", status: "🟢 Работает", vip: false, wipe: "Никогда", discord: "https://discord.gg/cherry", store: "https://cherry.su", history: [1500, 1600, 1650, 1620, 1700, 1640, 1650] },
-            { id: "nexusgrief", name: "NexusGrief", ip: "mc.nexusgrief.ru", version: "1.16.5 - 1.21", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 980, mode: "Анархия", desc: "Молодая анархия с бесплатными кейсами и кастомными предметами.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/nexus", store: "https://nexusgrief.ru", history: [900, 950, 980, 960, 1010, 975, 980] },
-            { id: "galaxymine", name: "GalaxyMine", ip: "play.galaxymine.ru", version: "1.12.2", region: "СНГ", flag: "🇷🇺", rating: 4.2, online: 720, mode: "Выживание", desc: "Классические космические сборки с модами IndustrialCraft и BuildCraft.", status: "🟢 Работает", vip: false, wipe: "Раз в 4 месяца", discord: "https://discord.gg/galaxy", store: "https://galaxymine.ru", history: [680, 700, 720, 710, 740, 715, 720] },
-            { id: "badlion", name: "Badlion Network", ip: "eu.badlion.net", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", rating: 4.8, online: 4300, mode: "PvP", desc: "Знаменитый PvP клиент и сеть серверов для тренировок.", status: "🟢 Работает", vip: false, wipe: "Нет", discord: "https://discord.gg/badlion", store: "https://store.badlion.net", history: [4000, 4200, 4300, 4250, 4450, 4280, 4300] },
-            { id: "pvp_wars", name: "PvPWars", ip: "hub.pvpwars.com", version: "1.8 - 1.21", region: "США", flag: "🇺🇸", rating: 4.6, online: 2900, mode: "BedWars", desc: "Американский проект с упором на кастомный скайблок и бедварс.", status: "🟢 Работает", vip: false, wipe: "Раз в 2 месяца", discord: "https://discord.gg/pvpwars", store: "https://pvpwars.com", history: [2700, 2850, 2900, 2880, 3000, 2890, 2900] },
-            { id: "olympusmc", name: "OlympusMC", ip: "play.olympusmc.asia", version: "1.19 - 1.21", region: "Азия", flag: "🌏", rating: 4.4, online: 1100, mode: "Выживание", desc: "Азиатский RPG сервер с мифическими боссами и подземельями.", status: "🟢 Работает", vip: false, wipe: "Раз в полгода", discord: "https://discord.gg/olympus", store: "https://olympusmc.asia", history: [1000, 1050, 1100, 1080, 1130, 1090, 1100] },
-            { id: "shadowmc", name: "ShadowMC", ip: "play.shadowmc.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", rating: 4.3, online: 680, mode: "Анархия", desc: "Простой и быстрый гриф-сервер без лишних модов.", status: "🟢 Работает", vip: false, wipe: "Раз в месяц", discord: "https://discord.gg/shadowmc", store: "https://shadowmc.ru", history: [620, 650, 680, 670, 700, 675, 680] }
-        ];
-
-        let defaultLeaders = [
-            { rank: 1, name: "ItzRealMe", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "Pot", tier: "HT1" }] },
-            { rank: 2, name: "Marlowww", tiers: [{ kit: "Crystal", tier: "HT1" }, { kit: "SMP", tier: "HT1" }] },
-            { rank: 3, name: "xX_Slayer_Xx", tiers: [{ kit: "Crystal", tier: "HT2" }, { kit: "Pot", tier: "HT1" }] }
-        ];
-
-        let defaultTopics = [
-            { id: 1, author: "Admin", category: "Общие", title: "Добро пожаловать на форум мониторинга!", text: "Правила простые: уважайте других участников, не спамьте и обсуждайте лучшие сервера Minecraft.", date: "18.06.2026", replies: [] },
-            { id: 2, author: "ShadowPvP", category: "Кланы", title: "Ищем игроков в клан для анархии", text: "Требования: возраст от 14 лет, хороший актив и умение играть с кристаллом. Пишите в ЛС.", date: "19.06.2026", replies: [{ id: 101, author: "VortexKing", text: "Я готов залететь, какой дискорд?", date: "19.06.2026" }] }
-        ];
-
-        let allServers = JSON.parse(localStorage.getItem('saved_servers')) || defaultServers;
-        let pvpLeaders = JSON.parse(localStorage.getItem('saved_leaders')) || defaultLeaders;
-        let forumTopics = JSON.parse(localStorage.getItem('saved_forum_topics')) || defaultTopics;
-        let currentActiveList = allServers;
-        let activeChartInstance = null;
-
-        function saveServers() { localStorage.setItem('saved_servers', JSON.stringify(allServers)); updateAdminStats(); }
-        function saveTopics() { localStorage.setItem('saved_forum_topics', JSON.stringify(forumTopics)); updateAdminStats(); }
-
-        function renderServers(list) {
-            const container = document.getElementById('server-list');
-            container.innerHTML = '';
-            
-            let sorted = [...list].sort((a, b) => (b.vip === true) - (a.vip === true));
-
-            sorted.forEach(srv => {
-                let card = document.createElement('div');
-                card.className = srv.vip ? 'card vip-card' : 'card';
-                card.onclick = () => openServerProfile(srv.id);
-                
-                card.innerHTML = `
-                    <div class="header-flex">
-                        <h3>${srv.flag || '🌐'} ${srv.name}</h3>
-                        <div>
-                            <span class="badge">${srv.mode}</span>
-                            <span class="badge" style="background: #1f6feb;">${srv.region}</span>
-                            <span class="badge">${srv.status}</span>
-                        </div>
-                    </div>
-                    <p><strong>IP:</strong> <span style="color: #58a6ff;" onclick="event.stopPropagation(); copyIp('${srv.ip}')">${srv.ip}</span> | <strong>Версия:</strong> ${srv.version}</p>
-                    <p><strong>Онлайн:</strong> 👥 ${srv.online.toLocaleString()} | <strong>Рейтинг:</strong> <span class="rating-star">★ ${srv.rating}</span></p>
-                    <p class="desc">${srv.desc}</p>
-                `;
-                container.appendChild(card);
-            });
-            updateAdminStats();
-        }
-
-        function renderLeaderboard() {
-            const container = document.getElementById('leaderboard-list');
-            container.innerHTML = '';
-            pvpLeaders.forEach(item => {
-                let rankClass = item.rank === 1 ? 'top1' : (item.rank === 2 ? 'top2' : (item.rank === 3 ? 'top3' : ''));
-                let tiersHtml = item.tiers.map(t => `<div class="mini-tier">${t.kit}: <span>${t.tier}</span></div>`).join('');
-                
-                let div = document.createElement('div');
-                div.className = 'leader-card-item';
-                div.innerHTML = `
-                    <div class="leader-card-header">
-                        <span><strong class="leader-rank-num ${rankClass}">#${item.rank}</strong> ${item.name}</span>
-                    </div>
-                    <div class="tier-tags">${tiersHtml}</div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function renderForumTopics() {
-            const container = document.getElementById('forum-topics-list');
-            container.innerHTML = '';
-            forumTopics.forEach(top => {
-                let card = document.createElement('div');
-                card.className = 'topic-card';
-                card.onclick = () => openTopicView(top.id);
-                card.innerHTML = `
-                    <div class="header-flex">
-                        <h3 style="font-size: 16px;">${top.title}</h3>
-                        <span class="badge" style="background: #1f6feb;">${top.category}</span>
-                    </div>
-                    <p style="color: #8b949e; font-size: 13px;">${top.text.substring(0, 90)}...</p>
-                    <div class="topic-meta">
-                        <span>👤 ${top.author}</span>
-                        <span>📅 ${top.date}</span>
-                        <span>💬 Ответов: ${top.replies.length}</span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function handleSearch() {
-            let query = document.getElementById('search-input').value.toLowerCase();
-            currentActiveList = allServers.filter(s => 
-                s.name.toLowerCase().includes(query) || 
-                s.ip.toLowerCase().includes(query) || 
-                s.version.toLowerCase().includes(query) ||
-                s.mode.toLowerCase().includes(query)
-            );
-            renderServers(currentActiveList);
-        }
-
-        function filterByMode(modeName) {
-            currentActiveList = allServers.filter(s => s.mode.toLowerCase() === modeName.toLowerCase());
-            renderServers(currentActiveList);
-        }
-
-        function filterByRegion(regionName) {
-            currentActiveList = allServers.filter(s => s.region.toLowerCase() === regionName.toLowerCase());
-            renderServers(currentActiveList);
-        }
-
-        function resetFilter() {
-            document.getElementById('search-input').value = '';
-            currentActiveList = allServers;
-            renderServers(currentActiveList);
-        }
-
-        function copyIp(ipText) {
-            navigator.clipboard.writeText(ipText);
-            let toast = document.getElementById('copy-toast');
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2000);
-        }
-
-        function switchTab(tabName) {
-            document.getElementById('tab-servers').classList.remove('active');
-            document.getElementById('tab-forum').classList.remove('active');
-            document.getElementById('section-servers').style.display = 'none';
-            document.getElementById('section-server-profile').style.display = 'none';
-            document.getElementById('section-forum').style.display = 'none';
-
-            if (tabName === 'servers') {
-                document.getElementById('tab-servers').classList.add('active');
-                document.getElementById('section-servers').style.display = 'block';
-            } else if (tabName === 'forum') {
-                document.getElementById('tab-forum').classList.add('active');
-                document.getElementById('section-forum').style.display = 'block';
-                renderForumTopics();
-            }
-        }
-
-        function openServerProfile(id) {
-            let srv = allServers.find(s => s.id === id);
-            if (!srv) return;
-
-            document.getElementById('section-servers').style.display = 'none';
-            document.getElementById('section-forum').style.display = 'none';
-            document.getElementById('section-server-profile').style.display = 'block';
-
-            let box = document.getElementById('profile-content-box');
-            box.innerHTML = `
-                <div class="header-flex">
-                    <h2 style="color: #58a6ff; margin: 0;">${srv.flag || '🌐'} ${srv.name}</h2>
-                    <div>
-                        <span class="badge">${srv.mode}</span>
-                        <span class="badge" style="background: #1f6feb;">${srv.region}</span>
-                        <span class="badge">${srv.status}</span>
-                    </div>
-                </div>
-                <p style="margin-top: 10px;"><strong>IP-адрес:</strong> <span style="color: #58a6ff; cursor: pointer;" onclick="copyIp('${srv.ip}')">${srv.ip} 📋</span></p>
-                <p><strong>Версия:</strong> ${srv.version} | <strong>Рейтинг:</strong> <span class="rating-star">★ ${srv.rating}</span></p>
-                <p><strong>Вайп:</strong> ${srv.wipe || 'Не указано'}</p>
-                <p style="margin-top: 10px;">${srv.desc}</p>
-                
-                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    ${srv.discord ? `<a href="${srv.discord}" target="_blank" class="badge" style="background: #5865F2; color: white; text-decoration: none; padding: 6px 12px;">Discord канал</a>` : ''}
-                    ${srv.store ? `<a href="${srv.store}" target="_blank" class="badge" style="background: #238636; color: white; text-decoration: none; padding: 6px 12px;">Игровой магазин</a>` : ''}
-                </div>
-
-                <div class="chart-wrapper">
-                    <canvas id="serverOnlineChart"></canvas>
-                </div>
-            `;
-
-            setTimeout(() => {
-                const ctx = document.getElementById('serverOnlineChart').getContext('2d');
-                if (activeChartInstance) activeChartInstance.destroy();
-                activeChartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Сегодня'],
-                        datasets: [{
-                            label: 'Онлайн игроков',
-                            data: srv.history || [100, 150, 200, 250, 300, 350, srv.online],
-                            borderColor: '#58a6ff',
-                            backgroundColor: 'rgba(88, 166, 255, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#c9d1d9' } } },
-                        scales: {
-                            x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
-                            y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
-                        }
-                    }
-                });
-            }, 50);
-        }
-
-        function goBackToList() {
-            document.getElementById('section-server-profile').style.display = 'none';
-            document.getElementById('section-servers').style.display = 'block';
-        }
-
-        function checkAdmin() {
-            let pwd = prompt("Введите пароль администратора:");
-            if (pwd === PASSWORD) {
-                isAdmin = true;
-                document.getElementById('add-server-btn').style.display = 'block';
-                document.getElementById('admin-top-btn').style.display = 'block';
-                document.getElementById('db-view-btn').style.display = 'block';
-                document.getElementById('api-sync-btn').style.display = 'block';
-                document.getElementById('admin-stats-box').style.display = 'block';
-                alert("Режим администратора активирован!");
-                updateAdminStats();
-            } else if (pwd !== null) {
-                alert("Неверный пароль!");
-            }
-        }
-
-        function updateAdminStats() {
-            if (!isAdmin) return;
-            document.getElementById('stat-servers-count').textContent = allServers.length;
-            let totalOnline = allServers.reduce((sum, s) => sum + s.online, 0);
-            document.getElementById('stat-online-sum').textContent = totalOnline.toLocaleString();
-            document.getElementById('stat-topics-count').textContent = forumTopics.length;
-        }
-
-        function openServerForm() {
-            document.getElementById('edit-id').value = '';
-            document.getElementById('serverEditForm').reset();
-            document.getElementById('formModalTitle').textContent = "Добавить новый сервер";
-            document.getElementById('serverFormModal').style.display = 'flex';
-        }
-
-        function closeFormModal(e) {
-            if (e.target.id === 'serverFormModal') closeFormModalDirect();
-        }
-        function closeFormModalDirect() {
-            document.getElementById('serverFormModal').style.display = 'none';
-        }
-
-        function updateFlagSelect() {
-            let reg = document.getElementById('f-region').value;
-            let flagSel = document.getElementById('f-flag');
-            if (reg === 'СНГ') flagSel.value = '🇷🇺';
-            else if (reg === 'США') flagSel.value = '🇺🇸';
-            else if (reg === 'Европа') flagSel.value = '🇪🇺';
-            else if (reg === 'Азия') flagSel.value = '🌏';
-        }
-
-        function saveServerForm(e) {
-            e.preventDefault();
-            let idVal = document.getElementById('edit-id').value;
-            let name = document.getElementById('f-name').value;
-            let ip = document.getElementById('f-ip').value;
-            let version = document.getElementById('f-version').value;
-            let region = document.getElementById('f-region').value;
-            let flag = document.getElementById('f-flag').value;
-            let mode = document.getElementById('f-mode').value;
-            let status = document.getElementById('f-status').value;
-            let vip = document.getElementById('f-vip').value === 'true';
-            let wipe = document.getElementById('f-wipe').value;
-            let discord = document.getElementById('f-discord').value;
-            let store = document.getElementById('f-store').value;
-            let desc = document.getElementById('f-desc').value;
-
-            if (idVal) {
-                let srv = allServers.find(s => s.id === idVal);
-                if (srv) {
-                    srv.name = name; srv.ip = ip; srv.version = version; srv.region = region;
-                    srv.flag = flag; srv.mode = mode; srv.status = status; srv.vip = vip;
-                    srv.wipe = wipe; srv.discord = discord; srv.store = store; srv.desc = desc;
-                }
-            } else {
-                let newSrv = {
-                    id: 'srv_' + Date.now(),
-                    name, ip, version, region, flag, mode, status, vip, wipe, discord, store, desc,
-                    rating: 4.5, online: Math.floor(Math.random() * 1500) + 100,
-                    history: [100, 200, 300, 400, 500, 600, 700]
-                };
-                allServers.push(newSrv);
-            }
-
-            saveServers();
-            renderServers(allServers);
-            closeFormModalDirect();
-        }
-
-        function openTopicModal() { document.getElementById('topicModal').style.display = 'flex'; }
-        function closeTopicModalEvent(e) { if (e.target.id === 'topicModal') closeTopicModalDirect(); }
-        function closeTopicModalDirect() { document.getElementById('topicModal').style.display = 'none'; }
-
-        function saveNewTopic(e) {
-            e.preventDefault();
-            let author = document.getElementById('t-author').value;
-            let category = document.getElementById('t-category').value;
-            let title = document.getElementById('t-title').value;
-            let text = document.getElementById('t-text').value;
-
-            let newTop = {
-                id: Date.now(),
-                author, category, title, text,
-                date: new Date().toLocaleDateString(),
-                replies: []
-            };
-
-            forumTopics.unshift(newTop);
-            saveTopics();
-            renderForumTopics();
-            closeTopicModalDirect();
-        }
-
-        function openTopicView(id) {
-            let top = forumTopics.find(t => t.id === id);
-            if (!top) return;
-
-            let bodyBox = document.getElementById('topicViewBody');
-            let repliesHtml = top.replies.map(r => `
-                <div style="background: #0d1117; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #30363d;">
-                    <p style="font-size: 12px; color: #58a6ff; margin: 0 0 4px 0;"><strong>${r.author}</strong> (${r.date})</p>
-                    <p style="font-size: 13px; margin: 0;">${r.text}</p>
-                </div>
-            `).join('');
-
-            bodyBox.innerHTML = `
-                <h3 style="color: #58a6ff; margin-top: 0;">${top.title}</h3>
-                <p style="font-size: 12px; color: #8b949e;">Автор: <strong>${top.author}</strong> | Дата: ${top.date} | Категория: ${top.category}</p>
-                <div style="background: #0d1117; padding: 12px; border-radius: 6px; margin: 12px 0; border: 1px solid #30363d;">
-                    <p style="margin: 0; font-size: 14px;">${top.text}</p>
-                </div>
-                <h4 style="margin: 15px 0 8px 0; color: #c9d1d9;">Ответы (${top.replies.length}):</h4>
-                <div style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;">${repliesHtml || '<p style="color: #8b949e; font-size: 13px;">Пока нет ответов.</p>'}</div>
-                <form onsubmit="addReply(event, ${top.id})">
-                    <div class="form-group">
-                        <input type="text" id="rep-author" required placeholder="Ваш ник..." maxlength="20" style="margin-bottom: 6px;">
-                        <textarea id="rep-text" rows="2" required placeholder="Ваш ответ..."></textarea>
-                    </div>
-                    <button type="submit" class="form-btn-save" style="margin-top: 5px;">Отправить ответ</button>
-                </form>
-            `;
-            document.getElementById('topicViewModal').style.display = 'flex';
-        }
-
-        function closeTopicViewEvent(e) { if (e.target.id === 'topicViewModal') closeTopicViewDirect(); }
-        function closeTopicViewDirect() { document.getElementById('topicViewModal').style.display = 'none'; }
-
-        function addReply(e, topicId) {
-            e.preventDefault();
-            let author = document.getElementById('rep-author').value;
-            let text = document.getElementById('rep-text').value;
-            let top = forumTopics.find(t => t.id === topicId);
-            if (top) {
-                top.replies.push({ id: Date.now(), author, text, date: new Date().toLocaleDateString() });
-                saveTopics();
-                openTopicView(topicId);
-            }
-        }
-
-        function openDatabaseModal() { document.getElementById('databaseModal').style.display = 'flex'; }
-        function closeDatabaseModalEvent(e) { if (e.target.id === 'databaseModal') closeDatabaseModalDirect(); }
-        function closeDatabaseModalDirect() { document.getElementById('databaseModal').style.display = 'none'; }
-
-        function fetchServerFromApi(manual = false) {
-            if (manual) alert("API симуляция: Данные серверов успешно обновлены!");
-        }
-
-        function manageTop() {
-            let name = prompt("Введите ник игрока для топ-20 PvP:");
-            if (!name) return;
-            let kit = prompt("Введите кит (например: Crystal, Pot, SMP):", "Crystal");
-            let tier = prompt("Введите тир (например: HT1, LT1, HT2):", "HT1");
-            
-            let found = pvpLeaders.find(p => p.name.toLowerCase() === name.toLowerCase());
-            if (found) {
-                found.tiers.push({ kit, tier });
-            } else {
-                if (pvpLeaders.length >= 20) pvpLeaders.pop();
-                pvpLeaders.push({ rank: pvpLeaders.length + 1, name, tiers: [{ kit, tier }] });
-            }
-            localStorage.setItem('saved_leaders', JSON.stringify(pvpLeaders));
-            renderLeaderboard();
-            alert("Топ PvP успешно обновлен!");
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            if (currentLang === 'en') {
-                document.getElementById('main-title').textContent = "🌸 World Minecraft Server Monitoring";
-                document.getElementById('main-subtitle').textContent = "Monitoring, versions, community forum and top-20 PvP players";
-                document.getElementById('btn-reset-text').textContent = "Reset filters (Show all)";
-                document.getElementById('regions-label').textContent = "Regions:";
-            } else {
-                document.getElementById('main-title').textContent = "🌸 Мировой мониторинг серверов Minecraft";
-                document.getElementById('main-subtitle').textContent = "Мониторинг, версии, форум сообщества и топ-20 PvP бойцов";
-                document.getElementById('btn-reset-text').textContent = "Сбросить фильтры (Показать все)";
-                document.getElementById('regions-label').textContent = "Регионы:";
-            }
-        }
-
-        renderServers(allServers);
-        renderLeaderboard();
     </script>
 </body>
 </html>
