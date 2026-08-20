@@ -71,6 +71,51 @@
         createSakuraPetals();
         console.log("Сайт успешно инициализирован, серверов загружено:", servers.length);
     };
+// Переключение языков (EN/RU)
+        let currentLang = 'ru';
+        const translations = {
+            en: {
+                title: "World Minecraft Server Monitoring + Profiles & Graphs",
+                subtitle: "Monitoring, versions, community forum and top-20 PvP players",
+                servers: "Servers",
+                forum: "Community Forum",
+                search: "🔍 Find server by name, version or IP...",
+                modes: { anarchy: "Anarchy", pvp: "PvP / Duels", survival: "Survival", bedwars: "BedWars" }
+            },
+            ru: {
+                title: "Мировой мониторинг серверов Minecraft + Профили и Графики",
+                subtitle: "Мониторинг, версии, форум комьюнити и топ-20 игроков PvP",
+                servers: "Серверы",
+                forum: "Форум комьюнити",
+                search: "🔍 Найти сервер по названию, версии или IP...",
+                modes: { anarchy: "Анархия", pvp: "PvP / Дуэли", survival: "Выживание", bedwars: "BedWars" }
+            }
+        };
+
+        // Рендер падающих лепестков сакуры
+        function createSakuraPetals() {
+            const container = document.createElement('div');
+            container.className = 'sakura-rain';
+            document.body.appendChild(container);
+            
+            for (let i = 0; i < 25; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.left = Math.random() * 100 + 'vw';
+                petal.style.animationDuration = (Math.random() * 6 + 5) + 's';
+                petal.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(petal);
+            }
+        }
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            createSakuraPetals();
+            console.log("Сайт успешно инициализирован, серверов загружено:", servers.length);
+        };
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
