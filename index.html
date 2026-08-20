@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Мировой мониторинг серверов Minecraft + PvP Tier List</title>
-    <!-- Подключаем Chart.js для графиков -->
+    <title>Мировой мониторинг серверов Minecraft</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -25,10 +24,8 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
-            overflow-x: hidden;
         }
 
-        /* Анимированные лепестки сакуры */
         .sakura-petal {
             position: fixed;
             background: linear-gradient(135deg, #ffb7c5, #ff69b4);
@@ -40,20 +37,11 @@
         }
 
         @keyframes fall {
-            0% {
-                transform: translateY(-20px) rotate(0deg);
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(105vh) rotate(360deg);
-                opacity: 0.2;
-            }
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1200px; margin: 0 auto; }
 
         header {
             display: flex;
@@ -66,27 +54,8 @@
             gap: 15px;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 24px;
-            color: var(--accent-blue);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .nav-bar {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        h1 { margin: 0; font-size: 24px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
 
         .btn {
             background-color: #21262d;
@@ -103,46 +72,17 @@
             align-items: center;
             gap: 6px;
         }
-
-        .btn:hover {
-            background-color: #30363d;
-            border-color: #8b949e;
-        }
-
-        .btn-primary {
-            background-color: #238636;
-            color: white;
-            border-color: #2ea043;
-        }
-        .btn-primary:hover {
-            background-color: #2ea043;
-        }
-
-        .btn.active {
-            background-color: var(--accent-blue);
-            color: #0d1117;
-            font-weight: bold;
-            border-color: var(--accent-blue);
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 25px;
-        }
-
-        @media (max-width: 950px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        .btn:hover { background-color: #30363d; border-color: #8b949e; }
+        .btn-primary { background-color: #238636; color: white; border-color: #2ea043; }
+        .btn-primary:hover { background-color: #2ea043; }
+        .btn.active { background-color: var(--accent-blue); color: #0d1117; font-weight: bold; border-color: var(--accent-blue); }
 
         .filters-panel {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             padding: 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             gap: 15px;
             align-items: center;
@@ -159,41 +99,11 @@
             color: var(--text-color);
             font-size: 14px;
         }
-        .search-box:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-        }
+        .search-box:focus { outline: none; border-color: var(--accent-blue); }
 
-        .filter-group {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .filter-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 
-        /* Информационный блок с описанием режимов для новичков */
-        .mode-info-box {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-blue);
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .mode-info-box strong {
-            color: var(--text-color);
-        }
-
-        .servers-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .servers-grid { display: flex; flex-direction: column; gap: 15px; }
 
         .card {
             background-color: var(--card-bg);
@@ -202,30 +112,12 @@
             padding: 18px;
             transition: 0.2s;
             cursor: pointer;
-            position: relative;
         }
+        .card:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+        .vip-card { border-left: 4px solid var(--vip-gold); }
 
-        .card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-2px);
-        }
-
-        .vip-card {
-            border-left: 4px solid var(--vip-gold);
-        }
-
-        .header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .card h3 {
-            margin: 0;
-            font-size: 18px;
-            color: var(--accent-blue);
-        }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card h3 { margin: 0; font-size: 18px; color: var(--accent-blue); }
 
         .badge {
             background: #21262d;
@@ -236,59 +128,30 @@
             color: var(--text-muted);
         }
 
-        .rating-star {
-            color: #e3b341;
-            font-weight: bold;
-        }
+        .rating-star { color: #e3b341; font-weight: bold; }
+        p.desc { margin: 8px 0; font-size: 13px; color: var(--text-muted); }
 
-        p.desc {
-            margin: 8px 0;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .sidebar-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-        }
-
-        .sidebar-card h3 {
-            margin-top: 0;
-            font-size: 16px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
-            color: var(--accent-blue);
-        }
-
-        .tier-item {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 10px;
+        /* Плашка-подсказка для новичков прямо на карточке */
+        .beginner-hint {
+            background: rgba(88, 166, 255, 0.08);
+            border: 1px dashed var(--accent-blue);
+            padding: 8px 12px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            font-size: 12px;
+            color: var(--text-color);
+            margin: 10px 0;
         }
 
-        .tier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            margin-bottom: 4px;
-        }
+        .main-grid { display: grid; grid-template-columns: 1fr 360px; gap: 25px; }
+        @media (max-width: 950px) { .main-grid { grid-template-columns: 1fr; } }
 
-        .rank-badge {
-            font-weight: bold;
-            padding: 1px 6px;
-            border-radius: 4px;
-        }
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; }
+        .sidebar-card h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--accent-blue); }
+
+        .tier-item { background: var(--bg-color); border: 1px solid var(--border-color); padding: 10px; border-radius: 6px; margin-bottom: 8px; }
+        .tier-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 4px; }
+        .rank-badge { font-weight: bold; padding: 1px 6px; border-radius: 4px; }
         .r-gm { background: #f0883e33; color: #f0883e; }
         .r-master { background: #58a6ff33; color: #58a6ff; }
         .r-ace { background: #3fb95033; color: #3fb950; }
@@ -302,60 +165,20 @@
             align-items: center;
             z-index: 10000;
         }
-
         .modal-content {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            width: 90%;
-            max-width: 650px;
-            padding: 25px;
-            border-radius: 10px;
-            max-height: 90vh;
-            overflow-y: auto;
+            width: 90%; max-width: 650px;
+            padding: 25px; border-radius: 10px;
+            max-height: 90vh; overflow-y: auto;
         }
-
-        .chart-wrapper {
-            position: relative;
-            height: 250px;
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .forum-section {
-            display: none;
-        }
-        .topic-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .topic-card:hover {
-            border-color: var(--accent-blue);
-        }
-        .topic-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
+        .chart-wrapper { position: relative; height: 250px; width: 100%; margin-top: 15px; }
 
         #copy-toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--accent-green);
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 6px;
-            display: none;
-            z-index: 20000;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--accent-green); color: #fff;
+            padding: 10px 20px; border-radius: 6px; display: none;
+            z-index: 20000; font-weight: bold;
         }
     </style>
 </head>
@@ -364,45 +187,28 @@
     <div class="container">
         <header>
             <div>
-                <h1 id="main-title">🌸 Мировой мониторинг серверов Minecraft</h1>
-                <div class="subtitle" id="main-subtitle">Мониторинг, версии, форум сообщества и глобальный PvP Tier List</div>
+                <h1>🌸 Мировой мониторинг серверов Minecraft</h1>
+                <div class="subtitle">Лучшие игровые проекты и глобальный PvP Tier List</div>
             </div>
-            <div class="nav-bar">
-                <button class="btn" onclick="toggleLanguage()">🌐 EN / RU</button>
-                <button class="btn" id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
+            <div>
+                <button class="btn" onclick="checkAdmin()">⚙️ Админ</button>
             </div>
         </header>
 
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn active" id="tab-servers" onclick="switchTab('servers')">🖥️ Серверы</button>
-            <button class="btn" id="tab-forum" onclick="switchTab('forum')">💬 Форум сообщества</button>
-        </div>
-
         <div id="section-servers">
             <div class="filters-panel">
-                <input type="text" id="search-input" class="search-box" placeholder="🔍 Найти сервер по названию, версии или IP..." oninput="handleSearch()">
+                <input type="text" id="search-input" class="search-box" placeholder="🔍 Найти сервер по названию или IP..." oninput="handleSearch()">
                 <div class="filter-group">
                     <button class="btn" onclick="filterByMode('Анархия')">🔥 Анархия</button>
                     <button class="btn" onclick="filterByMode('BedWars')">🛏️ BedWars</button>
                     <button class="btn" onclick="filterByMode('Выживание')">🌲 Выживание</button>
                     <button class="btn" onclick="filterByMode('Скайблок')">☁️ Скайблок</button>
-                    <button class="btn" onclick="filterByMode('PvP')">⚔️ PvP</button>
                     <button class="btn" style="background: #30363d; border-color: var(--accent-pink); color: var(--accent-pink);" onclick="resetFilters()">🔄 Сбросить</button>
                 </div>
             </div>
 
-            <!-- Инфоблок для новичков -->
-            <div class="mode-info-box" id="mode-info-panel">
-                <div>
-                    💡 <strong id="info-title">Общий режим:</strong> <span id="info-desc">Выберите режим выше, чтобы узнать его правила и особенности перед игрой.</span>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="margin-bottom: 15px;">
                 <button class="btn btn-primary" id="add-server-btn" style="display: none;" onclick="openServerForm()">➕ Добавить сервер</button>
-                <button class="btn" id="admin-top-btn" style="display: none;" onclick="manageTop()">🏆 Настроить топ</button>
-                <button class="btn" id="db-view-btn" style="display: none;" onclick="openDatabaseModal()">🗄️ База данных</button>
-                <button class="btn" id="api-sync-btn" style="display: none;" onclick="fetchServerFromApi(true)">🔄 Синхронизировать API</button>
             </div>
 
             <div class="main-grid">
@@ -415,13 +221,6 @@
                         <h3>🏆 Мировой PvP Tier List</h3>
                         <div id="tier-list-container"></div>
                     </div>
-
-                    <div class="sidebar-card" id="admin-stats-box" style="display: none;">
-                        <h3>📊 Статистика портала</h3>
-                        <p style="font-size: 13px; margin: 6px 0;">Всего серверов: <strong id="stat-servers-count" style="color: var(--accent-blue);">0</strong></p>
-                        <p style="font-size: 13px; margin: 6px 0;">Общий онлайн: <strong id="stat-online-sum" style="color: var(--accent-green);">0</strong></p>
-                        <p style="font-size: 13px; margin: 6px 0;">Тем на форуме: <strong id="stat-topics-count" style="color: var(--vip-gold);">0</strong></p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -430,17 +229,9 @@
             <button class="btn" onclick="goBackToList()" style="margin-bottom: 15px;">⬅️ Назад к списку</button>
             <div class="card" id="profile-content-box"></div>
         </div>
-
-        <div id="section-forum" class="forum-section">
-            <div class="header-flex" style="margin-bottom: 15px;">
-                <h2 style="margin: 0; color: var(--accent-blue);">Обсуждения и комьюнити</h2>
-                <button class="btn btn-primary" onclick="openTopicModal()">✍️ Создать тему</button>
-            </div>
-            <div id="forum-topics-list"></div>
-        </div>
     </div>
 
-    <!-- Модальные окна -->
+    <!-- Модальное окно добавления -->
     <div class="modal" id="serverFormModal" onclick="closeFormModal(event)">
         <div class="modal-content">
             <h3 style="color: var(--accent-blue); margin-top: 0;">Добавить новый сервер</h3>
@@ -455,27 +246,12 @@
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Версия</label>
-                        <input type="text" id="f-version" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="1.16 - 1.20" required>
-                    </div>
-                    <div>
                         <label style="font-size: 12px; color: var(--text-muted);">Режим</label>
                         <input type="text" id="f-mode" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="Анархия" required>
                     </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                     <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Регион</label>
-                        <select id="f-region" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
-                            <option value="СНГ">СНГ</option>
-                            <option value="США">США</option>
-                            <option value="Европа">Европа</option>
-                            <option value="Азия">Азия</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Флаг</label>
-                        <input type="text" id="f-flag" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="🇷🇺">
+                        <label style="font-size: 12px; color: var(--text-muted);">Подсказка для новичков</label>
+                        <input type="text" id="f-hint" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="Режим без правил и приватов." required>
                     </div>
                 </div>
                 <div style="margin-bottom: 15px;">
@@ -484,55 +260,9 @@
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
                     <button type="button" class="btn" onclick="closeFormModalDirect()">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Сохранить сервер</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <div class="modal" id="topicModal" onclick="closeTopicModalEvent(event)">
-        <div class="modal-content">
-            <h3 style="color: var(--accent-blue); margin-top: 0;">Создать новую тему</h3>
-            <form onsubmit="saveNewTopic(event)">
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; color: var(--text-muted);">Ваш ник</label>
-                    <input type="text" id="t-author" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="Дулат братан" required>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; color: var(--text-muted);">Категория</label>
-                    <select id="t-category" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
-                        <option value="Общие">Общие</option>
-                        <option value="Кланы">Кланы</option>
-                        <option value="Идеи">Идеи</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; color: var(--text-muted);">Заголовок темы</label>
-                    <input type="text" id="t-title" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" required>
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="font-size: 12px; color: var(--text-muted);">Текст сообщения</label>
-                    <textarea id="t-text" class="search-box" style="width: 100%; height: 90px; box-sizing: border-box; margin-top: 4px; resize: none;" required></textarea>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                    <button type="button" class="btn" onclick="closeTopicModalDirect()">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Опубликовать</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="modal" id="topicViewModal" onclick="closeTopicViewEvent(event)">
-        <div class="modal-content" id="topicViewBody"></div>
-    </div>
-
-    <div class="modal" id="databaseModal" onclick="closeDatabaseModalEvent(event)">
-        <div class="modal-content">
-            <h3 style="color: var(--accent-blue); margin-top: 0;">🗄️ Управление Базой Данных</h3>
-            <textarea readonly class="search-box" style="width: 100%; height: 180px; font-family: monospace; font-size: 12px; resize: none;" id="db-json-view"></textarea>
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
-                <button type="button" class="btn" onclick="closeDatabaseModalDirect()">Закрыть</button>
-            </div>
         </div>
     </div>
 
@@ -543,13 +273,10 @@
             createSakuraPetals();
             renderServers();
             renderTierList();
-            renderTopics();
-            updateStats();
         });
 
         function createSakuraPetals() {
-            const petalsCount = 20;
-            for (let i = 0; i < petalsCount; i++) {
+            for (let i = 0; i < 15; i++) {
                 const petal = document.createElement('div');
                 petal.className = 'sakura-petal';
                 petal.style.left = Math.random() * 100 + 'vw';
@@ -563,6 +290,7 @@
             }
         }
 
+        // Ровно 4 главных сервера с подсказками для новичков прямо на карточках
         let serversData = [
             {
                 id: 1,
@@ -572,6 +300,7 @@
                 region: "СНГ",
                 flag: "🇷🇺",
                 mode: "Анархия",
+                beginnerHint: "💡 Для новичков: здесь нет защиты территории (приватов) и почти нет правил. Будьте готовы строить скрытые базы и сражаться с кланами.",
                 status: "🟢 Работает",
                 vip: true,
                 online: 4280,
@@ -580,36 +309,18 @@
                 wipe: "Каждые 30 дней",
                 discord: "https://discord.gg/funtime",
                 store: "https://funtime.su/shop",
-                desc: "Крупнейший сервер анархии с кланами, аукционом, кастомными зачарованиями и кейсами.",
+                desc: "Крупнейший сервер анархии с кланами, аукционом и кастомными предметами.",
                 history: [3800, 3950, 4100, 4200, 4280]
             },
             {
                 id: 2,
-                name: "HolyWorld",
-                ip: "mc.holyworld.ru",
-                version: "1.16 - 1.21",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Анархия",
-                status: "🟢 Работает",
-                vip: true,
-                online: 3150,
-                maxOnline: 4000,
-                rating: 4.8,
-                wipe: "Раз в 2 месяца",
-                discord: "https://discord.gg/holyworld",
-                store: "https://holyworld.ru",
-                desc: "Популярный анархичный проект с уникальными дюп-зонами, ивентами и защитой от читеров.",
-                history: [2900, 3050, 3100, 3120, 3150]
-            },
-            {
-                id: 3,
                 name: "Hypixel Network",
                 ip: "mc.hypixel.net",
                 version: "1.8 - 1.20",
                 region: "США",
                 flag: "🇺🇸",
                 mode: "BedWars",
+                beginnerHint: "💡 Для новичков: командная мини-игра. Ваша цель — защитить свою кровать на острове и сломать чужие, покупая броню и мечи за ресурсы.",
                 status: "🟢 Работает",
                 vip: false,
                 online: 45200,
@@ -618,65 +329,48 @@
                 wipe: "Никогда",
                 discord: "https://discord.gg/hypixel",
                 store: "https://store.hypixel.net",
-                desc: "Легендарный мировой сервер с BedWars, SkyWars, Arcade мини-играми и миллионным комьюнити.",
+                desc: "Легендарный мировой проект с мини-играми BedWars, SkyWars и огромным онлайном.",
                 history: [42000, 43500, 44000, 44800, 45200]
             },
             {
-                id: 4,
-                name: "MatrixPvP",
-                ip: "play.matrixpvp.net",
-                version: "1.12 - 1.20",
-                region: "Европа",
-                flag: "🇪🇺",
-                mode: "PvP",
+                id: 3,
+                name: "VanillaLand",
+                ip: "play.vanillaland.ru",
+                version: "1.20 - 1.21",
+                region: "СНГ",
+                flag: "🇷🇺",
+                mode: "Выживание",
+                beginnerHint: "💡 Для новичков: классическое спокойное выживание с защитой ресурсов (приватами), экономикой и возможностью строить города вместе с другими.",
                 status: "🟢 Работает",
                 vip: false,
-                online: 840,
+                online: 980,
                 maxOnline: 1500,
-                rating: 4.6,
-                wipe: "Каждые 3 недели",
-                discord: "https://discord.gg/matrixpvp",
-                store: "https://matrixpvp.net",
-                desc: "Хардкорные PvP тренировки, дуэли 1v1, CrystalPVP и турниры с денежными призами.",
-                history: [750, 800, 820, 830, 840]
+                rating: 4.7,
+                wipe: "Никогда",
+                discord: "https://discord.gg/",
+                store: "https://",
+                desc: "Уютное выживание без вайпов мира, с адекватной администрацией и честной экономикой.",
+                history: [850, 900, 930, 950, 980]
             },
             {
-                id: 5,
+                id: 4,
                 name: "SkyTime",
                 ip: "play.skytime.su",
                 version: "1.12 - 1.19",
                 region: "СНГ",
                 flag: "🇷🇺",
                 mode: "Скайблок",
+                beginnerHint: "💡 Для новичков: вы появляетесь на крошечном летающем острове в пустоте. Развивайте остров, добывайте ресурсы с генератора и торгуйте на аукционе.",
                 status: "🟢 Работает",
                 vip: true,
                 online: 1420,
                 maxOnline: 2000,
-                rating: 4.7,
+                rating: 4.8,
                 wipe: "Каждые 3 месяца",
                 discord: "https://discord.gg/skytime",
                 store: "https://skytime.su",
-                desc: "Увлекательный режим Скайблок с прокачкой островов, боссами, генераторами и аукционом.",
+                desc: "Популярный Скайблок с прокачкой островов, боссами, уникальными квестами и магазином.",
                 history: [1200, 1300, 1350, 1400, 1420]
-            },
-            {
-                id: 6,
-                name: "ReallyWorld",
-                ip: "play.reallyworld.ru",
-                version: "1.16 - 1.20.4",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Анархия",
-                status: "🟢 Работает",
-                vip: true,
-                online: 2890,
-                maxOnline: 3500,
-                rating: 4.8,
-                wipe: "Каждые 4 недели",
-                discord: "https://discord.gg/reallyworld",
-                store: "https://reallyworld.ru",
-                desc: "Классическая анархия с кастомными кейсами, кланами, работами и регулярными масштабными вайпами.",
-                history: [2500, 2650, 2750, 2800, 2890]
             }
         ];
 
@@ -685,64 +379,13 @@
             { rank: 2, name: "ItzRealMe", title: "Combat Master", points: 330, region: "NA", classType: "r-master" },
             { rank: 3, name: "coldified", title: "Combat Master", points: 326, region: "EU", classType: "r-master" },
             { rank: 4, name: "Swight", title: "Combat Master", points: 290, region: "NA", classType: "r-master" },
-            { rank: 5, name: "janekv", title: "Combat Master", points: 260, region: "EU", classType: "r-master" },
-            { rank: 6, name: "BlvckWlf", title: "Combat Ace", points: 226, region: "EU", classType: "r-ace" },
-            { rank: 6, name: "Kylaz", title: "Combat Ace", points: 226, region: "NA", classType: "r-ace" },
-            { rank: 8, name: "ninorc15", title: "Combat Ace", points: 196, region: "EU", classType: "r-ace" },
-            { rank: 9, name: "Lurrn", title: "Combat Ace", points: 186, region: "EU", classType: "r-ace" },
-            { rank: 10, name: "Arsakha", title: "Combat Ace", points: 177, region: "ME", classType: "r-ace" }
-        ];
-
-        let topicsData = [
-            {
-                id: 1,
-                author: "Дулат братан",
-                category: "Общие",
-                title: "Какой сервер лучше выбрать для игры с друзьями в 2026 году?",
-                text: "Привет всем! Мы с пацанами ищем нормальный анархичный сервер без лагов и с большим онлайном. Что посоветуете?",
-                date: "20.08.2026, 14:15",
-                replies: 12
-            },
-            {
-                id: 2,
-                author: "Раян братан",
-                category: "Кланы",
-                title: "Клан [LEGEND] открывает набор опытных игроков для вайпа!",
-                text: "Требования: возраст 16+, хороший микрофон, умение играть с кристаллом и знание механик Anarchy. Пишите в ЛС дискорда.",
-                date: "19.08.2026, 21:40",
-                replies: 8
-            }
+            { rank: 5, name: "janekv", title: "Combat Master", points: 260, region: "EU", classType: "r-master" }
         ];
 
         let currentFilterMode = '';
         let currentSearchQuery = '';
         let isAdmin = false;
         let onlineChartInstance = null;
-
-        const modeDescriptions = {
-            '': { title: "Общий мониторинг:", desc: "Выберите конкретный режим выше, чтобы узнать его правила и особенности перед началом игры." },
-            'Анархия': { title: "🔥 Что такое Анархия?", desc: "Режим без приватов территории и почти без правил (кроме читов). Игроки строят базы, устраивают рейды, объединяются в кланы и выживают в жестких условиях." },
-            'BedWars': { title: "🛏️ Что такое BedWars?", desc: "Командная мини-игра. Ваша задача — защитить свою кровать и сломать кровати соперников, собирая ресурсы (железо, золото, алмазы) и покупая экипировку." },
-            'Выживание': { title: "🌲 Что такое Выживание?", desc: "Классический Minecraft с защитой ресурсов (приватами), экономикой, работами, магазинами и постройкой городов в спокойной атмосфере." },
-            'Скайблок': { title: "☁️ Что такое Скайблок?", desc: "Вы начинаете игру на маленьком летающем острове в пустоте. Вам нужно развиваться, используя ограниченные ресурсы, генераторы камня и выполняя квесты." },
-            'PvP': { title: "⚔️ Что такое PvP?", desc: "Тренировочный режим для сражений с другими игроками. Включает дуэли 1v1, тренировку ударов, CrystalPVP и рейтинговые турниры." }
-        };
-
-        function switchTab(tabName) {
-            document.getElementById('tab-servers').classList.remove('active');
-            document.getElementById('tab-forum').classList.remove('active');
-            document.getElementById('section-servers').style.display = 'none';
-            document.getElementById('section-server-profile').style.display = 'none';
-            document.getElementById('section-forum').style.display = 'none';
-
-            if (tabName === 'servers') {
-                document.getElementById('tab-servers').classList.add('active');
-                document.getElementById('section-servers').style.display = 'block';
-            } else if (tabName === 'forum') {
-                document.getElementById('tab-forum').classList.add('active');
-                document.getElementById('section-forum').style.display = 'block';
-            }
-        }
 
         function renderServers() {
             const container = document.getElementById('server-list');
@@ -752,16 +395,13 @@
                 let matchMode = currentFilterMode ? s.mode === currentFilterMode : true;
                 let matchSearch = currentSearchQuery ? (
                     s.name.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
-                    s.ip.toLowerCase().includes(currentSearchQuery.toLowerCase()) ||
-                    s.version.toLowerCase().includes(currentSearchQuery.toLowerCase())
+                    s.ip.toLowerCase().includes(currentSearchQuery.toLowerCase())
                 ) : true;
                 return matchMode && matchSearch;
             });
 
-            filtered.sort((a, b) => (b.vip === true) - (a.vip === true));
-
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted);">Серверы не найдены. Попробуйте изменить параметры поиска.</div>`;
+                container.innerHTML = `<div class="card" style="text-align: center; color: var(--text-muted);">Серверы не найдены.</div>`;
                 return;
             }
 
@@ -769,9 +409,7 @@
                 const card = document.createElement('div');
                 card.className = s.vip ? 'card vip-card' : 'card';
                 card.onclick = (e) => {
-                    if (!e.target.classList.contains('copy-btn')) {
-                        openServerProfile(s.id);
-                    }
+                    if (!e.target.classList.contains('copy-btn')) openServerProfile(s.id);
                 };
 
                 card.innerHTML = `
@@ -784,11 +422,14 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span class="rating-star">⭐ ${s.rating}</span>
-                            <span style="font-size: 13px;">${s.status}</span>
                         </div>
                     </div>
-                    <p style="color: var(--text-muted); font-size: 13px;">IP: <code style="color: var(--accent-blue); cursor: pointer;" onclick="copyIp('${s.ip}')">${s.ip}</code></p>
+                    <p style="color: var(--text-muted); font-size: 13px; margin: 6px 0;">IP: <code style="color: var(--accent-blue); cursor: pointer;" onclick="copyIp('${s.ip}')">${s.ip}</code></p>
                     <p class="desc">${s.desc}</p>
+                    
+                    <!-- Сразу видимая подсказка для новичков -->
+                    <div class="beginner-hint">${s.beginnerHint}</div>
+
                     <div class="header-flex" style="margin-top: 10px; margin-bottom: 0; font-size: 12px; color: var(--text-muted);">
                         <span>Версия: <strong style="color: var(--text-color);">${s.version}</strong></span>
                         <span>Онлайн: <strong style="color: var(--accent-green);">${s.online.toLocaleString()}</strong> / ${s.maxOnline.toLocaleString()}</span>
@@ -797,7 +438,6 @@
                 `;
                 container.appendChild(card);
             });
-            updateStats();
         }
 
         function copyIp(ip) {
@@ -814,7 +454,6 @@
 
         function filterByMode(mode) {
             currentFilterMode = currentFilterMode === mode ? '' : mode;
-            updateModeInfoBox();
             renderServers();
         }
 
@@ -822,14 +461,7 @@
             currentFilterMode = '';
             currentSearchQuery = '';
             document.getElementById('search-input').value = '';
-            updateModeInfoBox();
             renderServers();
-        }
-
-        function updateModeInfoBox() {
-            const info = modeDescriptions[currentFilterMode] || modeDescriptions[''];
-            document.getElementById('info-title').textContent = info.title;
-            document.getElementById('info-desc').textContent = info.desc;
         }
 
         function openServerProfile(id) {
@@ -837,48 +469,16 @@
             if (!server) return;
 
             document.getElementById('section-servers').style.display = 'none';
-            document.getElementById('section-forum').style.display = 'none';
             document.getElementById('section-server-profile').style.display = 'block';
 
             const box = document.getElementById('profile-content-box');
             box.innerHTML = `
-                <div class="header-flex" style="align-items: flex-start;">
-                    <div>
-                        <h2 style="color: var(--accent-blue); margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px;">
-                            ${server.name} ${server.vip ? '👑' : ''}
-                        </h2>
-                        <p style="color: var(--text-muted);">${server.desc}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <span class="badge" style="font-size: 14px; padding: 6px 12px;">⭐ ${server.rating} / 5.0</span>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
-                    <div style="background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <p style="color: var(--text-muted); font-size: 12px; margin:0;">IP адрес</p>
-                        <p style="font-weight: bold; color: var(--accent-blue); cursor: pointer; margin:4px 0 0;" onclick="copyIp('${server.ip}')">${server.ip} 📋</p>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <p style="color: var(--text-muted); font-size: 12px; margin:0;">Текущий онлайн</p>
-                        <p style="font-weight: bold; color: var(--accent-green); margin:4px 0 0;">${server.online.toLocaleString()} / ${server.maxOnline.toLocaleString()}</p>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <p style="color: var(--text-muted); font-size: 12px; margin:0;">Частота вайпов</p>
-                        <p style="font-weight: bold; margin:4px 0 0;">${server.wipe || 'Не указано'}</p>
-                    </div>
-                    <div style="background: var(--bg-color); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);">
-                        <p style="color: var(--text-muted); font-size: 12px; margin:0;">Регион и версия</p>
-                        <p style="font-weight: bold; margin:4px 0 0;">${server.flag} ${server.region} (${server.version})</p>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    ${server.discord ? `<a href="${server.discord}" target="_blank" class="btn" style="background: #5865F2; color: white;">💬 Discord сообщество</a>` : ''}
-                    ${server.store ? `<a href="${server.store}" target="_blank" class="btn btn-primary">🛒 Игровой магазин</a>` : ''}
-                </div>
-
-                <h3 style="margin-top: 25px; color: var(--text-color);">📈 График динамики онлайна</h3>
+                <h2 style="color: var(--accent-blue); margin-top: 0;">${server.name}</h2>
+                <p style="color: var(--text-muted);">${server.desc}</p>
+                <div class="beginner-hint" style="margin: 15px 0;">${server.beginnerHint}</div>
+                <p style="font-size: 14px;">IP адрес: <strong style="color: var(--accent-blue); cursor: pointer;" onclick="copyIp('${server.ip}')">${server.ip} 📋</strong></p>
+                
+                <h3 style="margin-top: 25px; color: var(--text-color);">📈 Динамика онлайна</h3>
                 <div class="chart-wrapper">
                     <canvas id="serverOnlineChart"></canvas>
                 </div>
@@ -892,7 +492,7 @@
                     labels: ['12:00', '15:00', '18:00', '21:00', 'Сейчас'],
                     datasets: [{
                         label: 'Игроков онлайн',
-                        data: server.history || [2000, 2500, 3000, 3500, server.online],
+                        data: server.history,
                         borderColor: '#58a6ff',
                         backgroundColor: 'rgba(88, 166, 255, 0.1)',
                         borderWidth: 2,
@@ -938,69 +538,18 @@
             });
         }
 
-        function renderTopics() {
-            const list = document.getElementById('forum-topics-list');
-            list.innerHTML = '';
-            topicsData.forEach(t => {
-                const card = document.createElement('div');
-                card.className = 'topic-card';
-                card.onclick = () => viewTopic(t.id);
-                card.innerHTML = `
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
-                        <span class="badge" style="background: #1f6feb22; color: var(--accent-blue);">${t.category}</span>
-                        <h4 style="margin: 0; color: var(--text-color); font-size: 15px;">${t.title}</h4>
-                    </div>
-                    <p style="color: var(--text-muted); font-size: 13px; margin: 4px 0;">${t.text.substring(0, 100)}...</p>
-                    <div class="topic-meta">
-                        <span>👤 Автор: <strong style="color: var(--accent-blue);">${t.author}</strong></span>
-                        <span>🕒 ${t.date}</span>
-                        <span>💬 Ответов: <strong>${t.replies}</strong></span>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('stat-servers-count').textContent = serversData.length;
-            const sumOnline = serversData.reduce((acc, s) => acc + s.online, 0);
-            document.getElementById('stat-online-sum').textContent = sumOnline.toLocaleString();
-            document.getElementById('stat-topics-count').textContent = topicsData.length;
-        }
-
         function checkAdmin() {
             const pass = prompt("Введите пароль администратора:");
             if (pass === "qwe12345tyu124") {
                 isAdmin = !isAdmin;
-                const btn = document.getElementById('admin-btn');
-                if (isAdmin) {
-                    btn.style.background = '#238636';
-                    btn.textContent = '⚙️ Админ (ВКЛ)';
-                    document.getElementById('add-server-btn').style.display = 'inline-block';
-                    document.getElementById('admin-top-btn').style.display = 'inline-block';
-                    document.getElementById('db-view-btn').style.display = 'inline-block';
-                    document.getElementById('api-sync-btn').style.display = 'inline-block';
-                    document.getElementById('admin-stats-box').style.display = 'block';
-                } else {
-                    btn.style.background = '#21262d';
-                    btn.textContent = '⚙️ Админ';
-                    document.getElementById('add-server-btn').style.display = 'none';
-                    document.getElementById('admin-top-btn').style.display = 'none';
-                    document.getElementById('db-view-btn').style.display = 'none';
-                    document.getElementById('api-sync-btn').style.display = 'none';
-                    document.getElementById('admin-stats-box').style.display = 'none';
-                }
+                document.getElementById('add-server-btn').style.display = isAdmin ? 'inline-block' : 'none';
                 renderServers();
             } else if (pass !== null) {
-                alert("Неверный пароль администратора!");
+                alert("Неверный пароль!");
             }
         }
 
-        function openServerForm() {
-            document.getElementById('serverFormModal').style.display = 'flex';
-            document.getElementById('serverEditForm').reset();
-        }
+        function openServerForm() { document.getElementById('serverFormModal').style.display = 'flex'; }
         function closeFormModalDirect() { document.getElementById('serverFormModal').style.display = 'none'; }
         function closeFormModal(e) { if (e.target.id === 'serverFormModal') closeFormModalDirect(); }
 
@@ -1008,100 +557,26 @@
             e.preventDefault();
             const name = document.getElementById('f-name').value;
             const ip = document.getElementById('f-ip').value;
-            const version = document.getElementById('f-version').value;
-            const region = document.getElementById('f-region').value;
-            const flag = document.getElementById('f-flag').value;
             const mode = document.getElementById('f-mode').value;
+            const beginnerHint = "💡 Для новичков: " + document.getElementById('f-hint').value;
             const desc = document.getElementById('f-desc').value;
 
-            const newServer = {
+            serversData.push({
                 id: Date.now(),
-                name, ip, version, region, flag, mode,
-                status: "🟢 Работает",
-                vip: false,
-                online: Math.floor(Math.random() * 1000) + 200,
-                maxOnline: 3000,
-                rating: (Math.random() * 0.8 + 4.2).toFixed(1),
-                wipe: "Каждые 30 дней",
-                discord: "https://discord.gg/",
-                store: "https://",
-                desc,
-                history: [150, 300, 450, 600, 800]
-            };
-            serversData.push(newServer);
+                name, ip, version: "1.20", region: "СНГ", flag: "🇷🇺",
+                mode, beginnerHint, status: "🟢 Работает", vip: false,
+                online: 500, maxOnline: 1000, rating: 4.5, wipe: "Раз в месяц",
+                discord: "#", store: "#", desc, history: [300, 400, 500]
+            });
             closeFormModalDirect();
             renderServers();
         }
 
         function deleteServer(id) {
-            if (confirm("Удалить этот сервер из мониторинга?")) {
+            if (confirm("Удалить сервер?")) {
                 serversData = serversData.filter(s => s.id !== id);
                 renderServers();
             }
-        }
-
-        function openTopicModal() { document.getElementById('topicModal').style.display = 'flex'; }
-        function closeTopicModalDirect() { document.getElementById('topicModal').style.display = 'none'; }
-        function closeTopicModalEvent(e) { if (e.target.id === 'topicModal') closeTopicModalDirect(); }
-
-        function saveNewTopic(e) {
-            e.preventDefault();
-            const author = document.getElementById('t-author').value;
-            const category = document.getElementById('t-category').value;
-            const title = document.getElementById('t-title').value;
-            const text = document.getElementById('t-text').value;
-
-            const now = new Date();
-            const dateStr = now.toLocaleDateString() + ', ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            topicsData.unshift({ id: Date.now(), author, category, title, text, date: dateStr, replies: 0 });
-            closeTopicModalDirect();
-            renderTopics();
-            switchTab('forum');
-        }
-
-        function viewTopic(id) {
-            const t = topicsData.find(item => item.id === id);
-            if (!t) return;
-            document.getElementById('topicViewBody').innerHTML = `
-                <span class="badge" style="background: #1f6feb22; color: var(--accent-blue); margin-bottom: 8px; display: inline-block;">${t.category}</span>
-                <h2 style="color: var(--accent-blue); margin-top: 0;">${t.title}</h2>
-                <div style="display: flex; gap: 12px; color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">
-                    <span>👤 Автор: <strong>${t.author}</strong></span>
-                    <span>🕒 ${t.date}</span>
-                </div>
-                <p style="background: var(--bg-color); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); line-height: 1.5; color: var(--text-color);">${t.text}</p>
-                <button onclick="closeTopicViewDirect()" class="btn" style="margin-top: 15px;">Назад к списку</button>
-            `;
-            document.getElementById('topicViewModal').style.display = 'flex';
-        }
-        function closeTopicViewDirect() { document.getElementById('topicViewModal').style.display = 'none'; }
-        function closeTopicViewEvent(e) { if (e.target.id === 'topicViewModal') closeTopicViewDirect(); }
-
-        function openDatabaseModal() {
-            document.getElementById('databaseModal').style.display = 'flex';
-            document.getElementById('db-json-view').value = JSON.stringify({ servers: serversData, tierList: tierListData, topics: topicsData }, null, 2);
-        }
-        function closeDatabaseModalDirect() { document.getElementById('databaseModal').style.display = 'none'; }
-        function closeDatabaseModalEvent(e) { if (e.target.id === 'databaseModal') closeDatabaseModalDirect(); }
-
-        function fetchServerFromApi(manual = false) {
-            if (manual) alert("Синхронизация через внешнее API успешно выполнена! Онлайн обновлен.");
-            serversData.forEach(s => { s.online = Math.max(0, s.online + Math.floor(Math.random() * 80) - 35); });
-            renderServers();
-        }
-
-        function manageTop() {
-            alert("PvP Tier List успешно синхронизирован с актуальной таблицей лидеров.");
-        }
-
-        let isEnglish = false;
-        function toggleLanguage() {
-            isEnglish = !isEnglish;
-            document.getElementById('page-title').textContent = isEnglish ? "World Minecraft Server Monitoring + PvP Tiers" : "Мировой мониторинг серверов Minecraft + PvP Tier List";
-            document.getElementById('main-title').textContent = isEnglish ? "🌸 World Minecraft Server Monitoring" : "🌸 Мировой мониторинг серверов Minecraft";
-            document.getElementById('main-subtitle').textContent = isEnglish ? "Monitoring, versions, community forum and global PvP Tiers" : "Мониторинг, версии, форум сообщества и глобальный PvP Tier List";
-            document.getElementById('search-input').placeholder = isEnglish ? "🔍 Search server..." : "🔍 Найти сервер по названию, версии или IP...";
         }
     </script>
 </body>
