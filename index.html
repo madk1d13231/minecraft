@@ -503,7 +503,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
     <div id="copy-toast">📋 IP скопирован в буфер обмена!</div>
 
-    <!-- Подключаем Firebase SDK (включая Auth) и настраиваем логику -->
+    <!-- Firebase модуль -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
@@ -522,9 +522,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
-        console.log("Firebase initialized successfully!");
 
-        // Интеграция регистрации в интерфейс
         document.getElementById('signup-btn').addEventListener('click', () => {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
@@ -540,16 +538,15 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 .then((userCredential) => {
                     statusSpan.style.color = "#2ea043";
                     statusSpan.textContent = "Успешно!";
-                    console.log("Пользователь зарегистрирован:", userCredential.user.email);
                 })
                 .catch((error) => {
                     statusSpan.style.color = "#f85149";
                     statusSpan.textContent = error.code.replace('auth/', '');
-                    console.error("Ошибка регистрации:", error.message);
                 });
         });
     </script>
 
+    <!-- Основной скрипт сайта -->
     <script>
         function createSakuraPetal() {
             const petal = document.createElement('div');
@@ -595,8 +592,397 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function saveServers() { localStorage.setItem('saved_servers', JSON.stringify(allServers)); updateAdminStats(); }
         function saveTopics() { localStorage.setItem('saved_forum_topics', JSON.stringify(forumTopics)); updateAdminStats(); }
-        
-        // (Остальные функции вашего сайта сохраняются здесь без изменений...)
+
+        function renderServers(list) {
+            const container = document.getElementById('server-list');
+            container.innerHTML = '';
+            
+            // Сортировка: VIP сверху
+            let sorted = [...list].sort((a, b) => (b.vip === true) - (a.vip === true));
+
+            sorted.forEach(srv => {
+                let card = document.createElement('div');
+                card.className = srv.vip ? 'card vip-card' : 'card';
+                card.onclick = () => openServerProfile(srv.id);
+                
+                card.innerHTML = `
+                    <div class="header-flex">
+                        <h3>${srv.flag || '🌐'} ${srv.name}</h3>
+                        <div>
+                            <span class="badge">${srv.mode}</span>
+                            <span class="badge" style="background: #1f6feb;">${srv.region}</span>
+                            <span class="badge">${srv.status}</span>
+                        </div>
+                    </div>
+                    <p><strong>IP:</strong> <span style="color: #58a6ff;" onclick="event.stopPropagation(); copyIp('${srv.ip}')">${srv.ip}</span> | <strong>Версия:</strong> ${srv.version}</p>
+                    <p><strong>Онлайн:</strong> 👥 ${srv.online.toLocaleString()} | <strong>Рейтинг:</strong> <span class="rating-star">★ ${srv.rating}</span></p>
+                    <p class="desc">${srv.desc}</p>
+                `;
+                container.appendChild(card);
+            });
+            updateAdminStats();
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard-list');
+            container.innerHTML = '';
+            pvpLeaders.forEach(item => {
+                let rankClass = item.rank === 1 ? 'top1' : (item.rank === 2 ? 'top2' : (item.rank === 3 ? 'top3' : ''));
+                let tiersHtml = item.tiers.map(t => `<div class="mini-tier">${t.kit}: <span>${t.tier}</span></div>`).join('');
+                
+                let div = document.createElement('div');
+                div.className = 'leader-card-item';
+                div.innerHTML = `
+                    <div class="leader-card-header">
+                        <span><strong class="leader-rank-num ${rankClass}">#${item.rank}</strong> ${item.name}</span>
+                    </div>
+                    <div class="tier-tags">${tiersHtml}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderForumTopics() {
+            const container = document.getElementById('forum-topics-list');
+            container.innerHTML = '';
+            forumTopics.forEach(top => {
+                let card = document.createElement('div');
+                card.className = 'topic-card';
+                card.onclick = () => openTopicView(top.id);
+                card.innerHTML = `
+                    <div class="header-flex">
+                        <h3 style="font-size: 16px;">${top.title}</h3>
+                        <span class="badge" style="background: #1f6feb;">${top.category}</span>
+                    </div>
+                    <p style="color: #8b949e; font-size: 13px;">${top.text.substring(0, 90)}...</p>
+                    <div class="topic-meta">
+                        <span>👤 ${top.author}</span>
+                        <span>📅 ${top.date}</span>
+                        <span>💬 Ответов: ${top.replies.length}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function handleSearch() {
+            let query = document.getElementById('search-input').value.toLowerCase();
+            currentActiveList = allServers.filter(s => 
+                s.name.toLowerCase().includes(query) || 
+                s.ip.toLowerCase().includes(query) || 
+                s.version.toLowerCase().includes(query) ||
+                s.mode.toLowerCase().includes(query)
+            );
+            renderServers(currentActiveList);
+        }
+
+        function filterByMode(modeName) {
+            currentActiveList = allServers.filter(s => s.mode.toLowerCase() === modeName.toLowerCase());
+            renderServers(currentActiveList);
+        }
+
+        function filterByRegion(regionName) {
+            currentActiveList = allServers.filter(s => s.region.toLowerCase() === regionName.toLowerCase());
+            renderServers(currentActiveList);
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            currentActiveList = allServers;
+            renderServers(currentActiveList);
+        }
+
+        function copyIp(ipText) {
+            navigator.clipboard.writeText(ipText);
+            let toast = document.getElementById('copy-toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }
+
+        function switchTab(tabName) {
+            document.getElementById('tab-servers').classList.remove('active');
+            document.getElementById('tab-forum').classList.remove('active');
+            document.getElementById('section-servers').style.display = 'none';
+            document.getElementById('section-server-profile').style.display = 'none';
+            document.getElementById('section-forum').style.display = 'none';
+
+            if (tabName === 'servers') {
+                document.getElementById('tab-servers').classList.add('active');
+                document.getElementById('section-servers').style.display = 'block';
+            } else if (tabName === 'forum') {
+                document.getElementById('tab-forum').classList.add('active');
+                document.getElementById('section-forum').style.display = 'block';
+                renderForumTopics();
+            }
+        }
+
+        function openServerProfile(id) {
+            let srv = allServers.find(s => s.id === id);
+            if (!srv) return;
+
+            document.getElementById('section-servers').style.display = 'none';
+            document.getElementById('section-forum').style.display = 'none';
+            document.getElementById('section-server-profile').style.display = 'block';
+
+            let box = document.getElementById('profile-content-box');
+            box.innerHTML = `
+                <div class="header-flex">
+                    <h2 style="color: #58a6ff; margin: 0;">${srv.flag || '🌐'} ${srv.name}</h2>
+                    <div>
+                        <span class="badge">${srv.mode}</span>
+                        <span class="badge" style="background: #1f6feb;">${srv.region}</span>
+                        <span class="badge">${srv.status}</span>
+                    </div>
+                </div>
+                <p style="margin-top: 10px;"><strong>IP-адрес:</strong> <span style="color: #58a6ff; cursor: pointer;" onclick="copyIp('${srv.ip}')">${srv.ip} 📋</span></p>
+                <p><strong>Версия:</strong> ${srv.version} | <strong>Рейтинг:</strong> <span class="rating-star">★ ${srv.rating}</span></p>
+                <p><strong>Вайп:</strong> ${srv.wipe || 'Не указано'}</p>
+                <p style="margin-top: 10px;">${srv.desc}</p>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    ${srv.discord ? `<a href="${srv.discord}" target="_blank" class="badge" style="background: #5865F2; color: white; text-decoration: none; padding: 6px 12px;">Discord канал</a>` : ''}
+                    ${srv.store ? `<a href="${srv.store}" target="_blank" class="badge" style="background: #238636; color: white; text-decoration: none; padding: 6px 12px;">Игровой магазин</a>` : ''}
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="serverOnlineChart"></canvas>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const ctx = document.getElementById('serverOnlineChart').getContext('2d');
+                if (activeChartInstance) activeChartInstance.destroy();
+                activeChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Сегодня'],
+                        datasets: [{
+                            label: 'Онлайн игроков',
+                            data: srv.history || [100, 150, 200, 250, 300, 350, srv.online],
+                            borderColor: '#58a6ff',
+                            backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#c9d1d9' } } },
+                        scales: {
+                            x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
+                            y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
+                        }
+                    }
+                });
+            }, 50);
+        }
+
+        function goBackToList() {
+            document.getElementById('section-server-profile').style.display = 'none';
+            document.getElementById('section-servers').style.display = 'block';
+        }
+
+        function checkAdmin() {
+            let pwd = prompt("Введите пароль администратора:");
+            if (pwd === PASSWORD) {
+                isAdmin = true;
+                document.getElementById('add-server-btn').style.display = 'block';
+                document.getElementById('admin-top-btn').style.display = 'block';
+                document.getElementById('db-view-btn').style.display = 'block';
+                document.getElementById('api-sync-btn').style.display = 'block';
+                document.getElementById('admin-stats-box').style.display = 'block';
+                alert("Режим администратора активирован!");
+                updateAdminStats();
+            } else if (pwd !== null) {
+                alert("Неверный пароль!");
+            }
+        }
+
+        function updateAdminStats() {
+            if (!isAdmin) return;
+            document.getElementById('stat-servers-count').textContent = allServers.length;
+            let totalOnline = allServers.reduce((sum, s) => sum + s.online, 0);
+            document.getElementById('stat-online-sum').textContent = totalOnline.toLocaleString();
+            document.getElementById('stat-topics-count').textContent = forumTopics.length;
+        }
+
+        function openServerForm() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('serverEditForm').reset();
+            document.getElementById('formModalTitle').textContent = "Добавить новый сервер";
+            document.getElementById('serverFormModal').style.display = 'flex';
+        }
+
+        function closeFormModal(e) {
+            if (e.target.id === 'serverFormModal') closeFormModalDirect();
+        }
+        function closeFormModalDirect() {
+            document.getElementById('serverFormModal').style.display = 'none';
+        }
+
+        function updateFlagSelect() {
+            let reg = document.getElementById('f-region').value;
+            let flagSel = document.getElementById('f-flag');
+            if (reg === 'СНГ') flagSel.value = '🇷🇺';
+            else if (reg === 'США') flagSel.value = '🇺🇸';
+            else if (reg === 'Европа') flagSel.value = '🇪🇺';
+            else if (reg === 'Азия') flagSel.value = '🌏';
+        }
+
+        function saveServerForm(e) {
+            e.preventDefault();
+            let idVal = document.getElementById('edit-id').value;
+            let name = document.getElementById('f-name').value;
+            let ip = document.getElementById('f-ip').value;
+            let version = document.getElementById('f-version').value;
+            let region = document.getElementById('f-region').value;
+            let flag = document.getElementById('f-flag').value;
+            let mode = document.getElementById('f-mode').value;
+            let status = document.getElementById('f-status').value;
+            let vip = document.getElementById('f-vip').value === 'true';
+            let wipe = document.getElementById('f-wipe').value;
+            let discord = document.getElementById('f-discord').value;
+            let store = document.getElementById('f-store').value;
+            let desc = document.getElementById('f-desc').value;
+
+            if (idVal) {
+                let srv = allServers.find(s => s.id === idVal);
+                if (srv) {
+                    srv.name = name; srv.ip = ip; srv.version = version; srv.region = region;
+                    srv.flag = flag; srv.mode = mode; srv.status = status; srv.vip = vip;
+                    srv.wipe = wipe; srv.discord = discord; srv.store = store; srv.desc = desc;
+                }
+            } else {
+                let newSrv = {
+                    id: 'srv_' + Date.now(),
+                    name, ip, version, region, flag, mode, status, vip, wipe, discord, store, desc,
+                    rating: 4.5, online: Math.floor(Math.random() * 1500) + 100,
+                    history: [100, 200, 300, 400, 500, 600, 700]
+                };
+                allServers.push(newSrv);
+            }
+
+            saveServers();
+            renderServers(allServers);
+            closeFormModalDirect();
+        }
+
+        function openTopicModal() { document.getElementById('topicModal').style.display = 'flex'; }
+        function closeTopicModalEvent(e) { if (e.target.id === 'topicModal') closeTopicModalDirect(); }
+        function closeTopicModalDirect() { document.getElementById('topicModal').style.display = 'none'; }
+
+        function saveNewTopic(e) {
+            e.preventDefault();
+            let author = document.getElementById('t-author').value;
+            let category = document.getElementById('t-category').value;
+            let title = document.getElementById('t-title').value;
+            let text = document.getElementById('t-text').value;
+
+            let newTop = {
+                id: Date.now(),
+                author, category, title, text,
+                date: new Date().toLocaleDateString(),
+                replies: []
+            };
+
+            forumTopics.unshift(newTop);
+            saveTopics();
+            renderForumTopics();
+            closeTopicModalDirect();
+        }
+
+        function openTopicView(id) {
+            let top = forumTopics.find(t => t.id === id);
+            if (!top) return;
+
+            let bodyBox = document.getElementById('topicViewBody');
+            let repliesHtml = top.replies.map(r => `
+                <div style="background: #0d1117; padding: 10px; border-radius: 6px; margin-top: 8px; border: 1px solid #30363d;">
+                    <p style="font-size: 12px; color: #58a6ff; margin: 0 0 4px 0;"><strong>${r.author}</strong> (${r.date})</p>
+                    <p style="font-size: 13px; margin: 0;">${r.text}</p>
+                </div>
+            `).join('');
+
+            bodyBox.innerHTML = `
+                <h3 style="color: #58a6ff; margin-top: 0;">${top.title}</h3>
+                <p style="font-size: 12px; color: #8b949e;">Автор: <strong>${top.author}</strong> | Дата: ${top.date} | Категория: ${top.category}</p>
+                <div style="background: #0d1117; padding: 12px; border-radius: 6px; margin: 12px 0; border: 1px solid #30363d;">
+                    <p style="margin: 0; font-size: 14px;">${top.text}</p>
+                </div>
+                <h4 style="margin: 15px 0 8px 0; color: #c9d1d9;">Ответы (${top.replies.length}):</h4>
+                <div style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;">${repliesHtml || '<p style="color: #8b949e; font-size: 13px;">Пока нет ответов.</p>'}</div>
+                <form onsubmit="addReply(event, ${top.id})">
+                    <div class="form-group">
+                        <input type="text" id="rep-author" required placeholder="Ваш ник..." maxlength="20" style="margin-bottom: 6px;">
+                        <textarea id="rep-text" rows="2" required placeholder="Ваш ответ..."></textarea>
+                    </div>
+                    <button type="submit" class="form-btn-save" style="margin-top: 5px;">Отправить ответ</button>
+                </form>
+            `;
+            document.getElementById('topicViewModal').style.display = 'flex';
+        }
+
+        function closeTopicViewEvent(e) { if (e.target.id === 'topicViewModal') closeTopicViewDirect(); }
+        function closeTopicViewDirect() { document.getElementById('topicViewModal').style.display = 'none'; }
+
+        function addReply(e, topicId) {
+            e.preventDefault();
+            let author = document.getElementById('rep-author').value;
+            let text = document.getElementById('rep-text').value;
+            let top = forumTopics.find(t => t.id === topicId);
+            if (top) {
+                top.replies.push({ id: Date.now(), author, text, date: new Date().toLocaleDateString() });
+                saveTopics();
+                openTopicView(topicId);
+            }
+        }
+
+        function openDatabaseModal() { document.getElementById('databaseModal').style.display = 'flex'; }
+        function closeDatabaseModalEvent(e) { if (e.target.id === 'databaseModal') closeDatabaseModalDirect(); }
+        function closeDatabaseModalDirect() { document.getElementById('databaseModal').style.display = 'none'; }
+
+        function fetchServerFromApi(manual = false) {
+            if (manual) alert("API симуляция: Данные серверов успешно обновлены!");
+        }
+
+        function manageTop() {
+            let name = prompt("Введите ник игрока для топ-20 PvP:");
+            if (!name) return;
+            let kit = prompt("Введите кит (например: Crystal, Pot, SMP):", "Crystal");
+            let tier = prompt("Введите тир (например: HT1, LT1, HT2):", "HT1");
+            
+            let found = pvpLeaders.find(p => p.name.toLowerCase() === name.toLowerCase());
+            if (found) {
+                found.tiers.push({ kit, tier });
+            } else {
+                if (pvpLeaders.length >= 20) pvpLeaders.pop();
+                pvpLeaders.push({ rank: pvpLeaders.length + 1, name, tiers: [{ kit, tier }] });
+            }
+            localStorage.setItem('saved_leaders', JSON.stringify(pvpLeaders));
+            renderLeaderboard();
+            alert("Топ PvP успешно обновлен!");
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            if (currentLang === 'en') {
+                document.getElementById('main-title').textContent = "🌸 World Minecraft Server Monitoring";
+                document.getElementById('main-subtitle').textContent = "Monitoring, versions, community forum and top-20 PvP players";
+                document.getElementById('btn-reset-text').textContent = "Reset filters (Show all)";
+                document.getElementById('regions-label').textContent = "Regions:";
+            } else {
+                document.getElementById('main-title').textContent = "🌸 Мировой мониторинг серверов Minecraft";
+                document.getElementById('main-subtitle').textContent = "Мониторинг, версии, форум сообщества и топ-20 PvP бойцов";
+                document.getElementById('btn-reset-text').textContent = "Сбросить фильтры (Показать все)";
+                document.getElementById('regions-label').textContent = "Регионы:";
+            }
+        }
+
+        // Первичный запуск отрисовки
+        renderServers(allServers);
+        renderLeaderboard();
     </script>
 </body>
 </html>
