@@ -75,7 +75,6 @@
         .btn:hover { background-color: #30363d; border-color: #8b949e; }
         .btn-primary { background-color: #238636; color: white; border-color: #2ea043; }
         .btn-primary:hover { background-color: #2ea043; }
-        .btn.active { background-color: var(--accent-blue); color: #0d1117; font-weight: bold; border-color: var(--accent-blue); }
 
         .filters-panel {
             background: var(--card-bg);
@@ -131,7 +130,6 @@
         .rating-star { color: #e3b341; font-weight: bold; }
         p.desc { margin: 8px 0; font-size: 13px; color: var(--text-muted); }
 
-        /* Плашка-подсказка для новичков прямо на карточке */
         .beginner-hint {
             background: rgba(88, 166, 255, 0.08);
             border: 1px dashed var(--accent-blue);
@@ -203,6 +201,7 @@
                     <button class="btn" onclick="filterByMode('BedWars')">🛏️ BedWars</button>
                     <button class="btn" onclick="filterByMode('Выживание')">🌲 Выживание</button>
                     <button class="btn" onclick="filterByMode('Скайблок')">☁️ Скайблок</button>
+                    <button class="btn" onclick="filterByMode('PvP')">⚔️ PvP</button>
                     <button class="btn" style="background: #30363d; border-color: var(--accent-pink); color: var(--accent-pink);" onclick="resetFilters()">🔄 Сбросить</button>
                 </div>
             </div>
@@ -290,88 +289,34 @@
             }
         }
 
-        // Ровно 4 главных сервера с подсказками для новичков прямо на карточках
+        // База из более чем 25 серверов с понятными подсказками для новичков
         let serversData = [
-            {
-                id: 1,
-                name: "FunTime",
-                ip: "play.funtime.su",
-                version: "1.16 - 1.20+",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Анархия",
-                beginnerHint: "💡 Для новичков: здесь нет защиты территории (приватов) и почти нет правил. Будьте готовы строить скрытые базы и сражаться с кланами.",
-                status: "🟢 Работает",
-                vip: true,
-                online: 4280,
-                maxOnline: 5000,
-                rating: 4.9,
-                wipe: "Каждые 30 дней",
-                discord: "https://discord.gg/funtime",
-                store: "https://funtime.su/shop",
-                desc: "Крупнейший сервер анархии с кланами, аукционом и кастомными предметами.",
-                history: [3800, 3950, 4100, 4200, 4280]
-            },
-            {
-                id: 2,
-                name: "Hypixel Network",
-                ip: "mc.hypixel.net",
-                version: "1.8 - 1.20",
-                region: "США",
-                flag: "🇺🇸",
-                mode: "BedWars",
-                beginnerHint: "💡 Для новичков: командная мини-игра. Ваша цель — защитить свою кровать на острове и сломать чужие, покупая броню и мечи за ресурсы.",
-                status: "🟢 Работает",
-                vip: false,
-                online: 45200,
-                maxOnline: 60000,
-                rating: 5.0,
-                wipe: "Никогда",
-                discord: "https://discord.gg/hypixel",
-                store: "https://store.hypixel.net",
-                desc: "Легендарный мировой проект с мини-играми BedWars, SkyWars и огромным онлайном.",
-                history: [42000, 43500, 44000, 44800, 45200]
-            },
-            {
-                id: 3,
-                name: "VanillaLand",
-                ip: "play.vanillaland.ru",
-                version: "1.20 - 1.21",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Выживание",
-                beginnerHint: "💡 Для новичков: классическое спокойное выживание с защитой ресурсов (приватами), экономикой и возможностью строить города вместе с другими.",
-                status: "🟢 Работает",
-                vip: false,
-                online: 980,
-                maxOnline: 1500,
-                rating: 4.7,
-                wipe: "Никогда",
-                discord: "https://discord.gg/",
-                store: "https://",
-                desc: "Уютное выживание без вайпов мира, с адекватной администрацией и честной экономикой.",
-                history: [850, 900, 930, 950, 980]
-            },
-            {
-                id: 4,
-                name: "SkyTime",
-                ip: "play.skytime.su",
-                version: "1.12 - 1.19",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Скайблок",
-                beginnerHint: "💡 Для новичков: вы появляетесь на крошечном летающем острове в пустоте. Развивайте остров, добывайте ресурсы с генератора и торгуйте на аукционе.",
-                status: "🟢 Работает",
-                vip: true,
-                online: 1420,
-                maxOnline: 2000,
-                rating: 4.8,
-                wipe: "Каждые 3 месяца",
-                discord: "https://discord.gg/skytime",
-                store: "https://skytime.su",
-                desc: "Популярный Скайблок с прокачкой островов, боссами, уникальными квестами и магазином.",
-                history: [1200, 1300, 1350, 1400, 1420]
-            }
+            { id: 1, name: "FunTime", ip: "play.funtime.su", version: "1.16 - 1.20+", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: здесь нет защиты территории (приватов) и почти нет правил. Стройте скрытые базы.", status: "🟢 Работает", vip: true, online: 4280, maxOnline: 5000, rating: 4.9, desc: "Крупнейший сервер анархии с кланами, аукционом и кастомными предметами.", history: [3800, 3950, 4100, 4200, 4280] },
+            { id: 2, name: "HolyWorld", ip: "mc.holyworld.ru", version: "1.16 - 1.21", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: анархичный проект с дюп-зонами, ивентами и жестким выживанием без приватов.", status: "🟢 Работает", vip: true, online: 3150, maxOnline: 4000, rating: 4.8, desc: "Популярный проект с частыми вайпами, клановыми войнами и кастомными кейсами.", history: [2900, 3050, 3100, 3120, 3150] },
+            { id: 3, name: "Hypixel Network", ip: "mc.hypixel.net", version: "1.8 - 1.20", region: "США", flag: "🇺🇸", mode: "BedWars", beginnerHint: "💡 Для новичков: командная мини-игра. Защищайте свою кровать и ломайте вражеские.", status: "🟢 Работает", vip: false, online: 45200, maxOnline: 60000, rating: 5.0, desc: "Легендарный мировой проект с мини-играми BedWars, SkyWars и огромным онлайном.", history: [42000, 43500, 44000, 44800, 45200] },
+            { id: 4, name: "VanillaLand", ip: "play.vanillaland.ru", version: "1.20 - 1.21", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: спокойное выживание с защитой ресурсов (приватами) и экономикой.", status: "🟢 Работает", vip: false, online: 980, maxOnline: 1500, rating: 4.7, desc: "Уютное выживание без вайпов мира, с адекватной администрацией.", history: [850, 900, 930, 950, 980] },
+            { id: 5, name: "SkyTime", ip: "play.skytime.su", version: "1.12 - 1.19", region: "СНГ", flag: "🇷🇺", mode: "Скайблок", beginnerHint: "💡 Для новичков: вы развиваетесь на маленьком летающем острове в пустоте.", status: "🟢 Работает", vip: true, online: 1420, maxOnline: 2000, rating: 4.8, desc: "Популярный Скайблок с прокачкой островов, боссами и квестами.", history: [1200, 1300, 1350, 1400, 1420] },
+            { id: 6, name: "ReallyWorld", ip: "play.reallyworld.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: классическая анархия с работами, кланами и регулярными вайпами.", status: "🟢 Работает", vip: true, online: 2890, maxOnline: 3500, rating: 4.8, desc: "Один из топ проектов с кастомными кейсами и активным комьюнити.", history: [2500, 2650, 2750, 2800, 2890] },
+            { id: 7, name: "MatrixPvP", ip: "play.matrixpvp.net", version: "1.12 - 1.20", region: "Европа", flag: "🇪🇺", mode: "PvP", beginnerHint: "💡 Для новичков: тренируйте сражения, дуэли 1v1 и CrystalPVP.", status: "🟢 Работает", vip: false, online: 840, maxOnline: 1500, rating: 4.6, desc: "Хардкорные PvP тренировки и турниры с денежными призами.", history: [750, 800, 820, 830, 840] },
+            { id: 8, name: "CubeCraft", ip: "play.cubecraft.net", version: "1.9 - 1.20", region: "Европа", flag: "🇪🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: популярные мини-игры и командные сражения на островах.", status: "🟢 Работает", vip: false, online: 12500, maxOnline: 20000, rating: 4.7, desc: "Международный сервер с огромным выбором аркадных режимов.", history: [11000, 11500, 12000, 12200, 12500] },
+            { id: 9, name: "Mineland", ip: "join.mineland.net", version: "1.12 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: множество мини-режимов, выживание и творческий мир.", status: "🟢 Работает", vip: false, online: 3400, maxOnline: 5000, rating: 4.5, desc: "Многорежимный проект с кастомными плагинами и ивентами.", history: [3100, 3200, 3300, 3350, 3400] },
+            { id: 10, name: "MST Network", ip: "mc.mstnetwork.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Скайблок", beginnerHint: "💡 For beginners: прокачка острова и кастомный выживательный геймплей.", status: "🟢 Работает", vip: false, online: 1120, maxOnline: 2000, rating: 4.6, desc: "Качественные режимы Скайблок и Анархия с уникальной экономикой.", history: [1000, 1050, 1080, 1100, 1120] },
+            { id: 11, name: "GriefLand", ip: "play.griefland.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: жесткое выживание с грифером и рейдами баз.", status: "🟢 Работает", vip: false, online: 1540, maxOnline: 2500, rating: 4.4, desc: "Анархия для любителей хардкорных баталий.", history: [1400, 1450, 1500, 1520, 1540] },
+            { id: 12, name: "VimeWorld", ip: "mc.vimeworld.com", version: "1.8", region: "СНГ", flag: "🇷🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: классические мини-игры на версии 1.8 с огромным онлайном.", status: "🟢 Работает", vip: true, online: 8900, maxOnline: 12000, rating: 4.9, desc: "Легендарная платформа мини-игр с уникальным античитом.", history: [8200, 8500, 8700, 8800, 8900] },
+            { id: 13, name: "SurvivalMania", ip: "play.survivalmania.ru", version: "1.14 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: классика выживания с кланами и работами.", status: "🟢 Работает", vip: false, online: 760, maxOnline: 1200, rating: 4.3, desc: "Уютный сервер с классическими правилами.", history: [700, 720, 740, 750, 760] },
+            { id: 14, name: "CosmicPvP", ip: "play.cosmicpvp.me", version: "1.12 - 1.19", region: "США", flag: "🇺🇸", mode: "PvP", beginnerHint: "💡 Для новичков: кастомные зачарования, фракции и жестокие бои.", status: "🟢 Работает", vip: false, online: 2100, maxOnline: 3500, rating: 4.5, desc: "Фракционный PvP сервер со множеством уникальных механик.", history: [1900, 2000, 2050, 2080, 2100] },
+            { id: 15, name: "AresMC", ip: "play.aresmc.net", version: "1.16 - 1.20", region: "Европа", flag: "🇪🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: анархия без правил в европейском регионе.", status: "🟢 Работает", vip: false, online: 920, maxOnline: 1500, rating: 4.2, desc: "Быстрый сервер с кастомными крафтами.", history: [850, 880, 900, 910, 920] },
+            { id: 16, name: "GalaxyCraft", ip: "play.galaxycraft.su", version: "1.12 - 1.16", region: "СНГ", flag: "🇷🇺", mode: "Скайблок", beginnerHint: "💡 Для новичков: космический Скайблок с модами и квестами.", status: "🟢 Работает", vip: false, online: 650, maxOnline: 1000, rating: 4.4, desc: "Уникальный скайблок с космической тематикой.", history: [600, 620, 630, 640, 650] },
+            { id: 17, name: "StormPvP", ip: "play.stormpvp.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "PvP", beginnerHint: "💡 Для новичков: тренировки комбо, дуэли и быстрые матчи.", status: "🟢 Работает", vip: false, online: 480, maxOnline: 800, rating: 4.1, desc: "Сервер для любителей динамичного PvP.", history: [450, 460, 470, 475, 480] },
+            { id: 18, name: "DraftCraft", ip: "play.draftcraft.ru", version: "1.18 - 1.21", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: ванильное выживание на последних версиях игры.", status: "🟢 Работает", vip: false, online: 530, maxOnline: 1000, rating: 4.5, desc: "Чистое выживание без приватов по веревочкам и грифа.", history: [500, 510, 520, 525, 530] },
+            { id: 19, name: "RedesSky", ip: "play.redessky.com", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: популярные мини-игры и быстрый поиск команд.", status: "🟢 Работает", vip: false, online: 4100, maxOnline: 6000, rating: 4.7, desc: "Зарубежный аналог мини-игр с отличным пингом.", history: [3900, 4000, 4050, 4080, 4100] },
+            { id: 20, name: "SimpleSurvival", ip: "play.simplesurvival.org", version: "1.19 - 1.21", region: "США", flag: "🇺🇸", mode: "Выживание", beginnerHint: "💡 Для новичков: простое и понятное выживание с защитой привата.", status: "🟢 Работает", vip: false, online: 1650, maxOnline: 2500, rating: 4.6, desc: "Международный классический сервер выживания.", history: [1500, 1580, 1600, 1620, 1650] },
+            { id: 21, name: "AnarchyWorld", ip: "play.anarchyworld.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия",:", beginnerHint: "💡 Для новичков: жесткий мир без правил, читеров банят автоматически.", status: "🟢 Работает", vip: false, online: 1190, maxOnline: 2000, rating: 4.3, desc: "Классическая анархия для хардкорных игроков.", history: [1100, 1130, 1160, 1180, 1190] },
+            { id: 22, name: "SkyBlock.net", ip: "play.skyblock.net", version: "1.12 - 1.20", region: "США", flag: "🇺🇸", mode: "Скайблок", beginnerHint: "💡 Для новичков: прародитель всех скайблок серверов мира.", status: "🟢 Работает", vip: false, online: 890, maxOnline: 1500, rating: 4.4, desc: "Классический оригинальный SkyBlock.", history: [820, 850, 870, 880, 890] },
+            { id: 23, name: "PvPLegends", ip: "play.pvplegends.com", version: "1.8 - 1.20", region: "Европа", flag: "🇪🇺", mode: "PvP", beginnerHint: "💡 Для новичков: арены, тренировка стрельбы из лука и мечей.", status: "🟢 Работает", vip: false, online: 720, maxOnline: 1200, rating: 4.5, desc: "Современные PvP арены и рейтинговые матчи.", history: [680, 700, 710, 715, 720] },
+            { id: 24, name: "PixelBlock", ip: "play.pixelblock.ru", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "BedWars", beginnerHint: "💡 Для новичков: мини-игры и быстрые командные баталии.", status: "🟢 Работает", vip: false, online: 540, maxOnline: 1000, rating: 4.2, desc: "Удобный мини-игровой сервер для СНГ.", history: [500, 520, 530, 535, 540] },
+            { id: 25, name: "HardcoreMC", ip: "play.hardcore.su", version: "1.20", region: "СНГ", flag: "🇷🇺", mode: "Выживание", beginnerHint: "💡 Для новичков: одна жизнь на сервере, бан при смерти на 24 часа.", status: "🟢 Работает", vip: false, online: 310, maxOnline: 500, rating: 4.7, desc: "Суровое хардкорное выживание для опытных.", history: [280, 295, 305, 308, 310] },
+            { id: 26, name: "NexusAnarchy", ip: "play.nexus.su", version: "1.16 - 1.20", region: "СНГ", flag: "🇷🇺", mode: "Анархия", beginnerHint: "💡 Для новичков: динамичная анархия с частыми бонусами для новичков.", status: "🟢 Работает", vip: false, online: 1820, maxOnline: 2500, rating: 4.6, desc: "Сервер сбалансированной анархии и кланов.", history: [1700, 1750, 1790, 1800, 1820] }
         ];
 
         let tierListData = [
@@ -427,7 +372,6 @@
                     <p style="color: var(--text-muted); font-size: 13px; margin: 6px 0;">IP: <code style="color: var(--accent-blue); cursor: pointer;" onclick="copyIp('${s.ip}')">${s.ip}</code></p>
                     <p class="desc">${s.desc}</p>
                     
-                    <!-- Сразу видимая подсказка для новичков -->
                     <div class="beginner-hint">${s.beginnerHint}</div>
 
                     <div class="header-flex" style="margin-top: 10px; margin-bottom: 0; font-size: 12px; color: var(--text-muted);">
@@ -561,12 +505,12 @@
             const beginnerHint = "💡 Для новичков: " + document.getElementById('f-hint').value;
             const desc = document.getElementById('f-desc').value;
 
-            serversData.push({
+            serversData.unshift({
                 id: Date.now(),
                 name, ip, version: "1.20", region: "СНГ", flag: "🇷🇺",
                 mode, beginnerHint, status: "🟢 Работает", vip: false,
-                online: 500, maxOnline: 1000, rating: 4.5, wipe: "Раз в месяц",
-                discord: "#", store: "#", desc, history: [300, 400, 500]
+                online: 500, maxOnline: 1000, rating: 4.5,
+                desc, history: [300, 400, 500]
             });
             closeFormModalDirect();
             renderServers();
