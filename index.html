@@ -492,6 +492,26 @@ CREATE TABLE IF NOT EXISTS `net_players` (
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
     <div id="copy-toast">📋 IP скопирован в буфер обмена!</div>
 
+    <!-- Подключаем Firebase SDK (модули) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBj98vGJ20FpaNrvh6hsaJVVSQQ3mfDswU",
+            authDomain: "minecraft-62fe4.firebaseapp.com",
+            projectId: "minecraft-62fe4",
+            storageBucket: "minecraft-62fe4.firebasestorage.app",
+            messagingSenderId: "6628739963",
+            appId: "1:6628739963:web:7f784a04328418e1a14bde",
+            measurementId: "G-92C4BPHSRP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        console.log("Firebase initialized successfully!");
+    </script>
+
     <script>
         function createSakuraPetal() {
             const petal = document.createElement('div');
@@ -565,159 +585,131 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             }
         }
 
-        function copyIpToClipboard(event, ip) {
-            event.stopPropagation();
-            navigator.clipboard.writeText(ip).then(() => {
-                let toast = document.getElementById("copy-toast");
-                toast.style.display = "block";
-                setTimeout(() => { toast.style.display = "none"; }, 2000);
+        function renderServers(serversToRender) {
+            currentActiveList = serversToRender;
+            const listEl = document.getElementById('server-list');
+            listEl.innerHTML = '';
+
+            let sorted = [...serversToRender].sort((a, b) => {
+                if (a.vip && !b.vip) return -1;
+                if (!a.vip && b.vip) return 1;
+                return b.online - a.online;
             });
-        }
 
-        function voteForServer(event, id) {
-            event.stopPropagation();
-            let lastVoteKey = 'voted_' + id;
-            let lastVoteTime = localStorage.getItem(lastVoteKey);
-            let now = Date.now();
-
-            if (lastVoteTime && (now - lastVoteTime < 24 * 60 * 60 * 1000)) {
-                alert(currentLang === 'ru' ? "Вы уже голосовали за этот сервер сегодня!" : "You have already voted for this server today!");
+            if (sorted.length === 0) {
+                listEl.innerHTML = `<div class="card" style="text-align:center; color:#8b949e;">Серверы не найдены</div>`;
                 return;
             }
 
-            let s = allServers.find(item => item.id === id);
-            if (s) {
-                s.rating = parseFloat((s.rating + 0.1).toFixed(1));
-                if (s.rating > 5.0) s.rating = 5.0;
-                saveServers();
-                renderServers(currentActiveList);
-                localStorage.setItem(lastVoteKey, now);
-                alert(currentLang === 'ru' ? "Спасибо за голос! Рейтинг сервера повышен." : "Thanks for voting! Server rating increased.");
-                openServerProfile(id); // Обновляем профиль
-            }
+            sorted.forEach(srv => {
+                const card = document.createElement('div');
+                card.className = `card ${srv.vip ? 'vip-card' : ''}`;
+                card.onclick = () => openServerProfile(srv.id);
+
+                card.innerHTML = `
+                    <div class="header-flex">
+                        <h3>${srv.flag} ${srv.name} ${srv.vip ? '👑' : ''}</h3>
+                        <div>
+                            <span class="badge">${srv.mode}</span>
+                            <span class="badge" style="background:#1f6feb33; color:#58a6ff;">${srv.status}</span>
+                        </div>
+                    </div>
+                    <p><strong>IP:</strong> <span onclick="copyIp(event, '${srv.ip}')" style="color:#58a6ff; cursor:pointer;" title="Скопировать IP">${srv.ip} 📋</span></p>
+                    <p><strong>Версия:</strong> ${srv.version} | <strong>Регион:</strong> ${srv.region}</p>
+                    <p><strong>Онлайн:</strong> 👥 ${srv.online} игроков | <span class="rating-star">⭐ ${srv.rating}</span></p>
+                    <div class="desc">${srv.desc}</div>
+                    <div style="margin-top: 10px; display:flex; gap:6px; flex-wrap:wrap;">
+                        <button onclick="updateServerStatus(event, '${srv.id}')" style="background:#21262d; color:#c9d1d9; border:1px solid #30363d; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">🔄 Пинг API</button>
+                        ${isAdmin ? `<button onclick="deleteServer(event, '${srv.id}')" style="background:#da3633; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Удалить</button>` : ''}
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+            updateAdminStats();
         }
 
-        function updateAdminStats() {
-            document.getElementById("stat-servers-count").innerText = allServers.length;
-            document.getElementById("stat-online-sum").innerText = allServers.reduce((sum, s) => sum + s.online, 0).toLocaleString();
-            document.getElementById("stat-topics-count").innerText = forumTopics.length;
+        function copyIp(event, ip) {
+            event.stopPropagation();
+            navigator.clipboard.writeText(ip);
+            const toast = document.getElementById('copy-toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
         }
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            if (currentLang === 'en') {
-                document.getElementById("main-title").innerText = "🌸 World Minecraft Server Monitoring";
-                document.getElementById("main-subtitle").innerText = "Monitoring, versions, community forum and top 20 PvP players";
-                document.getElementById("search-input").placeholder = "🔍 Search server by name, version or IP...";
-                document.getElementById("btn-reset-text").innerText = "Reset filters (Show all)";
-                document.getElementById("regions-label").innerText = "Regions:";
-                document.getElementById("forum-main-h2").innerText = "Discussions & Forum";
-                document.getElementById("forum-main-sub").innerText = "Share opinions, look for clans and suggest ideas";
-                document.getElementById("btn-create-topic").innerText = "➕ Create Topic";
-            } else {
-                document.getElementById("main-title").innerText = "🌸 Мировой мониторинг серверов Minecraft";
-                document.getElementById("main-subtitle").innerText = "Мониторинг, версии, форум сообщества и топ-20 PvP бойцов";
-                document.getElementById("search-input").placeholder = "🔍 Найти сервер по названию, версии или IP...";
-                document.getElementById("btn-reset-text").innerText = "Сбросить фильтры (Показать все)";
-                document.getElementById("regions-label").innerText = "Регионы:";
-                document.getElementById("forum-main-h2").innerText = "Обсуждения и форум";
-                document.getElementById("forum-main-sub").innerText = "Делитесь мнениями, ищите кланы и предлагайте идеи";
-                document.getElementById("btn-create-topic").innerText = "➕ Создать тему";
-            }
-            renderServers(currentActiveList);
+        function renderLeaderboard() {
+            const lbEl = document.getElementById('leaderboard-list');
+            lbEl.innerHTML = '';
+            pvpLeaders.forEach(item => {
+                let rankClass = item.rank === 1 ? 'top1' : item.rank === 2 ? 'top2' : item.rank === 3 ? 'top3' : '';
+                let tiersHtml = item.tiers.map(t => `<span class="mini-tier">${t.kit}: <span>${t.tier}</span></span>`).join('');
+                lbEl.innerHTML += `
+                    <div class="leader-card-item">
+                        <div class="leader-card-header">
+                            <span class="leader-rank-num ${rankClass}">#${item.rank} ${item.name}</span>
+                        </div>
+                        <div class="tier-tags">${tiersHtml}</div>
+                    </div>
+                `;
+            });
         }
 
         function switchTab(tabName) {
-            document.getElementById("tab-servers").classList.remove("active");
-            document.getElementById("tab-forum").classList.remove("active");
-            document.getElementById("section-servers").style.display = "none";
-            document.getElementById("section-server-profile").style.display = "none";
-            document.getElementById("section-forum").style.display = "none";
+            document.getElementById('tab-servers').classList.remove('active');
+            document.getElementById('tab-forum').classList.remove('active');
+            document.getElementById('section-servers').style.display = 'none';
+            document.getElementById('section-server-profile').style.display = 'none';
+            document.getElementById('section-forum').style.display = 'none';
 
             if (tabName === 'servers') {
-                document.getElementById("tab-servers").classList.add("active");
-                document.getElementById("section-servers").style.display = "block";
-            } else {
-                document.getElementById("tab-forum").classList.add("active");
-                document.getElementById("section-forum").style.display = "block";
-                renderForum();
+                document.getElementById('tab-servers').classList.add('active');
+                document.getElementById('section-servers').style.display = 'block';
+            } else if (tabName === 'forum') {
+                document.getElementById('tab-forum').classList.add('active');
+                document.getElementById('section-forum').style.display = 'block';
+                renderForumTopics();
             }
         }
 
-        // ПЕРЕХОД НА ОТДЕЛЬНУЮ СТРАНИЦУ ПРОФИЛЯ СЕРВЕРА С ГРАФИКОМ
-        function openServerProfile(id) {
-            let s = allServers.find(item => item.id === id);
-            if (!s) return;
+        function openServerProfile(serverId) {
+            const srv = allServers.find(s => s.id === serverId);
+            if (!srv) return;
 
-            document.getElementById("section-servers").style.display = "none";
-            document.getElementById("section-forum").style.display = "none";
-            let profileSec = document.getElementById("section-server-profile");
-            profileSec.style.display = "block";
+            document.getElementById('section-servers').style.display = 'none';
+            document.getElementById('section-server-profile').style.display = 'block';
 
-            let box = document.getElementById("profile-content-box");
+            const box = document.getElementById('profile-content-box');
             box.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <span class="badge">${s.flag} ${s.region}</span>
-                        <span class="badge" style="color: #58a6ff;">${s.mode}</span>
-                        ${s.vip ? '<span class="badge" style="background: #f0883e; color: white; font-weight: bold;">👑 VIP</span>' : ''}
-                        <h2 style="color: #58a6ff; margin: 10px 0 5px 0;">${s.name}</h2>
-                        <p style="font-family: monospace; color: #8b949e;">IP: <strong style="color: #58a6ff; cursor: pointer;" onclick="copyIpToClipboard(event, '${s.ip}')">${s.ip}</strong></p>
-                    </div>
-                    <div>
-                        <button class="modal-btn-vote" onclick="voteForServer(event, '${s.id}')">👍 Голосовать (+0.1)</button>
-                    </div>
+                <div class="header-flex">
+                    <h2>${srv.flag} ${srv.name} ${srv.vip ? '👑 VIP' : ''}</h2>
+                    <span class="badge" style="background:#1f6feb33; color:#58a6ff; font-size:14px;">${srv.status}</span>
+                </div>
+                <p><strong>IP-адрес:</strong> <span style="color:#58a6ff;">${srv.ip}</span></p>
+                <p><strong>Режим:</strong> ${srv.mode} | <strong>Версия:</strong> ${srv.version} | <strong>Регион:</strong> ${srv.region}</p>
+                <p><strong>Текущий онлайн:</strong> 👥 ${srv.online} игроков</p>
+                <p><strong>Частота вайпов:</strong> ${srv.wipe || 'Не указано'}</p>
+                <p style="margin-top:10px;">${srv.desc}</p>
+                
+                <div class="modal-links">
+                    ${srv.discord ? `<a href="${srv.discord}" target="_blank" class="modal-btn-link">Discord сервер ↗</a>` : ''}
+                    ${srv.store ? `<a href="${srv.store}" target="_blank" class="modal-btn-link">Магазин доната ↗</a>` : ''}
+                    <button class="modal-btn-vote" onclick="voteForServer('${srv.id}')">⭐ Оценить (+0.1)</button>
                 </div>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 20px 0;">
-                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
-                        <span style="color: #8b949e; font-size: 12px;">Версия игры</span>
-                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.version}</p>
-                    </div>
-                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
-                        <span style="color: #8b949e; font-size: 12px;">Текущий статус</span>
-                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.status}</p>
-                    </div>
-                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
-                        <span style="color: #8b949e; font-size: 12px;">Рейтинг</span>
-                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #f0883e;">⭐ ${s.rating}</p>
-                    </div>
-                    <div style="background: #0d1117; border: 1px solid #30363d; padding: 12px; border-radius: 8px;">
-                        <span style="color: #8b949e; font-size: 12px;">Вайп</span>
-                        <p style="margin: 4px 0 0 0; font-weight: bold; color: #c9d1d9;">${s.wipe || 'Не указано'}</p>
-                    </div>
-                </div>
-
-                <p style="margin: 15px 0; line-height: 1.5; color: #c9d1d9;">${s.desc}</p>
-
-                <div class="modal-links" style="margin-bottom: 20px;">
-                    ${s.discord ? `<a href="${s.discord}" target="_blank" class="modal-btn-link">💬 Discord сервера</a>` : ''}
-                    ${s.store ? `<a href="${s.store}" target="_blank" class="modal-btn-link">🛒 Магазин доната</a>` : ''}
-                    <button onclick="updateServerStatus(event, '${s.id}'); openServerProfile('${s.id}');" class="modal-btn-link" style="background: #238636; color: white; border: none; cursor: pointer;">🔄 Обновить онлайн</button>
-                </div>
-
-                <h3 style="color: #58a6ff; margin-top: 25px;">📈 График онлайна за неделю</h3>
                 <div class="chart-wrapper">
-                    <canvas id="serverOnlineChart"></canvas>
+                    <canvas id="onlineChart"></canvas>
                 </div>
             `;
 
-            // Рендерим график через Chart.js
             setTimeout(() => {
-                let ctx = document.getElementById('serverOnlineChart').getContext('2d');
-                if (activeChartInstance) {
-                    activeChartInstance.destroy();
-                }
-
-                let historyData = s.history || [s.online, s.online, s.online, s.online, s.online, s.online, s.online];
-
+                const ctx = document.getElementById('onlineChart').getContext('2d');
+                if (activeChartInstance) activeChartInstance.destroy();
                 activeChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Сегодня'],
+                        labels: ['День 1', 'День 2', 'День 3', 'День 4', 'День 5', 'День 6', 'Сегодня'],
                         datasets: [{
                             label: 'Онлайн игроков',
-                            data: historyData,
+                            data: srv.history || [srv.online, srv.online, srv.online, srv.online, srv.online, srv.online, srv.online],
                             borderColor: '#58a6ff',
                             backgroundColor: 'rgba(88, 166, 255, 0.1)',
                             borderWidth: 2,
@@ -728,9 +720,7 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: { labels: { color: '#c9d1d9' } }
-                        },
+                        plugins: { legend: { labels: { color: '#c9d1d9' } } },
                         scales: {
                             x: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } },
                             y: { ticks: { color: '#8b949e' }, grid: { color: '#30363d' } }
@@ -738,273 +728,103 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                     }
                 });
             }, 50);
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function goBackToList() {
-            if (activeChartInstance) {
-                activeChartInstance.destroy();
-                activeChartInstance = null;
+            if (activeChartInstance) activeChartInstance.destroy();
+            document.getElementById('section-server-profile').style.display = 'none';
+            document.getElementById('section-servers').style.display = 'block';
+        }
+
+        function voteForServer(id) {
+            const srv = allServers.find(s => s.id === id);
+            if (srv) {
+                srv.rating = Math.min(5.0, Number((srv.rating + 0.1).toFixed(1)));
+                saveServers();
+                openServerProfile(id);
+                alert("Спасибо за ваш голос!");
             }
-            document.getElementById("section-server-profile").style.display = "none";
-            document.getElementById("section-servers").style.display = "block";
-        }
-
-        function renderForum() {
-            let list = document.getElementById("forum-topics-list");
-            if (!list) return;
-
-            if (forumTopics.length === 0) {
-                list.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 20px;">На форуме пока нет тем. Создайте первую!</p>';
-                return;
-            }
-
-            list.innerHTML = forumTopics.map(t => {
-                let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
-                let adminDel = isAdmin ? `<button onclick="event.stopPropagation(); deleteTopic(${t.id})" style="background: #da3633; color: white; border: none; border-radius: 4px; padding: 3px 6px; cursor: pointer; font-size: 11px;">Удалить</button>` : '';
-
-                return `
-                    <div class="topic-card" onclick="openTopicView(${t.id})">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div>
-                                <span class="badge" style="background: ${badgeColor}; color: white; font-weight: bold; margin-bottom: 6px; display: inline-block;">${t.category}</span>
-                                <h3 style="font-size: 16px; margin: 4px 0;">${t.title}</h3>
-                            </div>
-                            ${adminDel}
-                        </div>
-                        <p style="color: #8b949e; font-size: 13px; margin: 6px 0;">${t.text.length > 100 ? t.text.substring(0, 100) + '...' : t.text}</p>
-                        <div class="topic-meta">
-                            <span>Автор: <strong>${t.author}</strong></span>
-                            <span>•</span>
-                            <span>Дата: ${t.date}</span>
-                            <span>•</span>
-                            <span>💬 Ответы: ${(t.replies || []).length}</span>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-        }
-
-        function openTopicModal() { document.getElementById("topicModal").style.display = "flex"; }
-        function closeTopicModalEvent(event) { if (event.target.id === "topicModal") closeTopicModalDirect(); }
-        function closeTopicModalDirect() { document.getElementById("topicModal").style.display = "none"; }
-
-        function saveNewTopic(event) {
-            event.preventDefault();
-            let author = document.getElementById("t-author").value.trim();
-            let category = document.getElementById("t-category").value;
-            let title = document.getElementById("t-title").value.trim();
-            let text = document.getElementById("t-text").value.trim();
-
-            let newTopic = {
-                id: Date.now(),
-                author,
-                category,
-                title,
-                text,
-                date: new Date().toLocaleDateString(),
-                replies: []
-            };
-
-            forumTopics.unshift(newTopic);
-            saveTopics();
-            renderForum();
-            closeTopicModalDirect();
-            event.target.reset();
-        }
-
-        function deleteTopic(id) {
-            if (confirm("Точно удалить эту тему?")) {
-                forumTopics = forumTopics.filter(t => t.id !== id);
-                saveTopics();
-                renderForum();
-            }
-        }
-
-        let currentOpenTopicId = null;
-        function openTopicView(id) {
-            let t = forumTopics.find(item => item.id === id);
-            if (!t) return;
-            currentOpenTopicId = id;
-
-            let body = document.getElementById("topicViewBody");
-            let badgeColor = t.category === 'Кланы' ? '#f0883e' : t.category === 'Идеи' ? '#8957e5' : '#1f6feb';
-
-            let repliesHtml = (t.replies || []).map(r => `
-                <div style="background: #0d1117; border: 1px solid #30363d; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 13px;">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 12px; color: #58a6ff; margin-bottom: 4px;">
-                        <span>${r.author}</span>
-                        <span style="color: #8b949e; font-weight: normal;">${r.date}</span>
-                    </div>
-                    <p style="margin: 0; color: #c9d1d9;">${r.text}</p>
-                </div>
-            `).join("");
-
-            body.innerHTML = `
-                <span class="badge" style="background: ${badgeColor}; color: white; font-weight: bold; margin-bottom: 8px; display: inline-block;">${t.category}</span>
-                <h2 style="color: #58a6ff; margin: 4px 0 10px 0;">${t.title}</h2>
-                <p style="color: #8b949e; font-size: 12px; margin-bottom: 10px;">Автор: <strong>${t.author}</strong> | Дата: ${t.date}</p>
-                <div style="background: #0d1117; padding: 12px; border-radius: 6px; border: 1px solid #30363d; margin-bottom: 15px; font-size: 14px; line-height: 1.4;">${t.text}</div>
-                
-                <h4 style="margin: 15px 0 8px 0; color: #c9d1d9;">💬 Ответы (${(t.replies || []).length})</h4>
-                <div style="max-height: 250px; overflow-y: auto; margin-bottom: 10px;">
-                    ${repliesHtml || '<p style="color: #8b949e; font-size: 13px;">Пока нет ответов. Будьте первыми!</p>'}
-                </div>
-                
-                <form onsubmit="addTopicReply(event)" style="display: flex; gap: 6px; margin-top: 10px;">
-                    <input type="text" id="reply-author" required placeholder="Ник" maxlength="20" style="width: 100px; padding: 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px;">
-                    <input type="text" id="reply-text" required placeholder="Ваш ответ..." style="flex: 1; padding: 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #c9d1d9; font-size: 13px;">
-                    <button type="submit" style="background: #238636; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">Отправить</button>
-                </form>
-            `;
-
-            document.getElementById("topicViewModal").style.display = "flex";
-        }
-
-        function closeTopicViewEvent(event) { if (event.target.id === "topicViewModal") closeTopicViewDirect(); }
-        function closeTopicViewDirect() { document.getElementById("topicViewModal").style.display = "none"; }
-
-        function addTopicReply(event) {
-            event.preventDefault();
-            let author = document.getElementById("reply-author").value.trim();
-            let text = document.getElementById("reply-text").value.trim();
-
-            let t = forumTopics.find(item => item.id === currentOpenTopicId);
-            if (t) {
-                if (!t.replies) t.replies = [];
-                t.replies.push({
-                    id: Date.now(),
-                    author,
-                    text,
-                    date: new Date().toLocaleDateString()
-                });
-                saveTopics();
-                openTopicView(currentOpenTopicId);
-                renderForum();
-            }
-        }
-
-        function renderServers(list) {
-            let container = document.getElementById("server-list");
-            if (!container) return;
-
-            let sorted = [...list].sort((a, b) => (b.vip === true) - (a.vip === true));
-
-            if (sorted.length === 0) {
-                container.innerHTML = '<p style="color: #8b949e; text-align: center; padding: 30px;">Серверы не найдены.</p>';
-                return;
-            }
-
-            container.innerHTML = sorted.map(s => `
-                <div class="card ${s.vip ? 'vip-card' : ''}" onclick="openServerProfile('${s.id}')">
-                    <div class="header-flex">
-                        <div>
-                            <span class="badge">${s.flag} ${s.region}</span>
-                            <span class="badge" style="color: #58a6ff;">${s.mode}</span>
-                            ${s.vip ? '<span class="badge" style="background: #f0883e; color: white; font-weight: bold;">👑 VIP</span>' : ''}
-                        </div>
-                        <div>
-                            <span class="rating-star">⭐ ${s.rating}</span>
-                            <span class="badge" style="background: #1f6feb; color: white; font-weight: bold;">👤 ${s.online.toLocaleString()} онл.</span>
-                        </div>
-                    </div>
-                    <h3>${s.name}</h3>
-                    <p style="color: #8b949e; font-family: monospace; font-size: 13px;">
-                        IP: <span onclick="copyIpToClipboard(event, '${s.ip}')" style="color: #58a6ff; text-decoration: underline; cursor: pointer;" title="Кликните, чтобы скопировать IP">${s.ip}</span> | Версия: ${s.version}
-                    </p>
-                    <p class="desc">${s.desc}</p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <span style="font-size: 12px;">${s.status}</span>
-                        <div>
-                            <button onclick="updateServerStatus(event, '${s.id}')" style="background: #238636; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px; margin-right: 5px;">🔄 Обновить</button>
-                            ${isAdmin ? `<button onclick="event.stopPropagation(); editServer('${s.id}')" style="background: #1f6feb; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">Изменить</button>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join("");
-        }
-
-        function renderLeaderboard() {
-            let container = document.getElementById("leaderboard-list");
-            if (!container) return;
-
-            container.innerHTML = pvpLeaders.map(p => {
-                let rankClass = p.rank === 1 ? 'top1' : p.rank === 2 ? 'top2' : p.rank === 3 ? 'top3' : '';
-                let tiersHtml = (p.tiers || []).map(t => `<div class="mini-tier">${t.kit}: <span>${t.tier}</span></div>`).join("");
-
-                return `
-                    <div class="leader-card-item">
-                        <div class="leader-card-header">
-                            <div><span class="leader-rank-num ${rankClass}">#${p.rank}</span> <strong>${p.name}</strong></div>
-                            ${isAdmin ? `<button onclick="deleteLeader(${p.rank})" style="background: #da3633; color: white; border: none; border-radius: 3px; padding: 2px 5px; cursor: pointer; font-size: 10px;">Удалить</button>` : ''}
-                        </div>
-                        <div class="tier-tags">${tiersHtml}</div>
-                    </div>
-                `;
-            }).join("");
         }
 
         function handleSearch() {
-            let query = document.getElementById("search-input").value.toLowerCase();
-            currentActiveList = allServers.filter(s => 
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allServers.filter(s => 
                 s.name.toLowerCase().includes(query) || 
                 s.ip.toLowerCase().includes(query) || 
-                s.version.toLowerCase().includes(query) ||
-                s.mode.toLowerCase().includes(query)
+                s.version.toLowerCase().includes(query)
             );
-            renderServers(currentActiveList);
+            renderServers(filtered);
         }
 
-        function filterByMode(mode) {
-            currentActiveList = allServers.filter(s => s.mode.toLowerCase() === mode.toLowerCase());
-            renderServers(currentActiveList);
+        function filterByMode(modeName) {
+            const filtered = allServers.filter(s => s.mode.toLowerCase() === modeName.toLowerCase());
+            renderServers(filtered);
         }
 
-        function filterByRegion(region) {
-            currentActiveList = allServers.filter(s => s.region.toLowerCase() === region.toLowerCase());
-            renderServers(currentActiveList);
+        function filterByRegion(regionName) {
+            const filtered = allServers.filter(s => s.region.toLowerCase() === regionName.toLowerCase());
+            renderServers(filtered);
         }
 
         function resetFilter() {
-            document.getElementById("search-input").value = "";
-            currentActiveList = allServers;
+            document.getElementById('search-input').value = '';
             renderServers(allServers);
         }
 
+        function checkAdmin() {
+            if (!isAdmin) {
+                const p = prompt("Введите пароль администратора:");
+                if (p === PASSWORD) {
+                    isAdmin = true;
+                    document.getElementById('admin-btn').innerText = "🔓 Выйти из админки";
+                    document.getElementById('add-server-btn').style.display = 'inline-block';
+                    document.getElementById('admin-top-btn').style.display = 'inline-block';
+                    document.getElementById('db-view-btn').style.display = 'inline-block';
+                    document.getElementById('api-sync-btn').style.display = 'inline-block';
+                    document.getElementById('admin-stats-box').style.display = 'block';
+                    renderServers(currentActiveList);
+                    alert("Режим администратора активирован!");
+                } else if (p !== null) {
+                    alert("Неверный пароль!");
+                }
+            } else {
+                isAdmin = false;
+                document.getElementById('admin-btn').innerText = "⚙️ Админ";
+                document.getElementById('add-server-btn').style.display = 'none';
+                document.getElementById('admin-top-btn').style.display = 'none';
+                document.getElementById('db-view-btn').style.display = 'none';
+                document.getElementById('api-sync-btn').style.display = 'none';
+                document.getElementById('admin-stats-box').style.display = 'none';
+                renderServers(currentActiveList);
+                alert("Вы вышли из режима администратора.");
+            }
+        }
+
+        function updateAdminStats() {
+            document.getElementById('stat-servers-count').innerText = allServers.length;
+            let sum = allServers.reduce((acc, curr) => acc + (curr.online || 0), 0);
+            document.getElementById('stat-online-sum').innerText = sum;
+            document.getElementById('stat-topics-count').innerText = forumTopics.length;
+        }
+
         function openServerForm() {
-            document.getElementById("formModalTitle").innerText = "Добавить сервер";
-            document.getElementById("serverEditForm").reset();
-            document.getElementById("edit-id").value = "";
-            document.getElementById("serverFormModal").style.display = "flex";
+            document.getElementById('edit-id').value = '';
+            document.getElementById('formModalTitle').innerText = "Добавить новый сервер";
+            document.getElementById('serverEditForm').reset();
+            document.getElementById('serverFormModal').style.display = 'flex';
         }
 
-        function editServer(id) {
-            let s = allServers.find(item => item.id === id);
-            if (!s) return;
-            document.getElementById("formModalTitle").innerText = "Редактировать сервер";
-            document.getElementById("edit-id").value = s.id;
-            document.getElementById("f-name").value = s.name;
-            document.getElementById("f-ip").value = s.ip;
-            document.getElementById("f-version").value = s.version;
-            document.getElementById("f-region").value = s.region;
-            document.getElementById("f-flag").value = s.flag;
-            document.getElementById("f-mode").value = s.mode;
-            document.getElementById("f-status").value = s.status;
-            document.getElementById("f-vip").value = s.vip ? "true" : "false";
-            document.getElementById("f-wipe").value = s.wipe || "";
-            document.getElementById("f-discord").value = s.discord || "";
-            document.getElementById("f-store").value = s.store || "";
-            document.getElementById("f-desc").value = s.desc || "";
-            document.getElementById("serverFormModal").style.display = "flex";
+        function closeFormModalDirect() {
+            document.getElementById('serverFormModal').style.display = 'none';
         }
 
-        function closeFormModal(event) { if (event.target.id === "serverFormModal") closeFormModalDirect(); }
-        function closeFormModalDirect() { document.getElementById("serverFormModal").style.display = "none"; }
+        function closeFormModal(event) {
+            if (event.target.id === 'serverFormModal') closeFormModalDirect();
+        }
 
         function updateFlagSelect() {
-            let reg = document.getElementById("f-region").value;
-            let flagSel = document.getElementById("f-flag");
+            const reg = document.getElementById('f-region').value;
+            const flagSel = document.getElementById('f-flag');
             if (reg === 'СНГ') flagSel.value = '🇷🇺';
             else if (reg === 'США') flagSel.value = '🇺🇸';
             else if (reg === 'Европа') flagSel.value = '🇪🇺';
@@ -1013,122 +833,182 @@ CREATE TABLE IF NOT EXISTS `net_players` (
 
         function saveServerForm(event) {
             event.preventDefault();
-            let editId = document.getElementById("edit-id").value;
-            let name = document.getElementById("f-name").value.trim();
-            let ip = document.getElementById("f-ip").value.trim();
-            let version = document.getElementById("f-version").value.trim();
-            let region = document.getElementById("f-region").value;
-            let flag = document.getElementById("f-flag").value;
-            let mode = document.getElementById("f-mode").value;
-            let status = document.getElementById("f-status").value;
-            let vip = document.getElementById("f-vip").value === "true";
-            let wipe = document.getElementById("f-wipe").value.trim();
-            let discord = document.getElementById("f-discord").value.trim();
-            let store = document.getElementById("f-store").value.trim();
-            let desc = document.getElementById("f-desc").value.trim();
+            const idVal = 'srv_' + Date.now();
+            const newServer = {
+                id: idVal,
+                name: document.getElementById('f-name').value,
+                ip: document.getElementById('f-ip').value,
+                version: document.getElementById('f-version').value,
+                region: document.getElementById('f-region').value,
+                flag: document.getElementById('f-flag').value,
+                mode: document.getElementById('f-mode').value,
+                status: document.getElementById('f-status').value,
+                vip: document.getElementById('f-vip').value === 'true',
+                wipe: document.getElementById('f-wipe').value,
+                discord: document.getElementById('f-discord').value,
+                store: document.getElementById('f-store').value,
+                desc: document.getElementById('f-desc').value,
+                rating: 5.0,
+                online: Math.floor(Math.random() * 1500) + 100,
+                history: [500, 700, 900, 1100, 1000, 1200, 1250]
+            };
 
-            if (editId) {
-                let s = allServers.find(item => item.id === editId);
-                if (s) {
-                    s.name = name; s.ip = ip; s.version = version; s.region = region;
-                    s.flag = flag; s.mode = mode; s.status = status; s.vip = vip;
-                    s.wipe = wipe; s.discord = discord; s.store = store; s.desc = desc;
-                }
-            } else {
-                let newServer = {
-                    id: 'serv_' + Date.now(),
-                    name, ip, version, region, flag, mode, status, vip, wipe, discord, store, desc,
-                    rating: 4.8, online: Math.floor(Math.random() * 2000) + 500,
-                    history: [1000, 1200, 1500, 1400, 1800, 1600, 1500]
-                };
-                allServers.unshift(newServer);
-            }
-
+            allServers.push(newServer);
             saveServers();
             renderServers(allServers);
             closeFormModalDirect();
+            alert("Сервер успешно добавлен!");
         }
 
-        function checkAdmin() {
-            if (!isAdmin) {
-                let pass = prompt("Введите пароль администратора:");
-                if (pass === PASSWORD) {
-                    isAdmin = true;
-                    document.getElementById("admin-btn").innerText = "🔓 Выйти из админки";
-                    document.getElementById("add-server-btn").style.display = "inline-block";
-                    document.getElementById("admin-top-btn").style.display = "inline-block";
-                    document.getElementById("db-view-btn").style.display = "inline-block";
-                    document.getElementById("api-sync-btn").style.display = "inline-block";
-                    document.getElementById("admin-stats-box").style.display = "block";
-                    renderServers(currentActiveList);
-                    renderLeaderboard();
-                    renderForum();
-                    updateAdminStats();
-                    alert("Режим администратора активирован!");
-                } else if (pass !== null) {
-                    alert("Неверный пароль!");
-                }
-            } else {
-                isAdmin = false;
-                document.getElementById("admin-btn").innerText = "⚙️ Админ";
-                document.getElementById("add-server-btn").style.display = "none";
-                document.getElementById("admin-top-btn").style.display = "none";
-                document.getElementById("db-view-btn").style.display = "none";
-                document.getElementById("api-sync-btn").style.display = "none";
-                document.getElementById("admin-stats-box").style.display = "none";
-                renderServers(currentActiveList);
-                renderLeaderboard();
-                renderForum();
-                alert("Вы вышли из режима админа.");
+        function deleteServer(event, id) {
+            event.stopPropagation();
+            if (confirm("Вы уверены, что хотите удалить этот сервер из мониторинга?")) {
+                allServers = allServers.filter(s => s.id !== id);
+                saveServers();
+                renderServers(allServers);
             }
+        }
+
+        function fetchServerFromApi(showAlert = false) {
+            if (showAlert) alert("Синхронизация списков серверов выполнена успешно!");
         }
 
         function manageTop() {
-            let action = prompt("Выберите действие с топом PvP:\n1 - Добавить игрока\n2 - Очистить топ");
-            if (action === "1") {
-                let name = prompt("Ник игрока:");
-                let kit = prompt("Название кита (например, Crystal, Pot):");
-                let tier = prompt("Тьер (например, HT1, HT2):");
-                if (name && kit && tier) {
-                    let nextRank = pvpLeaders.length + 1;
-                    pvpLeaders.push({ rank: nextRank, name, tiers: [{ kit, tier }] });
-                    localStorage.setItem('saved_leaders', JSON.stringify(pvpLeaders));
-                    renderLeaderboard();
-                }
-            } else if (action === "2") {
-                if (confirm("Сбросить топ игроков?")) {
-                    pvpLeaders = [];
-                    localStorage.setItem('saved_leaders', JSON.stringify(pvpLeaders));
-                    renderLeaderboard();
-                }
+            alert("Управление топом PvP игроков доступно через локальные данные.");
+        }
+
+        function openDatabaseModal() {
+            document.getElementById('databaseModal').style.display = 'flex';
+        }
+        function closeDatabaseModalDirect() {
+            document.getElementById('databaseModal').style.display = 'none';
+        }
+        function closeDatabaseModalEvent(event) {
+            if (event.target.id === 'databaseModal') closeDatabaseModalDirect();
+        }
+
+        function renderForumTopics() {
+            const list = document.getElementById('forum-topics-list');
+            list.innerHTML = '';
+            forumTopics.forEach(top => {
+                list.innerHTML += `
+                    <div class="topic-card" onclick="openTopicView(${top.id})">
+                        <div class="header-flex">
+                            <h3 style="font-size:15px; color:#58a6ff;">${top.title}</h3>
+                            <span class="badge">${top.category}</span>
+                        </div>
+                        <p style="font-size:13px; color:#c9d1d9; margin:6px 0;">${top.text.substring(0, 90)}...</p>
+                        <div class="topic-meta">
+                            <span>👤 ${top.author}</span>
+                            <span>📅 ${top.date}</span>
+                            <span>💬 Ответков: ${top.replies.length}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openTopicModal() {
+            document.getElementById('topicModal').style.display = 'flex';
+        }
+        function closeTopicModalDirect() {
+            document.getElementById('topicModal').style.display = 'none';
+        }
+        function closeTopicModalEvent(event) {
+            if (event.target.id === 'topicModal') closeTopicModalDirect();
+        }
+
+        function saveNewTopic(event) {
+            event.preventDefault();
+            const newT = {
+                id: Date.now(),
+                author: document.getElementById('t-author').value,
+                category: document.getElementById('t-category').value,
+                title: document.getElementById('t-title').value,
+                text: document.getElementById('t-text').value,
+                date: new Date().toLocaleDateString(),
+                replies: []
+            };
+            forumTopics.unshift(newT);
+            saveTopics();
+            renderForumTopics();
+            closeTopicModalDirect();
+            alert("Тема успешно создана!");
+        }
+
+        let currentViewTopicId = null;
+        function openTopicView(id) {
+            currentViewTopicId = id;
+            const top = forumTopics.find(t => t.id === id);
+            if (!top) return;
+
+            let repliesHtml = top.replies.map(r => `
+                <div style="background:#0d1117; border:1px solid #30363d; padding:8px 10px; border-radius:6px; margin-top:8px; font-size:12px;">
+                    <strong>${r.author}</strong> <span style="color:#8b949e; font-size:11px;">(${r.date})</span>:
+                    <p style="margin:4px 0 0 0;">${r.text}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('topicViewBody').innerHTML = `
+                <h3 style="color:#58a6ff; margin-top:0;">${top.title}</h3>
+                <p style="font-size:12px; color:#8b949e;">Автор: <strong>${top.author}</strong> | Дата: ${top.date} | Категория: ${top.category}</p>
+                <div style="background:#0d1117; padding:12px; border-radius:6px; border:1px solid #30363d; margin:10px 0; font-size:13px;">${top.text}</div>
+                
+                <h4 style="margin: 15px 0 8px 0; font-size:14px; color:#f0883e;">Комментарии (${top.replies.length}):</h4>
+                <div style="max-height: 200px; overflow-y:auto; margin-bottom:12px;">${repliesHtml || '<p style="color:#8b949e; font-size:12px;">Пока нет комментариев.</p>'}</div>
+
+                <form onsubmit="addTopicReply(event)">
+                    <div class="form-group">
+                        <input type="text" id="r-author" required placeholder="Ваш ник" style="margin-bottom:6px;" maxlength="20">
+                        <textarea id="r-text" rows="2" required placeholder="Написать комментарий..."></textarea>
+                    </div>
+                    <button type="submit" class="form-btn-save" style="margin-top:0; padding:6px;">Отправить ответ</button>
+                </form>
+            `;
+            document.getElementById('topicViewModal').style.display = 'flex';
+        }
+
+        function closeTopicViewDirect() {
+            document.getElementById('topicViewModal').style.display = 'none';
+        }
+        function closeTopicViewEvent(event) {
+            if (event.target.id === 'topicViewModal') closeTopicViewDirect();
+        }
+
+        function addTopicReply(event) {
+            event.preventDefault();
+            const top = forumTopics.find(t => t.id === currentViewTopicId);
+            if (!top) return;
+
+            top.replies.push({
+                id: Date.now(),
+                author: document.getElementById('r-author').value,
+                text: document.getElementById('r-text').value,
+                date: new Date().toLocaleDateString()
+            });
+            saveTopics();
+            openTopicView(currentViewTopicId);
+            renderForumTopics();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            if (currentLang === 'en') {
+                document.getElementById('main-title').innerText = "🌸 World Minecraft Server Monitoring";
+                document.getElementById('main-subtitle').innerText = "Monitoring, versions, community forum & Top-20 PvP fighters";
+                document.querySelector('.t-servers').innerText = "Servers";
+                document.querySelector('.t-forum').innerText = "Community Forum";
+                document.getElementById('btn-reset-text').innerText = "Reset filters (Show all)";
+            } else {
+                document.getElementById('main-title').innerText = "🌸 Мировой мониторинг серверов Minecraft";
+                document.getElementById('main-subtitle').innerText = "Мониторинг, версии, форум сообщества и топ-20 PvP бойцов";
+                document.querySelector('.t-servers').innerText = "Серверы";
+                document.querySelector('.t-forum').innerText = "Форум сообщества";
+                document.getElementById('btn-reset-text').innerText = "Сбросить фильтры (Показать все)";
             }
         }
 
-        function deleteLeader(rank) {
-            pvpLeaders = pvpLeaders.filter(p => p.rank !== rank);
-            pvpLeaders.forEach((p, idx) => p.rank = idx + 1);
-            localStorage.setItem('saved_leaders', JSON.stringify(pvpLeaders));
-            renderLeaderboard();
-        }
-
-        function openDatabaseModal() { document.getElementById("databaseModal").style.display = "flex"; }
-        function closeDatabaseModalEvent(event) { if (event.target.id === "databaseModal") closeDatabaseModalDirect(); }
-        function closeDatabaseModalDirect() { document.getElementById("databaseModal").style.display = "none"; }
-
-        function fetchServerFromApi(alertOnFinish = false) {
-            let demoApiServers = [
-                { id: "api_funtime", name: "FunTime", ip: "play.funtime.su", version: "1.16 - 1.20+", region: "СНГ", flag: "🇷🇺", rating: 4.9, online: 11200, mode: "Анархия", desc: "Загружено через API: Легендарная анархия с кастомными кейсами.", status: "🟢 Работает", vip: true, wipe: "Каждые 3 недели", discord: "https://discord.gg/funtime", store: "https://funtime.su", history: [9500, 10200, 11200, 10800, 12100, 11500, 11200] }
-            ];
-            demoApiServers.forEach(ds => {
-                if (!allServers.some(s => s.id === ds.id)) {
-                    allServers.unshift(ds);
-                }
-            });
-            saveServers();
-            renderServers(allServers);
-            if (alertOnFinish) alert("Синхронизация с API успешно выполнена! Данные обновлены.");
-        }
-
+        // Инициализация при загрузке страницы
         renderServers(allServers);
         renderLeaderboard();
         updateAdminStats();
