@@ -569,7 +569,6 @@
             }
         }
 
-        // Большой расширенный список серверов
         let serversData = [
             {
                 id: 1,
@@ -989,8 +988,8 @@
         }
 
         function checkAdmin() {
-            const pass = prompt("Введите пароль администратора (по умолчанию: admin2026 или 1234):");
-            if (pass === "admin2026" || pass === "1234") {
+            const pass = prompt("Введите пароль администратора:");
+            if (pass === "qwe12345tyu124") {
                 isAdmin = !isAdmin;
                 const btn = document.getElementById('admin-btn');
                 if (isAdmin) {
