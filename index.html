@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Мировой мониторинг серверов Minecraft + Профили и Графики</title>
+    <title id="page-title">Мировой мониторинг серверов Minecraft + PvP Tier List</title>
     <!-- Подключаем Chart.js для графиков -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -127,11 +127,11 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: 1fr 360px;
             gap: 25px;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 950px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
@@ -250,7 +250,7 @@
             color: var(--accent-blue);
         }
 
-        .leader-card-item {
+        .tier-item {
             background: var(--bg-color);
             border: 1px solid var(--border-color);
             padding: 10px;
@@ -258,7 +258,7 @@
             margin-bottom: 8px;
         }
 
-        .leader-card-header {
+        .tier-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -266,14 +266,14 @@
             margin-bottom: 4px;
         }
 
-        .leader-rank-num {
+        .rank-badge {
             font-weight: bold;
             padding: 1px 6px;
             border-radius: 4px;
         }
-        .top1 { background: #f0883e33; color: #f0883e; }
-        .top2 { background: #8b949e33; color: #c9d1d9; }
-        .top3 { background: #a0522d33; color: #cd7f32; }
+        .r-gm { background: #f0883e33; color: #f0883e; }
+        .r-master { background: #58a6ff33; color: #58a6ff; }
+        .r-ace { background: #3fb95033; color: #3fb950; }
 
         .modal {
             display: none;
@@ -347,7 +347,7 @@
         <header>
             <div>
                 <h1 id="main-title">🌸 Мировой мониторинг серверов Minecraft</h1>
-                <div class="subtitle" id="main-subtitle">Мониторинг, версии, форум сообщества и топ PvP бойцов</div>
+                <div class="subtitle" id="main-subtitle">Мониторинг, версии, форум сообщества и глобальный PvP Tier List</div>
             </div>
             <div class="nav-bar">
                 <button class="btn" onclick="toggleLanguage()">🌐 EN / RU</button>
@@ -386,8 +386,8 @@
 
                 <div class="sidebar">
                     <div class="sidebar-card">
-                        <h3>🏆 Топ-3 бойцов (Мстирс)</h3>
-                        <div id="leaderboard-list"></div>
+                        <h3>🏆 Мировой PvP Tier List</h3>
+                        <div id="tier-list-container"></div>
                     </div>
 
                     <div class="sidebar-card" id="admin-stats-box" style="display: none;">
@@ -414,12 +414,11 @@
         </div>
     </div>
 
-    <!-- Модальное окно добавления -->
+    <!-- Модальные окна -->
     <div class="modal" id="serverFormModal" onclick="closeFormModal(event)">
         <div class="modal-content">
-            <h3 id="formModalTitle" style="color: var(--accent-blue); margin-top: 0;">Добавить новый сервер</h3>
+            <h3 style="color: var(--accent-blue); margin-top: 0;">Добавить новый сервер</h3>
             <form id="serverEditForm" onsubmit="saveServerForm(event)">
-                <input type="hidden" id="edit-id">
                 <div style="margin-bottom: 10px;">
                     <label style="font-size: 12px; color: var(--text-muted);">Название сервера</label>
                     <input type="text" id="f-name" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" required>
@@ -453,33 +452,6 @@
                         <input type="text" id="f-flag" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="🇷🇺">
                     </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Статус</label>
-                        <input type="text" id="f-status" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="🟢 Работает">
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">VIP статус</label>
-                        <select id="f-vip" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;">
-                            <option value="false">Обычный</option>
-                            <option value="true">👑 VIP</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <label style="font-size: 12px; color: var(--text-muted);">Частота вайпов</label>
-                    <input type="text" id="f-wipe" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" value="Каждые 30 дней">
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-                    <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Ссылка на Discord</label>
-                        <input type="text" id="f-discord" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" placeholder="https://discord.gg/...">
-                    </div>
-                    <div>
-                        <label style="font-size: 12px; color: var(--text-muted);">Ссылка на Магазин</label>
-                        <input type="text" id="f-store" class="search-box" style="width: 100%; box-sizing: border-box; margin-top: 4px;" placeholder="https://...">
-                    </div>
-                </div>
                 <div style="margin-bottom: 15px;">
                     <label style="font-size: 12px; color: var(--text-muted);">Описание</label>
                     <textarea id="f-desc" class="search-box" style="width: 100%; height: 70px; box-sizing: border-box; margin-top: 4px; resize: none;" required></textarea>
@@ -492,7 +464,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно темы -->
     <div class="modal" id="topicModal" onclick="closeTopicModalEvent(event)">
         <div class="modal-content">
             <h3 style="color: var(--accent-blue); margin-top: 0;">Создать новую тему</h3>
@@ -525,16 +496,13 @@
         </div>
     </div>
 
-    <!-- Просмотр темы -->
     <div class="modal" id="topicViewModal" onclick="closeTopicViewEvent(event)">
         <div class="modal-content" id="topicViewBody"></div>
     </div>
 
-    <!-- База данных -->
     <div class="modal" id="databaseModal" onclick="closeDatabaseModalEvent(event)">
         <div class="modal-content">
             <h3 style="color: var(--accent-blue); margin-top: 0;">🗄️ Управление Базой Данных</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Прямой доступ к хранилищу серверов и форума в JSON.</p>
             <textarea readonly class="search-box" style="width: 100%; height: 180px; font-family: monospace; font-size: 12px; resize: none;" id="db-json-view"></textarea>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
                 <button type="button" class="btn" onclick="closeDatabaseModalDirect()">Закрыть</button>
@@ -548,7 +516,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             createSakuraPetals();
             renderServers();
-            renderLeaderboard();
+            renderTierList();
             renderTopics();
             updateStats();
         });
@@ -683,51 +651,20 @@
                 store: "https://reallyworld.ru",
                 desc: "Классическая анархия с кастомными кейсами, кланами, работами и регулярными масштабными вайпами.",
                 history: [2500, 2650, 2750, 2800, 2890]
-            },
-            {
-                id: 7,
-                name: "MST Network",
-                ip: "mc.mst.su",
-                version: "1.12 - 1.20",
-                region: "СНГ",
-                flag: "🇷🇺",
-                mode: "Выживание",
-                status: "🟢 Работает",
-                vip: false,
-                online: 950,
-                maxOnline: 2000,
-                rating: 4.5,
-                wipe: "Без вайпов",
-                discord: "https://discord.gg/mst",
-                store: "https://mst.su",
-                desc: "Комфортное выживание с честным донатом, приватными регионами, питомцами и работами.",
-                history: [880, 910, 930, 940, 950]
-            },
-            {
-                id: 8,
-                name: "SpookyTime",
-                ip: "play.spooky-time.net",
-                version: "1.16 - 1.20",
-                region: "Европа",
-                flag: "🇪🇺",
-                mode: "BedWars",
-                status: "🟢 Работает",
-                vip: false,
-                online: 1120,
-                maxOnline: 2500,
-                rating: 4.6,
-                wipe: "Никогда",
-                discord: "https://discord.gg/spooky",
-                store: "https://spooky-time.net",
-                desc: "Динамичные мини-игры BedWars и EggWars с кастомными картами и быстрой очередью.",
-                history: [1000, 1050, 1080, 1100, 1120]
             }
         ];
 
-        let leaderboardData = [
-            { rank: 1, name: "Дулат братан", server: "Мстирс", kdr: "18.5", kills: "22,400" },
-            { rank: 2, name: "Раян братан", server: "Мстирс", kdr: "16.2", kills: "19,850" },
-            { rank: 3, name: "Алдияр", server: "Мстирс", kdr: "15.0", kills: "18,120" }
+        let tierListData = [
+            { rank: 1, name: "Marlowww", title: "Combat Grandmaster", points: 450, region: "NA", classType: "r-gm" },
+            { rank: 2, name: "ItzRealMe", title: "Combat Master", points: 330, region: "NA", classType: "r-master" },
+            { rank: 3, name: "coldified", title: "Combat Master", points: 326, region: "EU", classType: "r-master" },
+            { rank: 4, name: "Swight", title: "Combat Master", points: 290, region: "NA", classType: "r-master" },
+            { rank: 5, name: "janekv", title: "Combat Master", points: 260, region: "EU", classType: "r-master" },
+            { rank: 6, name: "BlvckWlf", title: "Combat Ace", points: 226, region: "EU", classType: "r-ace" },
+            { rank: 6, name: "Kylaz", title: "Combat Ace", points: 226, region: "NA", classType: "r-ace" },
+            { rank: 8, name: "ninorc15", title: "Combat Ace", points: 196, region: "EU", classType: "r-ace" },
+            { rank: 9, name: "Lurrn", title: "Combat Ace", points: 186, region: "EU", classType: "r-ace" },
+            { rank: 10, name: "Arsakha", title: "Combat Ace", points: 177, region: "ME", classType: "r-ace" }
         ];
 
         let topicsData = [
@@ -820,11 +757,7 @@
                     <div class="header-flex" style="margin-top: 10px; margin-bottom: 0; font-size: 12px; color: var(--text-muted);">
                         <span>Версия: <strong style="color: var(--text-color);">${s.version}</strong></span>
                         <span>Онлайн: <strong style="color: var(--accent-green);">${s.online.toLocaleString()}</strong> / ${s.maxOnline.toLocaleString()}</span>
-                        ${isAdmin ? `
-                            <div>
-                                <button onclick="deleteServer(${s.id})" style="background: var(--accent-pink); border: none; color: white; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Удал.</button>
-                            </div>
-                        ` : ''}
+                        ${isAdmin ? `<div><button onclick="deleteServer(${s.id})" style="background: var(--accent-pink); border: none; color: white; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Удал.</button></div>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -935,21 +868,20 @@
             if (onlineChartInstance) onlineChartInstance.destroy();
         }
 
-        function renderLeaderboard() {
-            const list = document.getElementById('leaderboard-list');
+        function renderTierList() {
+            const list = document.getElementById('tier-list-container');
             list.innerHTML = '';
-            leaderboardData.forEach(player => {
-                let rankClass = player.rank === 1 ? 'top1' : (player.rank === 2 ? 'top2' : 'top3');
+            tierListData.forEach(player => {
                 const item = document.createElement('div');
-                item.className = 'leader-card-item';
+                item.className = 'tier-item';
                 item.innerHTML = `
-                    <div class="leader-card-header">
-                        <span><strong class="leader-rank-num ${rankClass}">#${player.rank}</strong> ${player.name}</span>
-                        <span style="color: var(--accent-green); font-size: 12px;">KDR: ${player.kdr}</span>
+                    <div class="tier-header">
+                        <span><strong class="rank-badge ${player.classType}">#${player.rank}</strong> <strong>${player.name}</strong></span>
+                        <span class="badge" style="background: #1f6feb22; color: var(--accent-blue);">${player.region}</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 12px;">
-                        <span>Сервер: <strong style="color: var(--accent-blue);">${player.server}</strong></span>
-                        <span>Убийств: <strong style="color: var(--text-color);">${player.kills}</strong></span>
+                    <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 12px; margin-top: 4px;">
+                        <span>${player.title}</span>
+                        <span style="color: var(--accent-green); font-weight: bold;">${player.points} pts</span>
                     </div>
                 `;
                 list.appendChild(item);
@@ -1019,12 +951,8 @@
             document.getElementById('serverFormModal').style.display = 'flex';
             document.getElementById('serverEditForm').reset();
         }
-        function closeFormModalDirect() {
-            document.getElementById('serverFormModal').style.display = 'none';
-        }
-        function closeFormModal(e) {
-            if (e.target.id === 'serverFormModal') closeFormModalDirect();
-        }
+        function closeFormModalDirect() { document.getElementById('serverFormModal').style.display = 'none'; }
+        function closeFormModal(e) { if (e.target.id === 'serverFormModal') closeFormModalDirect(); }
 
         function saveServerForm(e) {
             e.preventDefault();
@@ -1034,20 +962,20 @@
             const region = document.getElementById('f-region').value;
             const flag = document.getElementById('f-flag').value;
             const mode = document.getElementById('f-mode').value;
-            const status = document.getElementById('f-status').value;
-            const vip = document.getElementById('f-vip').value === 'true';
-            const wipe = document.getElementById('f-wipe').value;
-            const discord = document.getElementById('f-discord').value;
-            const store = document.getElementById('f-store').value;
             const desc = document.getElementById('f-desc').value;
 
             const newServer = {
                 id: Date.now(),
-                name, ip, version, region, flag, mode, status, vip,
+                name, ip, version, region, flag, mode,
+                status: "🟢 Работает",
+                vip: false,
                 online: Math.floor(Math.random() * 1000) + 200,
                 maxOnline: 3000,
                 rating: (Math.random() * 0.8 + 4.2).toFixed(1),
-                wipe, discord, store, desc,
+                wipe: "Каждые 30 дней",
+                discord: "https://discord.gg/",
+                store: "https://",
+                desc,
                 history: [150, 300, 450, 600, 800]
             };
             serversData.push(newServer);
@@ -1062,15 +990,9 @@
             }
         }
 
-        function openTopicModal() {
-            document.getElementById('topicModal').style.display = 'flex';
-        }
-        function closeTopicModalDirect() {
-            document.getElementById('topicModal').style.display = 'none';
-        }
-        function closeTopicModalEvent(e) {
-            if (e.target.id === 'topicModal') closeTopicModalDirect();
-        }
+        function openTopicModal() { document.getElementById('topicModal').style.display = 'flex'; }
+        function closeTopicModalDirect() { document.getElementById('topicModal').style.display = 'none'; }
+        function closeTopicModalEvent(e) { if (e.target.id === 'topicModal') closeTopicModalDirect(); }
 
         function saveNewTopic(e) {
             e.preventDefault();
@@ -1108,7 +1030,7 @@
 
         function openDatabaseModal() {
             document.getElementById('databaseModal').style.display = 'flex';
-            document.getElementById('db-json-view').value = JSON.stringify({ servers: serversData, leaderboard: leaderboardData, topics: topicsData }, null, 2);
+            document.getElementById('db-json-view').value = JSON.stringify({ servers: serversData, tierList: tierListData, topics: topicsData }, null, 2);
         }
         function closeDatabaseModalDirect() { document.getElementById('databaseModal').style.display = 'none'; }
         function closeDatabaseModalEvent(e) { if (e.target.id === 'databaseModal') closeDatabaseModalDirect(); }
@@ -1120,15 +1042,15 @@
         }
 
         function manageTop() {
-            alert("Топ бойцов Мстирс зафиксирован: Дулат братан (#1), Раян братан (#2), Алдияр (#3).");
+            alert("PvP Tier List успешно синхронизирован с актуальной таблицей лидеров.");
         }
 
         let isEnglish = false;
         function toggleLanguage() {
             isEnglish = !isEnglish;
-            document.getElementById('page-title').textContent = isEnglish ? "World Minecraft Server Monitoring" : "Мировой мониторинг серверов Minecraft";
+            document.getElementById('page-title').textContent = isEnglish ? "World Minecraft Server Monitoring + PvP Tiers" : "Мировой мониторинг серверов Minecraft + PvP Tier List";
             document.getElementById('main-title').textContent = isEnglish ? "🌸 World Minecraft Server Monitoring" : "🌸 Мировой мониторинг серверов Minecraft";
-            document.getElementById('main-subtitle').textContent = isEnglish ? "Monitoring, versions, forum and top Mstirs fighters" : "Мониторинг, версии, форум сообщества и топ бойцов Мстирс";
+            document.getElementById('main-subtitle').textContent = isEnglish ? "Monitoring, versions, community forum and global PvP Tiers" : "Мониторинг, версии, форум сообщества и глобальный PvP Tier List";
             document.getElementById('search-input').placeholder = isEnglish ? "🔍 Search server..." : "🔍 Найти сервер по названию, версии или IP...";
         }
     </script>
