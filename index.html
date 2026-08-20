@@ -245,7 +245,19 @@
         .auth-bar input {
             padding: 5px 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #c9d1d9; font-size: 12px; width: 120px;
         }
-        .auth-bar button {
+        .password-wrapper {
+            position: relative; display: inline-flex; align-items: center;
+        }
+        .password-wrapper input {
+            padding-right: 26px;
+        }
+        .toggle-password {
+            position: absolute; right: 6px; background: transparent; border: none;
+            color: #8b949e; cursor: pointer; font-size: 11px; padding: 0;
+        }
+        .toggle-password:hover { color: #c9d1d9; }
+
+        .auth-bar button.action-btn {
             background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;
         }
         .auth-bar button.btn-login-action { background: #1f6feb; }
@@ -262,17 +274,20 @@
                 <p id="main-subtitle" style="color: #8b949e; margin: 4px 0 0 0;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
             </div>
             
-            <!-- Блок входа и регистрации в шапке -->
+            <!-- Блок входа и регистрации в шапке с кнопкой видимости пароля -->
             <div class="auth-bar" id="auth-container">
-                <div id="auth-form-inputs">
+                <div id="auth-form-inputs" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                     <input type="email" id="auth-email" placeholder="Email...">
-                    <input type="password" id="auth-password" placeholder="Пароль...">
-                    <button id="login-btn" class="btn-login-action" type="button">Вход</button>
-                    <button id="signup-btn" type="button">Регистрация</button>
+                    <div class="password-wrapper">
+                        <input type="password" id="auth-password" placeholder="Пароль...">
+                        <button type="button" class="toggle-password" id="toggle-pass-btn" onclick="togglePasswordVisibility()" title="Показать/скрыть пароль">👁️</button>
+                    </div>
+                    <button id="login-btn" class="action-btn btn-login-action" type="button">Вход</button>
+                    <button id="signup-btn" class="action-btn" type="button">Регистрация</button>
                 </div>
                 <div id="auth-user-box" style="display: none;">
                     <span id="user-email-display"></span>
-                    <button id="logout-btn" type="button">Выйти</button>
+                    <button id="logout-btn" class="action-btn" type="button">Выйти</button>
                 </div>
             </div>
 
@@ -511,6 +526,21 @@ CREATE TABLE IF NOT EXISTS `net_players` (
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
     <div id="copy-toast">📋 IP скопирован в буфер обмена!</div>
 
+    <!-- Функция переключения видимости пароля -->
+    <script>
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('auth-password');
+            const toggleBtn = document.getElementById('toggle-pass-btn');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                toggleBtn.textContent = '🙈';
+            } else {
+                passInput.type = 'password';
+                toggleBtn.textContent = '👁️';
+            }
+        }
+    </script>
+
     <!-- Firebase модуль (Вход, Регистрация и Сессия) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -554,7 +584,13 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             if (!email || !password) { alert("Введите email и пароль!"); return; }
 
             signInWithEmailAndPassword(auth, email, password)
-                .catch((error) => { alert("Ошибка входа: " + error.message); });
+                .catch((error) => {
+                    if (error.code === 'auth/invalid-credential') {
+                        alert("Неверный email или пароль.");
+                    } else {
+                        alert("Ошибка входа: " + error.message);
+                    }
+                });
         });
 
         // Выход из аккаунта
@@ -568,7 +604,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
                 formInputs.style.display = 'none';
                 userBox.style.display = 'flex';
                 userDisplay.textContent = user.email;
-                // Автоматически подставим имя в форум, если открыто
                 const authorField = document.getElementById('t-author');
                 if (authorField) authorField.value = user.email.split('@')[0];
             } else {
