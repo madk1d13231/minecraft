@@ -237,19 +237,21 @@
             display: none; z-index: 20000; transition: 0.3s;
         }
 
-        /* Стили для блока регистрации в шапке */
+        /* Стили для блока авторизации/регистрации в шапке */
         .auth-bar {
             background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; border-radius: 8px;
             padding: 8px 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
         }
         .auth-bar input {
-            padding: 5px 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #c9d1d9; font-size: 12px; width: 130px;
+            padding: 5px 8px; background: #0d1117; border: 1px solid #30363d; border-radius: 4px; color: #c9d1d9; font-size: 12px; width: 120px;
         }
         .auth-bar button {
             background: #238636; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;
         }
-        .auth-bar button:hover { background: #2ea043; }
-        #auth-status { font-size: 12px; color: #58a6ff; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .auth-bar button.btn-login-action { background: #1f6feb; }
+        .auth-bar button:hover { opacity: 0.85; }
+        #auth-user-box { font-size: 12px; color: #58a6ff; display: flex; gap: 8px; align-items: center; }
+        #auth-user-box button { background: #da3633; padding: 3px 6px; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -260,12 +262,18 @@
                 <p id="main-subtitle" style="color: #8b949e; margin: 4px 0 0 0;">Мониторинг, версии, форум сообщества и топ-20 PvP бойцов</p>
             </div>
             
-            <!-- Блок быстрой регистрации прямо в панели -->
+            <!-- Блок входа и регистрации в шапке -->
             <div class="auth-bar" id="auth-container">
-                <input type="email" id="signup-email" placeholder="Email...">
-                <input type="password" id="signup-password" placeholder="Пароль...">
-                <button id="signup-btn" type="button">Регистрация</button>
-                <span id="auth-status"></span>
+                <div id="auth-form-inputs">
+                    <input type="email" id="auth-email" placeholder="Email...">
+                    <input type="password" id="auth-password" placeholder="Пароль...">
+                    <button id="login-btn" class="btn-login-action" type="button">Вход</button>
+                    <button id="signup-btn" type="button">Регистрация</button>
+                </div>
+                <div id="auth-user-box" style="display: none;">
+                    <span id="user-email-display"></span>
+                    <button id="logout-btn" type="button">Выйти</button>
+                </div>
             </div>
 
             <button class="lang-switch" onclick="toggleLanguage()">🌐 EN / RU</button>
@@ -503,11 +511,11 @@ CREATE TABLE IF NOT EXISTS `net_players` (
     <button id="admin-btn" onclick="checkAdmin()">⚙️ Админ</button>
     <div id="copy-toast">📋 IP скопирован в буфер обмена!</div>
 
-    <!-- Firebase модуль -->
+    <!-- Firebase модуль (Вход, Регистрация и Сессия) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBj98vGJ20FpaNrvh6hsaJVVSQQ3mfDswU",
@@ -523,26 +531,53 @@ CREATE TABLE IF NOT EXISTS `net_players` (
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
 
-        document.getElementById('signup-btn').addEventListener('click', () => {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const statusSpan = document.getElementById('auth-status');
+        const emailInput = document.getElementById('auth-email');
+        const passInput = document.getElementById('auth-password');
+        const formInputs = document.getElementById('auth-form-inputs');
+        const userBox = document.getElementById('auth-user-box');
+        const userDisplay = document.getElementById('user-email-display');
 
-            if (!email || !password) {
-                statusSpan.style.color = "#f85149";
-                statusSpan.textContent = "Введите email и пароль";
-                return;
-            }
+        // Регистрация
+        document.getElementById('signup-btn').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passInput.value;
+            if (!email || !password) { alert("Введите email и пароль!"); return; }
 
             createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    statusSpan.style.color = "#2ea043";
-                    statusSpan.textContent = "Успешно!";
-                })
-                .catch((error) => {
-                    statusSpan.style.color = "#f85149";
-                    statusSpan.textContent = error.code.replace('auth/', '');
-                });
+                .catch((error) => { alert("Ошибка регистрации: " + error.message); });
+        });
+
+        // Вход (Авторизация)
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passInput.value;
+            if (!email || !password) { alert("Введите email и пароль!"); return; }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .catch((error) => { alert("Ошибка входа: " + error.message); });
+        });
+
+        // Выход из аккаунта
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // Отслеживание состояния сессии пользователя
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                formInputs.style.display = 'none';
+                userBox.style.display = 'flex';
+                userDisplay.textContent = user.email;
+                // Автоматически подставим имя в форум, если открыто
+                const authorField = document.getElementById('t-author');
+                if (authorField) authorField.value = user.email.split('@')[0];
+            } else {
+                formInputs.style.display = 'flex';
+                userBox.style.display = 'none';
+                userDisplay.textContent = '';
+                emailInput.value = '';
+                passInput.value = '';
+            }
         });
     </script>
 
@@ -597,7 +632,6 @@ CREATE TABLE IF NOT EXISTS `net_players` (
             const container = document.getElementById('server-list');
             container.innerHTML = '';
             
-            // Сортировка: VIP сверху
             let sorted = [...list].sort((a, b) => (b.vip === true) - (a.vip === true));
 
             sorted.forEach(srv => {
